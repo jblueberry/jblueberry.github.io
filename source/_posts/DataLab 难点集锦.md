@@ -1,5 +1,5 @@
 ---
-title: CSAPP DATAlab 随记
+title: CSAPP Data Lab 随记
 date: 2020-10-30 16:57:11
 tags:
 - CSAPP
@@ -132,8 +132,81 @@ int isNonNegative(int x) {
 }
 ```
 
-## 
-7. satAdd 我自认为最难的一道题
+## isNotEqual
+**isNotEqual - return 0 if x == y, and 1 otherwise**
+
+```c
+int isNotEqual(int x, int y) {
+  return !!(x^y);
+}
+```
+
+## isPower2
+**isPower2 - returns 1 if x is a power of 2, and 0 otherwise**
+
+这道题不简单，但是思路已经忘记了，想起来再写。应该用了分组处理的办法
+
+```c
+int isPower2(int x) {
+  int mask = 0x11|(0x11<<8)|(0x11<<16)|(0x11<<24);
+  int y = (x&mask)+((x>>1)&mask)+((x>>2)&mask)+((x>>3)&mask);
+  int n,n2,n3;
+
+  y = y + (y>>16);
+  n = y & 0xF;
+  n2 = (y >> 4) & 0xF;
+  n3 = (y >> 8) & 0xF;
+  n = n+n2+n3+((y>>12) & 0xF);
+
+  return ((!(x>>31))&(n&1)&!(n>>1));
+}
+```
+
+## leastBitPos
+**leastBitPos - return a mask that marks the position of the least significant 1 bit. If x == 0, return 0**
+```c
+int leastBitPos(int x) {
+  return (~x+1) & x;
+}
+```
+
+## logicalShift
+**logicalShift - shift x to the right by n, using a logical shift**
+
+也没什么难度
+```c
+int logicalShift(int x, int n) {
+  unsigned int mask = (0xff)|(0xff<<8);
+  mask = mask | (mask<<16);
+  
+  return (x>>n)&(mask>>n);
+}
+```
+## satAdd 
+**satAdd - adds two numbers but when positive overflow occurs, returns maximum possible value, and when negative overflow occurs, it returns minimum positive value.**
+
+我自认为第二难的一道题
 如果产生positive overflow，x+y\<x
 如果产生negative overflow，x+y\>x
-好吧 我看错题目要求了，其实没那么难
+
+```c
+int satAdd(int x, int y) {
+  int out = x + y;
+  int mask1 = (~(x>>31))&(~(y>>31))&(out>>31); // if positive overflow, mask1 = -1, or = 0
+  int mask2 = (x>>31)&(y>>31)&(~(out>>31)); // if negative overflow, mask2 = -1, or = 0
+  int Min = 1<<31;
+  int Max = Min+(~1+1);
+  return ((~mask1)&(~mask2)&(x+y))|(mask1&Max)|(mask2&Min);
+}
+```
+
+## tc2sm
+**tc2sm - Convert from two's complement to sign-magnitude where the MSB is the sign bit**
+
+简单的
+```c
+int tc2sm(int x) {
+  int mask = x >> 31;
+  return (mask&(1<<31))|((x^mask)+(mask&1));
+}
+```

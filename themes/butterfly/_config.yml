@@ -7,15 +7,15 @@
 #   name || link || icon
 
 menu:
-  # Home: / || fas fa-home
-  # Archives: /archives/ || fas fa-archive
+  首页: / || fas fa-home
+  时间轴: /archives/ || fas fa-archive
   # Tags: /tags/ || fas fa-tags
   # Categories: /categories/ || fas fa-folder-open
   # List||fas fa-list:
   #   - Music || /music/ || fas fa-music
   #   - Movie || /movies/ || fas fa-video
   # Link: /link/ || fas fa-link
-  # About: /about/ || fas fa-heart
+  # 关于: /about/ || fas fa-heart
 
 # Hide the child menu items in mobile sidebar
 hide_sidebar_menu_child: false
@@ -23,7 +23,7 @@ hide_sidebar_menu_child: false
 # Code Blocks (代碼相關)
 # --------------------------------------
 
-highlight_theme: light #  darker / pale night / light / ocean / mac / mac light / false
+highlight_theme: mac #  darker / pale night / light / ocean / mac / mac light / false
 highlight_copy: true # copy button
 highlight_lang: true # show the code language
 highlight_shrink: false # true: shrink the code blocks / false: expand the code blocks | none: expand code blocks and hide the button
@@ -41,8 +41,8 @@ copy:
 # formal:
 #   icon: link || the description
 social:
-  # fab fa-github: https://github.com/xxxxx || Github
-  # fas fa-envelope: mailto:xxxxxx@gmail.com || Email
+  fab fa-github: https://github.com/n1ujunhui || Github
+  fas fa-envelope: mailto:niujunhui@sjtu.edu.cn || Email
 
 # search (搜索)
 # --------------------------------------
@@ -83,46 +83,46 @@ favicon: /img/favicon.png
 
 # Avatar (頭像)
 avatar:
-  img:
+  img: /img/icon.jpg
   effect: false
 
 # The banner image of home page
-index_img:
+index_img: false
 
 # If the banner of page not setting, it will show the top_img
-default_top_img:
+default_top_img: false
 
 # The banner image of archive page
-archive_img:
+archive_img: false
 
 # If the banner of tag page not setting, it will show the top_img
 # note: tag page, not tags page (子標籤頁面的 top_img)
-tag_img:
+tag_img: false
 
 # The banner image of tag page
 # format:
 #  - tag name: xxxxx
-tag_per_img:
+tag_per_img: false
 
 # If the banner of category page not setting, it will show the top_img
 # note: category page, not categories page (子分類頁面的 top_img)
-category_img:
+category_img: false
 
 # The banner image of category page
 # format:
 #  - category name: xxxxx
-category_per_img:
+category_per_img: false
 
 cover:
   # display the cover or not (是否顯示文章封面)
-  index_enable: true
-  aside_enable: true
-  archives_enable: true
+  index_enable: false
+  aside_enable: false
+  archives_enable: false
   # the position of cover in home page (封面顯示的位置)
   # left/right/both
   position: both
   # When cover is not set, the default cover is displayed (當沒有設置cover時，默認的封面顯示)
-  default_cover:
+  default_cover: false
     # - https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg
 
 # Replace Broken Images (替換無法顯示的圖片)
@@ -163,7 +163,7 @@ wordcount:
 # 3: auto_excerpt (default)
 # false: do not show the article introduction
 index_post_content:
-  method: 3
+  method: 1
   length: 500 # if you set method to 2 or 3, the length need to config
 
 # Post
@@ -595,6 +595,7 @@ subtitle:
   # 開頭不允許轉義字元，如需要，請把整個句子用雙引號包住
   # 如果關閉打字效果，subtitle只會顯示sub的第一行文字
   sub:
+    - Hello
 
 # Loading Animation (加載動畫)
 preloader: false
@@ -614,10 +615,10 @@ aside:
     button:
       icon: fab fa-github
       text: Follow Me
-      link: https://github.com/xxxxxx
+      link: https://github.com/n1ujunhui
   card_announcement:
-    enable: true
-    content: This is my Blog
+    enable: false
+    content: 朱先生的Blog
   card_recent_post:
     enable: true
     limit: 5 # if set 0 will show all
@@ -644,9 +645,9 @@ aside:
 # busuanzi count for PV / UV in site
 # 訪問人數
 busuanzi:
-  site_uv: true
-  site_pv: true
-  page_pv: true
+  site_uv: false
+  site_pv: false
+  page_pv: false
 
 # Time difference between publish date and now (網頁運行時間)
 # Formal: Month/Day/Year Time or Year/Month/Day Time
@@ -680,7 +681,7 @@ newest_comments:
 translate:
   enable: false
   # The text of a button
-  default: 繁
+  default: 简
   # the language of website (1 - Traditional Chinese/ 2 - Simplified Chinese）
   defaultEncoding: 2
   # Time delay

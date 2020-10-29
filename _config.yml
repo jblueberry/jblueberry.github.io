@@ -2,6 +2,14 @@
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
+markdown_it_plus:
+  plugins:
+    - plugin:
+      name: '@neilsustc/markdown-it-katex'
+      enable: true
+      options:
+        strict: false
+        
 # Site
 title: 朱先生
 subtitle: '挣扎中'

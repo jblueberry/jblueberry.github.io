@@ -2,6 +2,8 @@
 title: About me
 date: 2020-10-29 08:23:11
 tags:
+top_img: false
+cover: /img/cover.png
 ---
 
 Just a spec of dust.

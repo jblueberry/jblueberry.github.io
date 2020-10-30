@@ -558,7 +558,7 @@ beautify:
 # Global font settings
 # Don't modify the following settings unless you know how they work (非必要不要修改)
 font:
-  global-font-size: 18px
+  global-font-size: 17px
   code-font-size: 15px
   font-family: 'simsun'
   code-font-family:

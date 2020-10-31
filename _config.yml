@@ -112,3 +112,7 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+  
+
+aplayer:
+  asset_inject: true

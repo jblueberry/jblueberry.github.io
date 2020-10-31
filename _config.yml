@@ -115,5 +115,3 @@ deploy:
   
 aplayer:
   asset_inject: false
-  cdn: https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js
-  style_cdn: https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css

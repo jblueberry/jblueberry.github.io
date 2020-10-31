@@ -1,8 +1,9 @@
 ---
 title: About Me
 date: 2020-10-31 16:53:47
-aplayer: true
 ---
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 
 **普通人**，just a spec of dust.
 

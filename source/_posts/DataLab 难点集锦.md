@@ -5,7 +5,7 @@ tags:
 - CSAPP
 - C Programming
 top_img: false
-cover: /img/cover.png
+cover: /img/cover.jpg
 ---
 ## bang
 **bang - Compute !x without using !**

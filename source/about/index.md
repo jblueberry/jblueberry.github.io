@@ -13,4 +13,5 @@ date: 2020-10-31 16:53:47
 
 {% aplayer "Lost Stars" "From Begin Again" "/music/Lost Stars.m4a" "/img/lost stars.jpg" %}
 
-Yesterday I saw a lion kiss a deer.
+Best laid plans sometimes it's just a one night stand.
+

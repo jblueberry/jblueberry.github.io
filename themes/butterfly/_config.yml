@@ -559,7 +559,7 @@ beautify:
 # Don't modify the following settings unless you know how they work (非必要不要修改)
 font:
   global-font-size: 17px
-  code-font-size: 14px
+  code-font-size: 13px
   font-family: 'simsun'
   code-font-family:
 

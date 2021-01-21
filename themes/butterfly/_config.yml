@@ -8,7 +8,7 @@
 
 menu:
   首页: / || fas fa-home
-  时间轴: /archives/ || fas fa-archive
+  Archives: /archives/ || fas fa-archive
   Tags: /tags/ || fas fa-tags
   # 分类: /categories/ || fas fa-folder-open
   # List||fas fa-list:
@@ -43,7 +43,7 @@ copy:
 social:
   fab fa-github: https://github.com/n1ujunhui || Github
   fas fa-envelope: mailto:niujunhui@sjtu.edu.cn || Email
-
+  
 # search (搜索)
 # --------------------------------------
 

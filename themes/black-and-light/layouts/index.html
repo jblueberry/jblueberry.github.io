@@ -1,0 +1,19 @@
+{{ partial "header.html" . }}
+
+<section id=content>
+  <ul class=posts_listing>
+    {{ range .Site.RegularPages }}
+      <li>
+        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+        <div class=date>
+          {{if not .Date.IsZero }}
+            {{ .Date.Format (.Site.Params.dateform | default "January 2006") }}
+          {{end}}
+        </div>
+      </li>
+    {{ end }}
+  </ul>
+</section>
+
+{{ partial "footer.html" . }}
+

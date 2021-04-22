@@ -1,0 +1,17 @@
+baseurl = "https://zhujunhui.com/"
+title = "Mr. Zhu"
+author = "ZHU Junhui"
+canonifyurls = true
+languagecode = "en"
+theme = "black-and-light"
+
+pygmentsstyle       = "bw"
+pygmentscodefences  = true
+
+[params]
+  sitename = "Mr. Zhu"
+  disableWebFonts = false
+
+[[menu.main]]
+    name = "Github"
+    url  = "https://github.com/n1ujunhui"

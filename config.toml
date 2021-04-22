@@ -13,7 +13,7 @@ pygmentscodefences  = true
   disableWebFonts = false
 
 [[menu.main]]
-    name = "Github"
+    name = "GitHub"
     url  = "https://github.com/n1ujunhui"
 [[menu.main]]
     name = "反内卷自动分组工具"

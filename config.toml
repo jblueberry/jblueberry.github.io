@@ -15,3 +15,6 @@ pygmentscodefences  = true
 [[menu.main]]
     name = "Github"
     url  = "https://github.com/n1ujunhui"
+[[menu.main]]
+    name = "反内卷自动分组工具"
+    url = "/anti-involution/"

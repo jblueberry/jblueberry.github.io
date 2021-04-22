@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Mr. Zhu</title>
+    <link>https://zhujunhui.com/posts/</link>
+    <description>Recent content in Posts on Mr. Zhu</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 22 Apr 2021 20:20:19 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>《深入理解上海交大机动学院》</title>
+      <link>https://zhujunhui.com/posts/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B8%8A%E6%B5%B7%E4%BA%A4%E5%A4%A7%E6%9C%BA%E5%8A%A8%E5%AD%A6%E9%99%A2/</link>
+      <pubDate>Thu, 22 Apr 2021 20:20:19 +0800</pubDate>
+      
+      <guid>https://zhujunhui.com/posts/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B8%8A%E6%B5%B7%E4%BA%A4%E5%A4%A7%E6%9C%BA%E5%8A%A8%E5%AD%A6%E9%99%A2/</guid>
+      <description>新开一帖。</description>
+    </item>
+    
+  </channel>
+</rss>

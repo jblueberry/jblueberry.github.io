@@ -1,5 +1,5 @@
 ---
-title: "《深入理解上海交大机动学院》"
+title: JDASP
 date: 2021-04-22T20:20:19+08:00
 draft: true
 ---

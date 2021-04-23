@@ -2,16 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://zhujunhui.com/</loc>
-    <lastmod>2021-04-22T20:20:19+08:00</lastmod>
-  </url><url>
-    <loc>https://zhujunhui.com/posts/</loc>
-    <lastmod>2021-04-22T20:20:19+08:00</lastmod>
-  </url><url>
-    <loc>https://zhujunhui.com/posts/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B8%8A%E6%B5%B7%E4%BA%A4%E5%A4%A7%E6%9C%BA%E5%8A%A8%E5%AD%A6%E9%99%A2/</loc>
+    <loc>https://zhujunhui.com/jdasp/</loc>
     <lastmod>2021-04-22T20:20:19+08:00</lastmod>
   </url><url>
     <loc>https://zhujunhui.com/categories/</loc>
+  </url><url>
+    <loc>https://zhujunhui.com/</loc>
   </url><url>
     <loc>https://zhujunhui.com/tags/</loc>
   </url>

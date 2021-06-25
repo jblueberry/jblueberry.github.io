@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Mr. Zhu</title>
+    <title>橘子屋</title>
     <link>https://zhujunhui.com/</link>
-    <description>Recent content on Mr. Zhu</description>
+    <description>Recent content on 橘子屋</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
+    <language>en-us</language>
+    <copyright>zhu</copyright>
     <lastBuildDate>Wed, 12 May 2021 16:45:57 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About</title>
+      <link>https://zhujunhui.com/about/</link>
+      <pubDate>Sat, 26 Jun 2021 00:36:05 +0800</pubDate>
+      
+      <guid>https://zhujunhui.com/about/</guid>
+      <description>小镇做题家，正在努力摆脱做题的思维。</description>
+    </item>
+    
     <item>
       <title>CSAPP Chapter 10</title>
       <link>https://zhujunhui.com/posts/csapp-c10/</link>

@@ -1,20 +1,78 @@
 baseurl = "https://zhujunhui.com/"
-title = "Mr. Zhu"
+languagecode = "en-us"
+title = "橘子屋"
 author = "ZHU Junhui"
-canonifyurls = true
-languagecode = "en"
-theme = "black-and-light"
+# canonifyurls = true
+theme = "cactus"
 
-pygmentsstyle       = "bw"
-pygmentscodefences  = true
+copyright = "zhu"
 
-[params]
-  sitename = "Mr. Zhu"
-  disableWebFonts = false
+# pygmentsstyle       = "bw"
+# pygmentscodefences  = true
 
 [[menu.main]]
-    name = "GitHub"
-    url  = "https://github.com/n1ujunhui"
+    name = "Home"
+    url = "/"
+    weight = 1
+[[menu.main]]
+    name = "Writings"
+    url = "/posts"
+    weight = 2
+[[menu.main]]
+    name = "About"
+    url = "/about"
+    weight = 3
 [[menu.main]]
     name = "反内卷自动分组工具"
     url = "/anti-involution/"
+    weight = 4
+    
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ""
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = "monokai"
+    tabWidth = 4
+
+[params]
+  colortheme = "classic" # dark, light, white, or classic
+  rss = true # generate rss feed. default value is false
+  googleAnalyticsAsync = true # use asynchronous tracking. Synchronous tracking by default
+  font_size = "L"
+
+  # Home page settings
+  description = "A spec of dust who is trying to learning Computer Science. I hate useless involution and want to seek my own area. "
+  mainSection = "posts" # your main section
+  showAllPostsOnHomePage = false # default
+  postsOnHomePage = 10 # this option will be ignored if showAllPostsOnHomePage is set to true
+  tagsOverview = false # show tags overview by default.
+  showProjectsList = true # show projects list by default (if projects data file exists).
+  projectsUrl = "https://github.com/n1ujunhui" # title link for projects list
+
+  # https://gohugo.io/functions/format/#hugo-date-and-time-templating-reference
+  dateFormat = "2006-01-02" # default
+
+  # Post page settings
+  show_updated = false # default
+  showReadTime = false # default
+
+  [params.comments]
+    enabled = false # default
+    engine = "disqus" # more supported engines will be added.
+
+  # the value of name should be an valid font awesome icon name (brands type)
+  # https://fontawesome.com/icons?d=gallery&s=brands
+  [[params.social]]
+    name = "github"
+    link = "https://github.com/n1ujunhui"
+  [[params.social]]
+    name = "linkedin"
+    link = "https://www.linkedin.com/in/%E4%BF%8A%E8%BE%89-%E6%9C%B1-93059a181/"
+  [[params.social]]
+    name = "email"
+    link = "niujunhui@sjtu.edu.cn"  # no need for "mailto:" in the head

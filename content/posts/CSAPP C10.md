@@ -150,3 +150,32 @@ void str_echo(int sockfd) {
 ```
 
 1. 先调用 `fdopen` 创建两个标准 I/O Stream，一个用于输入一个用于输出。
+
+## Proxy lab
+
+proxy 需要往屏幕上打印日志，格式：
+
+`Date: browserIP URL size`
+
+`size` 是代理程序从连接建立到连接关闭中从服务器收到的字节数，只有被服务器响应的请求才会被记录。
+
+### 一些辅助函数
+
+1. `int getaddrinfo(const char *host, const char *service, const struct addrinfo *hints, struct addrinfo **result);`
+
+   处理**名字到地址**以及**服务到端口**这两种转换
+
+   参数：
+
+   - `hostname`：一个主机名或者一个地址串
+   - `service`：十进制端口号或者是预先定义好的服务名
+   - `hints`：一个指向 `addrinfo` 结构体的指针，包含期望返回的格式信息
+   - `result`：函数通过该指针返回一个**指向 `addrinfo` 链表的指针**
+
+   返回值：
+
+   - 成功：0
+   - 出错：非 0
+
+   
+

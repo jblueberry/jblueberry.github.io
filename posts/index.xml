@@ -15,7 +15,7 @@
       
       <guid>https://zhujunhui.com/posts/6.s081/</guid>
       <description>因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
-Syscall lab 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
+LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
 遇到的一些疑问   英语太垃，看不懂这句话：
  Add a sys_trace() function in kernel/sysproc.c that implements the new system call by remembering its argument in a new variable in the proc structure (see kernel/proc.h). The functions to retrieve system call arguments from user space are in kernel/syscall.c, and you can see examples of their use in kernel/sysproc.</description>
     </item>

@@ -36,10 +36,10 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
       <pubDate>Wed, 12 May 2021 16:45:57 +0800</pubDate>
       
       <guid>https://zhujunhui.com/posts/csapp-c10/</guid>
-      <description>RIO without buffer ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
+      <description>RIO without buffer 1ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
  被中断打断可以重新读  成功时返回 0， 遇到 EOF 时同样返回差值。
-ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
-#define RIO_BUFSIZE 8192 typedef struct { int rio_fd; int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ char *rio_bufptr;	/* 下一个未被读取的字节地址 */ char rio_buf[RIO_BUFSIZE];	/* buffer */ } rio_t; void rio_readinitb(rio_t *rp, int fd) { rp-&amp;gt;rio_fd = fd; rp-&amp;gt;rio_cnt = 0; rp-&amp;gt;rio_bufptr = rp-&amp;gt;rio_buf; }  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。</description>
+1ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
+1#define RIO_BUFSIZE 8192 2typedef struct { 3 int rio_fd; 4 int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ 5 char *rio_bufptr;	/* 下一个未被读取的字节地址 */ 6 char rio_buf[RIO_BUFSIZE];	/* buffer */ 7} rio_t; 8 9void rio_readinitb(rio_t *rp, int fd) { 10 rp-&amp;gt;rio_fd = fd; 11 rp-&amp;gt;rio_cnt = 0; 12 rp-&amp;gt;rio_bufptr = rp-&amp;gt;rio_buf; 13}  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。</description>
     </item>
     
     <item>

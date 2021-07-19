@@ -9,10 +9,10 @@
   <meta name="robots" content="all,follow">
   <meta name="googlebot" content="index,follow,snippet,archive">
   <meta property="og:title" content="CSAPP Chapter 10" />
-<meta property="og:description" content="RIO without buffer ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
+<meta property="og:description" content="RIO without buffer 1ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
  被中断打断可以重新读  成功时返回 0， 遇到 EOF 时同样返回差值。
-ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
-#define RIO_BUFSIZE 8192 typedef struct { int rio_fd; int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ char *rio_bufptr;	/* 下一个未被读取的字节地址 */ char rio_buf[RIO_BUFSIZE];	/* buffer */ } rio_t; void rio_readinitb(rio_t *rp, int fd) { rp-&gt;rio_fd = fd; rp-&gt;rio_cnt = 0; rp-&gt;rio_bufptr = rp-&gt;rio_buf; }  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。" />
+1ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
+1#define RIO_BUFSIZE 8192 2typedef struct { 3 int rio_fd; 4 int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ 5 char *rio_bufptr;	/* 下一个未被读取的字节地址 */ 6 char rio_buf[RIO_BUFSIZE];	/* buffer */ 7} rio_t; 8 9void rio_readinitb(rio_t *rp, int fd) { 10 rp-&gt;rio_fd = fd; 11 rp-&gt;rio_cnt = 0; 12 rp-&gt;rio_bufptr = rp-&gt;rio_buf; 13}  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zhujunhui.com/posts/csapp-c10/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-05-12T16:45:57&#43;08:00" />
@@ -21,10 +21,10 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新
 
   <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="CSAPP Chapter 10"/>
-<meta name="twitter:description" content="RIO without buffer ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
+<meta name="twitter:description" content="RIO without buffer 1ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别：
  被中断打断可以重新读  成功时返回 0， 遇到 EOF 时同样返回差值。
-ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
-#define RIO_BUFSIZE 8192 typedef struct { int rio_fd; int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ char *rio_bufptr;	/* 下一个未被读取的字节地址 */ char rio_buf[RIO_BUFSIZE];	/* buffer */ } rio_t; void rio_readinitb(rio_t *rp, int fd) { rp-&gt;rio_fd = fd; rp-&gt;rio_cnt = 0; rp-&gt;rio_bufptr = rp-&gt;rio_buf; }  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。"/>
+1ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新写 失败时返回 -1  RIO Input with buffer  void rio_readinitb(rio_t *rp, int fd);  将文件描述符 fd 与 读缓冲区 rp 绑定
+1#define RIO_BUFSIZE 8192 2typedef struct { 3 int rio_fd; 4 int rio_cnt;	/* 应用级缓冲中未被使用的字节数 */ 5 char *rio_bufptr;	/* 下一个未被读取的字节地址 */ 6 char rio_buf[RIO_BUFSIZE];	/* buffer */ 7} rio_t; 8 9void rio_readinitb(rio_t *rp, int fd) { 10 rp-&gt;rio_fd = fd; 11 rp-&gt;rio_cnt = 0; 12 rp-&gt;rio_bufptr = rp-&gt;rio_buf; 13}  辅助函数：static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);  对于应用程序来说，rio_read 和 Unix IO 提供的 read 的语义是一样的。"/>
 
   
   
@@ -149,7 +149,7 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fcsapp-c10%2f&name=CSAPP%20Chapter%2010&description=RIO%20without%20buffer%20ssize_t%20rio_readn%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%e5%92%8c%20Unix%20IO%20%e7%9a%84%20read%20%e5%87%bd%e6%95%b0%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%9a%0a%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e8%af%bb%20%20%e6%88%90%e5%8a%9f%e6%97%b6%e8%bf%94%e5%9b%9e%200%ef%bc%8c%20%e9%81%87%e5%88%b0%20EOF%20%e6%97%b6%e5%90%8c%e6%a0%b7%e8%bf%94%e5%9b%9e%e5%b7%ae%e5%80%bc%e3%80%82%0assize_t%20rio_writen%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e5%86%99%20%e5%a4%b1%e8%b4%a5%e6%97%b6%e8%bf%94%e5%9b%9e%20-1%20%20RIO%20Input%20with%20buffer%20%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%3b%20%20%e5%b0%86%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%20fd%20%e4%b8%8e%20%e8%af%bb%e7%bc%93%e5%86%b2%e5%8c%ba%20rp%20%e7%bb%91%e5%ae%9a%0a%23define%20RIO_BUFSIZE%208192%20typedef%20struct%20%7b%20int%20rio_fd%3b%20int%20rio_cnt%3b%09%2f%2a%20%e5%ba%94%e7%94%a8%e7%ba%a7%e7%bc%93%e5%86%b2%e4%b8%ad%e6%9c%aa%e8%a2%ab%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e8%8a%82%e6%95%b0%20%2a%2f%20char%20%2ario_bufptr%3b%09%2f%2a%20%e4%b8%8b%e4%b8%80%e4%b8%aa%e6%9c%aa%e8%a2%ab%e8%af%bb%e5%8f%96%e7%9a%84%e5%ad%97%e8%8a%82%e5%9c%b0%e5%9d%80%20%2a%2f%20char%20rio_buf%5bRIO_BUFSIZE%5d%3b%09%2f%2a%20buffer%20%2a%2f%20%7d%20rio_t%3b%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%20%7b%20rp-%26gt%3brio_fd%20%3d%20fd%3b%20rp-%26gt%3brio_cnt%20%3d%200%3b%20rp-%26gt%3brio_bufptr%20%3d%20rp-%26gt%3brio_buf%3b%20%7d%20%20%e8%be%85%e5%8a%a9%e5%87%bd%e6%95%b0%ef%bc%9astatic%20ssize_t%20rio_read%28rio_t%20%2arp%2c%20char%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e5%af%b9%e4%ba%8e%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e6%9d%a5%e8%af%b4%ef%bc%8crio_read%20%e5%92%8c%20Unix%20IO%20%e6%8f%90%e4%be%9b%e7%9a%84%20read%20%e7%9a%84%e8%af%ad%e4%b9%89%e6%98%af%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82" aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fcsapp-c10%2f&name=CSAPP%20Chapter%2010&description=RIO%20without%20buffer%201ssize_t%20rio_readn%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%e5%92%8c%20Unix%20IO%20%e7%9a%84%20read%20%e5%87%bd%e6%95%b0%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%9a%0a%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e8%af%bb%20%20%e6%88%90%e5%8a%9f%e6%97%b6%e8%bf%94%e5%9b%9e%200%ef%bc%8c%20%e9%81%87%e5%88%b0%20EOF%20%e6%97%b6%e5%90%8c%e6%a0%b7%e8%bf%94%e5%9b%9e%e5%b7%ae%e5%80%bc%e3%80%82%0a1ssize_t%20rio_writen%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e5%86%99%20%e5%a4%b1%e8%b4%a5%e6%97%b6%e8%bf%94%e5%9b%9e%20-1%20%20RIO%20Input%20with%20buffer%20%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%3b%20%20%e5%b0%86%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%20fd%20%e4%b8%8e%20%e8%af%bb%e7%bc%93%e5%86%b2%e5%8c%ba%20rp%20%e7%bb%91%e5%ae%9a%0a1%23define%20RIO_BUFSIZE%208192%202typedef%20struct%20%7b%203%20int%20rio_fd%3b%204%20int%20rio_cnt%3b%09%2f%2a%20%e5%ba%94%e7%94%a8%e7%ba%a7%e7%bc%93%e5%86%b2%e4%b8%ad%e6%9c%aa%e8%a2%ab%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e8%8a%82%e6%95%b0%20%2a%2f%205%20char%20%2ario_bufptr%3b%09%2f%2a%20%e4%b8%8b%e4%b8%80%e4%b8%aa%e6%9c%aa%e8%a2%ab%e8%af%bb%e5%8f%96%e7%9a%84%e5%ad%97%e8%8a%82%e5%9c%b0%e5%9d%80%20%2a%2f%206%20char%20rio_buf%5bRIO_BUFSIZE%5d%3b%09%2f%2a%20buffer%20%2a%2f%207%7d%20rio_t%3b%208%209void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%20%7b%2010%20rp-%26gt%3brio_fd%20%3d%20fd%3b%2011%20rp-%26gt%3brio_cnt%20%3d%200%3b%2012%20rp-%26gt%3brio_bufptr%20%3d%20rp-%26gt%3brio_buf%3b%2013%7d%20%20%e8%be%85%e5%8a%a9%e5%87%bd%e6%95%b0%ef%bc%9astatic%20ssize_t%20rio_read%28rio_t%20%2arp%2c%20char%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e5%af%b9%e4%ba%8e%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e6%9d%a5%e8%af%b4%ef%bc%8crio_read%20%e5%92%8c%20Unix%20IO%20%e6%8f%90%e4%be%9b%e7%9a%84%20read%20%e7%9a%84%e8%af%ad%e4%b9%89%e6%98%af%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82" aria-label="Tumblr">
       <i class="fab fa-tumblr " aria-hidden="true"></i>
     </a>
   </li>
@@ -201,13 +201,13 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新
   
     <div class="content" itemprop="articleBody">
       <h2 id="rio-without-buffer">RIO without buffer</h2>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">ssize_t <span style="color:#a6e22e">rio_readn</span>(<span style="color:#66d9ef">int</span> fd, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>usrbuf, size_t n);
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>ssize_t <span style="color:#900;font-weight:bold">rio_readn</span>(<span style="color:#458;font-weight:bold">int</span> fd, <span style="color:#458;font-weight:bold">void</span> <span style="color:#000;font-weight:bold">*</span>usrbuf, size_t n);
 </code></pre></div><p>和 Unix IO 的 <code>read</code> 函数的区别：</p>
 <ul>
 <li>被中断打断可以重新读</li>
 </ul>
 <p>成功时返回 0， 遇到 EOF 时同样返回差值。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">ssize_t <span style="color:#a6e22e">rio_writen</span>(<span style="color:#66d9ef">int</span> fd, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>usrbuf, size_t n);
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>ssize_t <span style="color:#900;font-weight:bold">rio_writen</span>(<span style="color:#458;font-weight:bold">int</span> fd, <span style="color:#458;font-weight:bold">void</span> <span style="color:#000;font-weight:bold">*</span>usrbuf, size_t n);
 </code></pre></div><ul>
 <li>被中断打断可以重新写</li>
 <li>失败时返回 -1</li>
@@ -217,110 +217,110 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新
 <li><code>void rio_readinitb(rio_t *rp, int fd);</code></li>
 </ul>
 <p>将文件描述符 <code>fd</code> 与 读缓冲区 <code>rp</code> 绑定</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#75715e">#define RIO_BUFSIZE 8192
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
-    <span style="color:#66d9ef">int</span> rio_fd;
-    <span style="color:#66d9ef">int</span> rio_cnt;				<span style="color:#75715e">/* 应用级缓冲中未被使用的字节数 */</span>
-    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>rio_bufptr;			<span style="color:#75715e">/* 下一个未被读取的字节地址 */</span>
-    <span style="color:#66d9ef">char</span> rio_buf[RIO_BUFSIZE];	<span style="color:#75715e">/* buffer */</span>
-} rio_t;
-
-<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rio_readinitb</span>(rio_t <span style="color:#f92672">*</span>rp, <span style="color:#66d9ef">int</span> fd) {
-    rp<span style="color:#f92672">-&gt;</span>rio_fd <span style="color:#f92672">=</span> fd;
-    rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
-    rp<span style="color:#f92672">-&gt;</span>rio_bufptr <span style="color:#f92672">=</span> rp<span style="color:#f92672">-&gt;</span>rio_buf;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#999;font-weight:bold;font-style:italic">#define RIO_BUFSIZE 8192
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#999;font-weight:bold;font-style:italic"></span><span style="color:#000;font-weight:bold">typedef</span> <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#458;font-weight:bold">int</span> rio_fd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#458;font-weight:bold">int</span> rio_cnt;				<span style="color:#998;font-style:italic">/* 应用级缓冲中未被使用的字节数 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>rio_bufptr;			<span style="color:#998;font-style:italic">/* 下一个未被读取的字节地址 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#458;font-weight:bold">char</span> rio_buf[RIO_BUFSIZE];	<span style="color:#998;font-style:italic">/* buffer */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>} rio_t;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">rio_readinitb</span>(rio_t <span style="color:#000;font-weight:bold">*</span>rp, <span style="color:#458;font-weight:bold">int</span> fd) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_fd <span style="color:#000;font-weight:bold">=</span> fd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_bufptr <span style="color:#000;font-weight:bold">=</span> rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_buf;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
 </code></pre></div><ul>
 <li>辅助函数：<code>static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n);</code></li>
 </ul>
 <p>对于应用程序来说，<code>rio_read</code> 和 Unix IO 提供的 <code>read</code> 的语义是一样的。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#66d9ef">static</span> ssize_t <span style="color:#a6e22e">rio_read</span>(rio_t <span style="color:#f92672">*</span>rp, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>usrbuf, size_t n) {
-    
-    <span style="color:#66d9ef">int</span> cnt;
-    <span style="color:#66d9ef">while</span> (rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span>) {
-        rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">=</span> read(rp<span style="color:#f92672">-&gt;</span>rio_fd, rp<span style="color:#f92672">-&gt;</span>rio_buf, <span style="color:#66d9ef">sizeof</span>(rp<span style="color:#f92672">-&gt;</span>rio_buf));
-        
-        <span style="color:#66d9ef">if</span>(rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) {
-            <span style="color:#66d9ef">if</span> (errno <span style="color:#f92672">!=</span> EINTR)
-                <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>; <span style="color:#75715e">/* 被除了 sig handler 以外的中断打断，说明出错了 */</span>
-        }
-        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>)
-            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">/* 读到 EOF 了，结束 */</span>
-        <span style="color:#66d9ef">else</span>
-            rp<span style="color:#f92672">-&gt;</span>rio_bufptr <span style="color:#f92672">=</span> rp<span style="color:#f92672">-&gt;</span>rio_buf;
-        <span style="color:#75715e">/* 这里隐含了一件事情，当 rp-&gt;rio_cnt&lt;0 且 errno = EINTR 时，会重新读 */</span>
-    }
-    
-    <span style="color:#75715e">/* 将 min(n, rp-&gt;rio_cnt) 数量的字节拷贝到 usrbuf */</span>
-    <span style="color:#75715e">/* 返回 min(n, rp-&gt;rio_cnt) */</span>
-    <span style="color:#75715e">/* 当所需要读取的字节数超过了缓冲区内空闲的字节数量，返回剩下的数量 */</span>
-    
-    cnt <span style="color:#f92672">=</span> n;
-    <span style="color:#66d9ef">if</span> (rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">&lt;</span> n)
-        cnt <span style="color:#f92672">=</span> rp<span style="color:#f92672">-&gt;</span>rio_cnt;
-    memcpy(usrbuf, rp<span style="color:#f92672">-&gt;</span>rio_bufptr, cnt);
-    rp<span style="color:#f92672">-&gt;</span>rio_bufptr <span style="color:#f92672">+=</span> cnt;
-    rp<span style="color:#f92672">-&gt;</span>rio_cnt <span style="color:#f92672">-=</span>cnt;
-    <span style="color:#66d9ef">return</span> cnt;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">static</span> ssize_t <span style="color:#900;font-weight:bold">rio_read</span>(rio_t <span style="color:#000;font-weight:bold">*</span>rp, <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>usrbuf, size_t n) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#458;font-weight:bold">int</span> cnt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#000;font-weight:bold">while</span> (rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">&lt;=</span> <span style="color:#099">0</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">=</span> read(rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_fd, rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_buf, <span style="color:#000;font-weight:bold">sizeof</span>(rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_buf));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#000;font-weight:bold">if</span>(rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">0</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>            <span style="color:#000;font-weight:bold">if</span> (errno <span style="color:#000;font-weight:bold">!=</span> EINTR)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>                <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>; <span style="color:#998;font-style:italic">/* 被除了 sig handler 以外的中断打断，说明出错了 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>        }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> (rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>            <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>; <span style="color:#998;font-style:italic">/* 读到 EOF 了，结束 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>        <span style="color:#000;font-weight:bold">else</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>            rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_bufptr <span style="color:#000;font-weight:bold">=</span> rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_buf;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        <span style="color:#998;font-style:italic">/* 这里隐含了一件事情，当 rp-&gt;rio_cnt&lt;0 且 errno = EINTR 时，会重新读 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    <span style="color:#998;font-style:italic">/* 将 min(n, rp-&gt;rio_cnt) 数量的字节拷贝到 usrbuf */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#998;font-style:italic">/* 返回 min(n, rp-&gt;rio_cnt) */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    <span style="color:#998;font-style:italic">/* 当所需要读取的字节数超过了缓冲区内空闲的字节数量，返回剩下的数量 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    cnt <span style="color:#000;font-weight:bold">=</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>    <span style="color:#000;font-weight:bold">if</span> (rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">&lt;</span> n)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>        cnt <span style="color:#000;font-weight:bold">=</span> rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>    memcpy(usrbuf, rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_bufptr, cnt);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_bufptr <span style="color:#000;font-weight:bold">+=</span> cnt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>    rp<span style="color:#000;font-weight:bold">-&gt;</span>rio_cnt <span style="color:#000;font-weight:bold">-=</span>cnt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>    <span style="color:#000;font-weight:bold">return</span> cnt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>}
 </code></pre></div><ul>
 <li>读取一行：<code>ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);</code></li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">ssize_t <span style="color:#a6e22e">rio_readlineb</span>(rio_t <span style="color:#f92672">*</span>rp, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>usrbuf, size_t maxlen) {
-    
-    <span style="color:#75715e">/* 至多读取 maxlen-1 个字符，因为有字符串结束符 */</span>
-    <span style="color:#66d9ef">int</span> n, rc;
-    <span style="color:#66d9ef">char</span> c, <span style="color:#f92672">*</span>bufp <span style="color:#f92672">=</span> usrbuf;
-    
-    <span style="color:#66d9ef">for</span> (n <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; n <span style="color:#f92672">&lt;</span> maxlen; n<span style="color:#f92672">++</span>) {
-        <span style="color:#66d9ef">if</span> ((rc <span style="color:#f92672">=</span> rio_read(rp, <span style="color:#f92672">&amp;</span>c, <span style="color:#ae81ff">1</span>)) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>) {
-            <span style="color:#f92672">*</span>bufp<span style="color:#f92672">++</span> <span style="color:#f92672">=</span> c;
-            <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;\n&#39;</span>) {
-                n<span style="color:#f92672">++</span>;
-                <span style="color:#66d9ef">break</span>;
-            }
-        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (rc <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) {
-            <span style="color:#66d9ef">if</span> (n <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>)
-                <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-            <span style="color:#66d9ef">else</span>
-                <span style="color:#66d9ef">break</span>;
-        } <span style="color:#66d9ef">else</span>
-            <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-    }
-    <span style="color:#f92672">*</span>bufp <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
-    <span style="color:#66d9ef">return</span> n<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>ssize_t <span style="color:#900;font-weight:bold">rio_readlineb</span>(rio_t <span style="color:#000;font-weight:bold">*</span>rp, <span style="color:#458;font-weight:bold">void</span> <span style="color:#000;font-weight:bold">*</span>usrbuf, size_t maxlen) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">/* 至多读取 maxlen-1 个字符，因为有字符串结束符 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#458;font-weight:bold">int</span> n, rc;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#458;font-weight:bold">char</span> c, <span style="color:#000;font-weight:bold">*</span>bufp <span style="color:#000;font-weight:bold">=</span> usrbuf;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">for</span> (n <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>; n <span style="color:#000;font-weight:bold">&lt;</span> maxlen; n<span style="color:#000;font-weight:bold">++</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        <span style="color:#000;font-weight:bold">if</span> ((rc <span style="color:#000;font-weight:bold">=</span> rio_read(rp, <span style="color:#000;font-weight:bold">&amp;</span>c, <span style="color:#099">1</span>)) <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">1</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>            <span style="color:#000;font-weight:bold">*</span>bufp<span style="color:#000;font-weight:bold">++</span> <span style="color:#000;font-weight:bold">=</span> c;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>            <span style="color:#000;font-weight:bold">if</span> (c <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#39;\n&#39;</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>                n<span style="color:#000;font-weight:bold">++</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>                <span style="color:#000;font-weight:bold">break</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>            }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        } <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> (rc <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>            <span style="color:#000;font-weight:bold">if</span> (n <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>                <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>            <span style="color:#000;font-weight:bold">else</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>                <span style="color:#000;font-weight:bold">break</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>        } <span style="color:#000;font-weight:bold">else</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    <span style="color:#000;font-weight:bold">*</span>bufp <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>    <span style="color:#000;font-weight:bold">return</span> n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>}
 </code></pre></div><ul>
 <li>读取 <code>n</code> 个字符：<code>ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n);</code></li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C">ssize_t <span style="color:#a6e22e">rio_readnb</span>(rio_t <span style="color:#f92672">*</span>rp, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>usrbuf, size_t n) {
-    size_t nleft <span style="color:#f92672">=</span> n;
-    ssize_t nread;
-    <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>bufp <span style="color:#f92672">=</span> usrbuf;
-    <span style="color:#66d9ef">while</span>(nleft <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) {
-        <span style="color:#66d9ef">if</span>(nread <span style="color:#f92672">=</span> rio_read(rp, usrbuf, nleft) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>)
-            <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>; <span style="color:#75715e">/* 出错 */</span>
-        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (nread <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>)
-            <span style="color:#66d9ef">break</span>;
-        nleft <span style="color:#f92672">-=</span> nread;
-        bufp <span style="color:#f92672">+=</span> nread;
-    }
-    <span style="color:#66d9ef">return</span> n<span style="color:#f92672">-</span>nleft;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>ssize_t <span style="color:#900;font-weight:bold">rio_readnb</span>(rio_t <span style="color:#000;font-weight:bold">*</span>rp, <span style="color:#458;font-weight:bold">void</span> <span style="color:#000;font-weight:bold">*</span>usrbuf, size_t n) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    size_t nleft <span style="color:#000;font-weight:bold">=</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    ssize_t nread;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>bufp <span style="color:#000;font-weight:bold">=</span> usrbuf;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#000;font-weight:bold">while</span>(nleft <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        <span style="color:#000;font-weight:bold">if</span>(nread <span style="color:#000;font-weight:bold">=</span> rio_read(rp, usrbuf, nleft) <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>            <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>; <span style="color:#998;font-style:italic">/* 出错 */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> (nread <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>            <span style="color:#000;font-weight:bold">break</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>        nleft <span style="color:#000;font-weight:bold">-=</span> nread;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        bufp <span style="color:#000;font-weight:bold">+=</span> nread;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">return</span> n<span style="color:#000;font-weight:bold">-</span>nleft;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
 </code></pre></div><p><strong>带缓冲的函数可以任意交叉运行，线程安全，但不可以和无缓冲的 <code>rio_readn</code> 交叉使用</strong>。因为部分数据还存留在应用层的缓冲区内。</p>
 <h2 id="为什么网络编程不要用标准-io">为什么网络编程不要用标准 I/O？</h2>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;unp.h&#34;</span><span style="color:#75715e">
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">str_echo</span>(<span style="color:#66d9ef">int</span> sockfd) {
-    <span style="color:#66d9ef">char</span> line[MAXLINE];
-    FILE <span style="color:#f92672">*</span>fpin, <span style="color:#f92672">*</span>fpout;
-    
-    fpin <span style="color:#f92672">=</span> Fdopen(sockfd, <span style="color:#e6db74">&#34;r&#34;</span>);
-    fpout <span style="color:#f92672">=</span> Fdopen(sockfd, <span style="color:#e6db74">&#34;w&#34;</span>);
-    
-    <span style="color:#66d9ef">while</span> (Fgets(line, MAXLINE, fpin) <span style="color:#f92672">!=</span> NULL)
-        Fputs(lines, fpout);
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#999;font-weight:bold;font-style:italic">#include</span> <span style="color:#999;font-weight:bold;font-style:italic">&#34;unp.h&#34;</span><span style="color:#999;font-weight:bold;font-style:italic">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#999;font-weight:bold;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">str_echo</span>(<span style="color:#458;font-weight:bold">int</span> sockfd) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#458;font-weight:bold">char</span> line[MAXLINE];
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    FILE <span style="color:#000;font-weight:bold">*</span>fpin, <span style="color:#000;font-weight:bold">*</span>fpout;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    fpin <span style="color:#000;font-weight:bold">=</span> Fdopen(sockfd, <span style="color:#d14">&#34;r&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    fpout <span style="color:#000;font-weight:bold">=</span> Fdopen(sockfd, <span style="color:#d14">&#34;w&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    <span style="color:#000;font-weight:bold">while</span> (Fgets(line, MAXLINE, fpin) <span style="color:#000;font-weight:bold">!=</span> <span style="color:#0086b3">NULL</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        Fputs(lines, fpout);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
 </code></pre></div><ol>
 <li>先调用 <code>fdopen</code> 创建两个标准 I/O Stream，一个用于输入一个用于输出。</li>
 </ol>
@@ -434,7 +434,7 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n);  被中断打断可以重新
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fcsapp-c10%2f&name=CSAPP%20Chapter%2010&description=RIO%20without%20buffer%20ssize_t%20rio_readn%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%e5%92%8c%20Unix%20IO%20%e7%9a%84%20read%20%e5%87%bd%e6%95%b0%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%9a%0a%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e8%af%bb%20%20%e6%88%90%e5%8a%9f%e6%97%b6%e8%bf%94%e5%9b%9e%200%ef%bc%8c%20%e9%81%87%e5%88%b0%20EOF%20%e6%97%b6%e5%90%8c%e6%a0%b7%e8%bf%94%e5%9b%9e%e5%b7%ae%e5%80%bc%e3%80%82%0assize_t%20rio_writen%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e5%86%99%20%e5%a4%b1%e8%b4%a5%e6%97%b6%e8%bf%94%e5%9b%9e%20-1%20%20RIO%20Input%20with%20buffer%20%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%3b%20%20%e5%b0%86%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%20fd%20%e4%b8%8e%20%e8%af%bb%e7%bc%93%e5%86%b2%e5%8c%ba%20rp%20%e7%bb%91%e5%ae%9a%0a%23define%20RIO_BUFSIZE%208192%20typedef%20struct%20%7b%20int%20rio_fd%3b%20int%20rio_cnt%3b%09%2f%2a%20%e5%ba%94%e7%94%a8%e7%ba%a7%e7%bc%93%e5%86%b2%e4%b8%ad%e6%9c%aa%e8%a2%ab%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e8%8a%82%e6%95%b0%20%2a%2f%20char%20%2ario_bufptr%3b%09%2f%2a%20%e4%b8%8b%e4%b8%80%e4%b8%aa%e6%9c%aa%e8%a2%ab%e8%af%bb%e5%8f%96%e7%9a%84%e5%ad%97%e8%8a%82%e5%9c%b0%e5%9d%80%20%2a%2f%20char%20rio_buf%5bRIO_BUFSIZE%5d%3b%09%2f%2a%20buffer%20%2a%2f%20%7d%20rio_t%3b%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%20%7b%20rp-%26gt%3brio_fd%20%3d%20fd%3b%20rp-%26gt%3brio_cnt%20%3d%200%3b%20rp-%26gt%3brio_bufptr%20%3d%20rp-%26gt%3brio_buf%3b%20%7d%20%20%e8%be%85%e5%8a%a9%e5%87%bd%e6%95%b0%ef%bc%9astatic%20ssize_t%20rio_read%28rio_t%20%2arp%2c%20char%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e5%af%b9%e4%ba%8e%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e6%9d%a5%e8%af%b4%ef%bc%8crio_read%20%e5%92%8c%20Unix%20IO%20%e6%8f%90%e4%be%9b%e7%9a%84%20read%20%e7%9a%84%e8%af%ad%e4%b9%89%e6%98%af%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82" aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fcsapp-c10%2f&name=CSAPP%20Chapter%2010&description=RIO%20without%20buffer%201ssize_t%20rio_readn%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%e5%92%8c%20Unix%20IO%20%e7%9a%84%20read%20%e5%87%bd%e6%95%b0%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%9a%0a%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e8%af%bb%20%20%e6%88%90%e5%8a%9f%e6%97%b6%e8%bf%94%e5%9b%9e%200%ef%bc%8c%20%e9%81%87%e5%88%b0%20EOF%20%e6%97%b6%e5%90%8c%e6%a0%b7%e8%bf%94%e5%9b%9e%e5%b7%ae%e5%80%bc%e3%80%82%0a1ssize_t%20rio_writen%28int%20fd%2c%20void%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e8%a2%ab%e4%b8%ad%e6%96%ad%e6%89%93%e6%96%ad%e5%8f%af%e4%bb%a5%e9%87%8d%e6%96%b0%e5%86%99%20%e5%a4%b1%e8%b4%a5%e6%97%b6%e8%bf%94%e5%9b%9e%20-1%20%20RIO%20Input%20with%20buffer%20%20void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%3b%20%20%e5%b0%86%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%20fd%20%e4%b8%8e%20%e8%af%bb%e7%bc%93%e5%86%b2%e5%8c%ba%20rp%20%e7%bb%91%e5%ae%9a%0a1%23define%20RIO_BUFSIZE%208192%202typedef%20struct%20%7b%203%20int%20rio_fd%3b%204%20int%20rio_cnt%3b%09%2f%2a%20%e5%ba%94%e7%94%a8%e7%ba%a7%e7%bc%93%e5%86%b2%e4%b8%ad%e6%9c%aa%e8%a2%ab%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e8%8a%82%e6%95%b0%20%2a%2f%205%20char%20%2ario_bufptr%3b%09%2f%2a%20%e4%b8%8b%e4%b8%80%e4%b8%aa%e6%9c%aa%e8%a2%ab%e8%af%bb%e5%8f%96%e7%9a%84%e5%ad%97%e8%8a%82%e5%9c%b0%e5%9d%80%20%2a%2f%206%20char%20rio_buf%5bRIO_BUFSIZE%5d%3b%09%2f%2a%20buffer%20%2a%2f%207%7d%20rio_t%3b%208%209void%20rio_readinitb%28rio_t%20%2arp%2c%20int%20fd%29%20%7b%2010%20rp-%26gt%3brio_fd%20%3d%20fd%3b%2011%20rp-%26gt%3brio_cnt%20%3d%200%3b%2012%20rp-%26gt%3brio_bufptr%20%3d%20rp-%26gt%3brio_buf%3b%2013%7d%20%20%e8%be%85%e5%8a%a9%e5%87%bd%e6%95%b0%ef%bc%9astatic%20ssize_t%20rio_read%28rio_t%20%2arp%2c%20char%20%2ausrbuf%2c%20size_t%20n%29%3b%20%20%e5%af%b9%e4%ba%8e%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e6%9d%a5%e8%af%b4%ef%bc%8crio_read%20%e5%92%8c%20Unix%20IO%20%e6%8f%90%e4%be%9b%e7%9a%84%20read%20%e7%9a%84%e8%af%ad%e4%b9%89%e6%98%af%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82" aria-label="Tumblr">
       <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
     </a>
   </li>

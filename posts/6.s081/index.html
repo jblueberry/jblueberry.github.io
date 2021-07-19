@@ -165,6 +165,11 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
         <li><a href="#sysinfo-system-call">Sysinfo system call</a></li>
       </ul>
     </li>
+    <li><a href="#lec-3">LEC 3</a>
+      <ul>
+        <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>
@@ -208,84 +213,84 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
 </ul>
 <p>龙鸣翻译：要加一个新的函数，这个函数通过在 <code>proc</code> 结构中增加的一个新的变量来实现系统调用，从用户空间拿到系统调用参数的函数在 <code>syscall.c</code> 中。确实没怎么看懂，那就先看看代码。</p>
 <p>一个很关键的汇编文件：<code>usys.S</code></p>
-<pre><code class="language-assembly" data-lang="assembly">sleep:
- li a7, SYS_sleep
- ecall
- ret
-.global uptime
-uptime:
- li a7, SYS_uptime
- ecall
- ret
-.global trace
-trace:
- li a7, SYS_trace
- ecall
- ret
-</code></pre><p>这个文件可以看到调用 system call 的一些指令，其中 <code>a7</code> 是 RISC-V 的一个寄存器，再看 <code>kernel/syscall.c</code> 当中的一个关键的函数：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">void</span>
-<span style="color:#a6e22e">syscall</span>(<span style="color:#66d9ef">void</span>)
-{
-  <span style="color:#66d9ef">int</span> num;
-  <span style="color:#66d9ef">struct</span> proc <span style="color:#f92672">*</span>p <span style="color:#f92672">=</span> myproc();
-
-  num <span style="color:#f92672">=</span> p<span style="color:#f92672">-&gt;</span>trapframe<span style="color:#f92672">-&gt;</span>a7;
-  <span style="color:#66d9ef">if</span>(num <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> num <span style="color:#f92672">&lt;</span> NELEM(syscalls) <span style="color:#f92672">&amp;&amp;</span> syscalls[num]) {
-    p<span style="color:#f92672">-&gt;</span>trapframe<span style="color:#f92672">-&gt;</span>a0 <span style="color:#f92672">=</span> syscalls[num]();
-  } <span style="color:#66d9ef">else</span> {
-    printf(<span style="color:#e6db74">&#34;%d %s: unknown sys call %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,
-            p<span style="color:#f92672">-&gt;</span>pid, p<span style="color:#f92672">-&gt;</span>name, num);
-    p<span style="color:#f92672">-&gt;</span>trapframe<span style="color:#f92672">-&gt;</span>a0 <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-  }
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>sleep:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span> li a7, SYS_sleep
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span> ecall
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span> ret
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>.global uptime
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>uptime:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span> li a7, SYS_uptime
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span> ecall
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span> ret
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>.global trace
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>trace:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span> li a7, SYS_trace
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span> ecall
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span> ret
+</code></pre></div><p>这个文件可以看到调用 system call 的一些指令，其中 <code>a7</code> 是 RISC-V 的一个寄存器，再看 <code>kernel/syscall.c</code> 当中的一个关键的函数：</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#458;font-weight:bold">void</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">syscall</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  <span style="color:#458;font-weight:bold">int</span> num;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  <span style="color:#000;font-weight:bold">struct</span> proc <span style="color:#000;font-weight:bold">*</span>p <span style="color:#000;font-weight:bold">=</span> myproc();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>  num <span style="color:#000;font-weight:bold">=</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a7;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  <span style="color:#000;font-weight:bold">if</span>(num <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> num <span style="color:#000;font-weight:bold">&lt;</span> NELEM(syscalls) <span style="color:#000;font-weight:bold">&amp;&amp;</span> syscalls[num]) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a0 <span style="color:#000;font-weight:bold">=</span> syscalls[num]();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  } <span style="color:#000;font-weight:bold">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    printf(<span style="color:#d14">&#34;%d %s: unknown sys call %d</span><span style="color:#d14">\n</span><span style="color:#d14">&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>            p<span style="color:#000;font-weight:bold">-&gt;</span>pid, p<span style="color:#000;font-weight:bold">-&gt;</span>name, num);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a0 <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
 </code></pre></div><p>这个函数应该就是用户态和系统调用的接口，首先获取当前进程的 <code>a7</code> 寄存器，如果这个寄存器中的系统调用号存在（也就是 <code>num &gt; 0 &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num] </code>语句为真），那就调用它并返回（把 <code>a0</code> 寄存器设置为返回值），否则就返回 <code>-1</code> 。</p>
 <p>递归学习：看不太懂下面这个函数指针数组到底是什么玩意：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> <span style="color:#a6e22e">uint64</span> (<span style="color:#f92672">*</span>syscalls[])(<span style="color:#66d9ef">void</span>) <span style="color:#f92672">=</span> {
-[SYS_fork]    sys_fork,
-[SYS_exit]    sys_exit,
-[SYS_wait]    sys_wait,
-[SYS_pipe]    sys_pipe,
-[SYS_read]    sys_read,
-[SYS_kill]    sys_kill,
-[SYS_exec]    sys_exec,
-[SYS_fstat]   sys_fstat,
-[SYS_chdir]   sys_chdir,
-[SYS_dup]     sys_dup,
-[SYS_getpid]  sys_getpid,
-[SYS_sbrk]    sys_sbrk,
-[SYS_sleep]   sys_sleep,
-[SYS_uptime]  sys_uptime,
-[SYS_open]    sys_open,
-[SYS_write]   sys_write,
-[SYS_mknod]   sys_mknod,
-[SYS_unlink]  sys_unlink,
-[SYS_link]    sys_link,
-[SYS_mkdir]   sys_mkdir,
-[SYS_close]   sys_close,
-};
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">static</span> <span style="color:#900;font-weight:bold">uint64</span> (<span style="color:#000;font-weight:bold">*</span>syscalls[])(<span style="color:#458;font-weight:bold">void</span>) <span style="color:#000;font-weight:bold">=</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>[SYS_fork]    sys_fork,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>[SYS_exit]    sys_exit,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>[SYS_wait]    sys_wait,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>[SYS_pipe]    sys_pipe,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>[SYS_read]    sys_read,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>[SYS_kill]    sys_kill,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>[SYS_exec]    sys_exec,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>[SYS_fstat]   sys_fstat,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>[SYS_chdir]   sys_chdir,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>[SYS_dup]     sys_dup,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>[SYS_getpid]  sys_getpid,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>[SYS_sbrk]    sys_sbrk,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>[SYS_sleep]   sys_sleep,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>[SYS_uptime]  sys_uptime,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>[SYS_open]    sys_open,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>[SYS_write]   sys_write,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>[SYS_mknod]   sys_mknod,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>[SYS_unlink]  sys_unlink,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>[SYS_link]    sys_link,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>[SYS_mkdir]   sys_mkdir,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>[SYS_close]   sys_close,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>};
 </code></pre></div><p>其实就是看不懂 <code>uint64 (*syscalls[])(void)</code> 的意思，参考之前知乎上看到的一个回答，把这个东西翻译成英文：
 an array of pointers to a function that returns uint64，也就是一个函数指针的数组，这个初始化的方式也确实给我整麻了，但无所谓看懂了就行，不纠结语法。</p>
 <p>其实还有一个终极问题：当调用系统调用的时候，真正的流程到底是什么？很遗憾这可能需要用 gdb 目力调试才能知道，但其实在不知道这个事情的流程下也能够完成这个实验，只需要观察一下 <code>sys_exit</code> 的代码：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">uint64
-<span style="color:#a6e22e">sys_exit</span>(<span style="color:#66d9ef">void</span>)
-{
-  <span style="color:#66d9ef">int</span> n;
-  <span style="color:#66d9ef">if</span>(argint(<span style="color:#ae81ff">0</span>, <span style="color:#f92672">&amp;</span>n) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>)
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-  exit(n);
-  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;  <span style="color:#75715e">// not reached
-</span><span style="color:#75715e"></span>}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>uint64
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#900;font-weight:bold">sys_exit</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#458;font-weight:bold">int</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>  <span style="color:#000;font-weight:bold">if</span>(argint(<span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">&amp;</span>n) <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>  exit(n);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;  <span style="color:#998;font-style:italic">// not reached
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>它调用了 <code>argint(0, &amp;n)</code> 来获取了进程退出时的状态号，再看到 <code>syscall.c</code> 中对于 <code>argint</code> 函数的注释：<code>// Fetch the nth 32-bit system call argument.</code> 就可以知道这个函数就是用来获取系统调用的参数的，那直接先拿来用就好了（拿来主义）。</p>
 <p>最终增加的关键代码如下：（还有一些杂七杂八的东西要加，比如系统调用的打印）</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">uint64
-<span style="color:#a6e22e">sys_trace</span>(<span style="color:#66d9ef">void</span>)
-{
-  uint mask;
-  <span style="color:#66d9ef">if</span>(argint(<span style="color:#ae81ff">0</span>, (<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>mask) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>)
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-  myproc()<span style="color:#f92672">-&gt;</span>trace_mask <span style="color:#f92672">=</span> mask;
-  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>uint64
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#900;font-weight:bold">sys_trace</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  uint mask;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>  <span style="color:#000;font-weight:bold">if</span>(argint(<span style="color:#099">0</span>, (<span style="color:#458;font-weight:bold">int</span> <span style="color:#000;font-weight:bold">*</span>)<span style="color:#000;font-weight:bold">&amp;</span>mask) <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>  myproc()<span style="color:#000;font-weight:bold">-&gt;</span>trace_mask <span style="color:#000;font-weight:bold">=</span> mask;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
 </code></pre></div><h3 id="risc-v-系统调用的一些规则摘录">RISC-V 系统调用的一些规则摘录</h3>
 <ul>
 <li>syscall number is passed in <code>a7</code></li>
@@ -295,51 +300,78 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 </ul>
 <h3 id="sysinfo-system-call">Sysinfo system call</h3>
 <p>差不多和前面的 system call 一样，需要把一些信息拷贝到 user 空间，要用到 <code>copyout()</code> 函数。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// Copy from kernel to user.
-</span><span style="color:#75715e">// Copy len bytes from src to virtual address dstva in a given page table.
-</span><span style="color:#75715e">// Return 0 on success, -1 on error.
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span>
-<span style="color:#a6e22e">copyout</span>(pagetable_t pagetable, uint64 dstva, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>src, uint64 len)
-{
-  uint64 n, va0, pa0;
-
-  <span style="color:#66d9ef">while</span>(len <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>){
-    va0 <span style="color:#f92672">=</span> PGROUNDDOWN(dstva);
-    pa0 <span style="color:#f92672">=</span> walkaddr(pagetable, va0);
-    <span style="color:#66d9ef">if</span>(pa0 <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>)
-      <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-    n <span style="color:#f92672">=</span> PGSIZE <span style="color:#f92672">-</span> (dstva <span style="color:#f92672">-</span> va0);
-    <span style="color:#66d9ef">if</span>(n <span style="color:#f92672">&gt;</span> len)
-      n <span style="color:#f92672">=</span> len;
-    memmove((<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>)(pa0 <span style="color:#f92672">+</span> (dstva <span style="color:#f92672">-</span> va0)), src, n);
-
-    len <span style="color:#f92672">-=</span> n;
-    src <span style="color:#f92672">+=</span> n;
-    dstva <span style="color:#f92672">=</span> va0 <span style="color:#f92672">+</span> PGSIZE;
-  }
-  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// Copy from kernel to user.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic">// Copy len bytes from src to virtual address dstva in a given page table.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic">// Return 0 on success, -1 on error.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span><span style="color:#458;font-weight:bold">int</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#900;font-weight:bold">copyout</span>(pagetable_t pagetable, uint64 dstva, <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>src, uint64 len)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>  uint64 n, va0, pa0;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  <span style="color:#000;font-weight:bold">while</span>(len <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span>){
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    va0 <span style="color:#000;font-weight:bold">=</span> PGROUNDDOWN(dstva);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    pa0 <span style="color:#000;font-weight:bold">=</span> walkaddr(pagetable, va0);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#000;font-weight:bold">if</span>(pa0 <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>      <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    n <span style="color:#000;font-weight:bold">=</span> PGSIZE <span style="color:#000;font-weight:bold">-</span> (dstva <span style="color:#000;font-weight:bold">-</span> va0);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#000;font-weight:bold">if</span>(n <span style="color:#000;font-weight:bold">&gt;</span> len)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>      n <span style="color:#000;font-weight:bold">=</span> len;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    memmove((<span style="color:#458;font-weight:bold">void</span> <span style="color:#000;font-weight:bold">*</span>)(pa0 <span style="color:#000;font-weight:bold">+</span> (dstva <span style="color:#000;font-weight:bold">-</span> va0)), src, n);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    len <span style="color:#000;font-weight:bold">-=</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    src <span style="color:#000;font-weight:bold">+=</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    dstva <span style="color:#000;font-weight:bold">=</span> va0 <span style="color:#000;font-weight:bold">+</span> PGSIZE;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>  }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>}
 </code></pre></div><p>其实也很简单，直接拿到当前进程的 pagetable，然后虚拟地址其实就是第一个参数，其他的直接传进去用就好了。</p>
 <p>至于活跃进程数量和空闲内存数：</p>
 <ul>
 <li>xv6 中的进程比较简单，是一个固定的数组（64个）。遍历一遍，剔除 <code>UNUSED</code> 的数量就好了；</li>
 <li>先获取空闲的页数，然后乘以 4K 就可以得到空闲字节数。</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">uint64
-<span style="color:#a6e22e">sys_sysinfo</span>(<span style="color:#66d9ef">void</span>)
-{
-  <span style="color:#75715e">// printf(&#34;hello\n&#34;);
-</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">struct</span> sysinfo info;
-  uint64 user_addr;
-  <span style="color:#66d9ef">struct</span> proc <span style="color:#f92672">*</span>p <span style="color:#f92672">=</span> myproc();
-  <span style="color:#66d9ef">if</span>(argaddr(<span style="color:#ae81ff">0</span>, <span style="color:#f92672">&amp;</span>user_addr) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>)
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-  info.freemem <span style="color:#f92672">=</span> free_memory_number();
-  info.nproc <span style="color:#f92672">=</span> process_number();
-  <span style="color:#66d9ef">if</span>(copyout(p<span style="color:#f92672">-&gt;</span>pagetable, user_addr, (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>info, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">struct</span> sysinfo))<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">0</span>)
-    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
-  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-}
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>uint64
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">sys_sysinfo</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  <span style="color:#998;font-style:italic">// printf(&#34;hello\n&#34;);
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>  <span style="color:#000;font-weight:bold">struct</span> sysinfo info;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  uint64 user_addr;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>  <span style="color:#000;font-weight:bold">struct</span> proc <span style="color:#000;font-weight:bold">*</span>p <span style="color:#000;font-weight:bold">=</span> myproc();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  <span style="color:#000;font-weight:bold">if</span>(argaddr(<span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">&amp;</span>user_addr) <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  info.freemem <span style="color:#000;font-weight:bold">=</span> free_memory_number();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>  info.nproc <span style="color:#000;font-weight:bold">=</span> process_number();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>  <span style="color:#000;font-weight:bold">if</span>(copyout(p<span style="color:#000;font-weight:bold">-&gt;</span>pagetable, user_addr, (<span style="color:#458;font-weight:bold">char</span><span style="color:#000;font-weight:bold">*</span>)<span style="color:#000;font-weight:bold">&amp;</span>info, <span style="color:#000;font-weight:bold">sizeof</span>(<span style="color:#000;font-weight:bold">struct</span> sysinfo))<span style="color:#000;font-weight:bold">&lt;</span><span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
+</code></pre></div><h2 id="lec-3">LEC 3</h2>
+<h3 id="每个进程的-kernel-page-table">每个进程的 kernel page table</h3>
+<p>说实话，做到这一步的时候，我很莫名其妙为什么要去修改内核的这个机制，也就是「内核拥有一个自己的页表」机制。</p>
+<p>读了一下 xv6 的 rec-book，这个 lab 的意思大致就是因为 xv6 的内核采用的是 direct-mapping 机制，所以可以让「内核拥有一个自己的页表」，但这样的话在运行内核代码的时候，就要用一个「转换机制」来访问用户的数据，接下来几个事情就是为了改变这个事情，至于改了之后到底有什么好处，我也不知道，做了再说。</p>
+<p>大致的思路是这样：</p>
+<ul>
+<li>首先是需要给每个 process 维护一个 kernel_pagetable 域。</li>
+<li>需要给每个 process 创建时（也就是在函数 <code>allocproc</code> 中）填充这个 process 的 kernel_pagetable ，目前来说每个进程的内核页表是和内核独有的页表是一模一样的。</li>
+<li>除了上面和内核独有页表的内容一样以外，每个进程都要在自己的页表里再增加自己的内核 stack 映射。而这个映射原本在未修改的 xv6 中是由内核提前为所有的预备进程做好的（ <code>procinit</code> 函数），现在需要把这个事情延迟到在每个进程被创建的时候再做。</li>
+<li>在调度函数中确保在切换到某个进程的之前，使用该进程的内核页表（也就是在 <code>swtch(&amp;c-&gt;context, &amp;p-&gt;context)</code> 之前），在重新回到调度程序后，再切换回内核自己的页表。</li>
+<li>在进程被 free 的时候，顺便把 kernel_pagetable 也删了，但不用删除页表的叶结点，只需要删前两层的索引。</li>
+</ul>
+<p>在差不多做完这些事情后，还遇到了一些问题。</p>
+<ol>
+<li>改完之后 <code>make qemu</code> 直接报 <code>panic: kvmpa</code> 。</li>
+</ol>
+<p><code>kvmpa</code> 函数的用处是「将内核的一个虚拟地址转换为一个物理地址」，而 xv6 的内核地址大多都是 direct-mapping 的，换言之其实就是转换内核栈的地址而已，而在改完之后，进程的内核栈的地址已经不属于内核的页表了，而属于每个进程自己的内核页表，因此需要修改 <code>pte = walk(kernel_pagetable, va, 0)</code> 为 <code>pte = walk(myproc()-&gt;kernel_pagetable, va, 0)</code> 。（调用 <code>myproc()</code> 需要加两个头文件）</p>
+<ol start="2">
+<li>进程内核栈的内存泄漏问题</li>
+</ol>
+<p>要注意，每个进程被 free 的时候，即使不用释放进程内核页表绝大多数的叶子 page ，但是进程内核栈的 page 是必须要释放的，不然跑 usertests 的时候会在 sbrkfail 处报 kvmmap 的 panic ，我没有用 gdb 去调试出到底出了什么差错。但在我添加了对内核栈的手动释放后，就不报错了，所以很大可能的原因就是内存泄漏了，每当创建一个进程就浪费掉 1 个 page，free 的时候又不回收，最后就导致内存用尽没得用了。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>  <span style="color:#000;font-weight:bold">if</span>(p<span style="color:#000;font-weight:bold">-&gt;</span>kstack)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    uvmunmap(p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable, p<span style="color:#000;font-weight:bold">-&gt;</span>kstack, <span style="color:#099">1</span>, <span style="color:#099">1</span>); 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>  p<span style="color:#000;font-weight:bold">-&gt;</span>kstack <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#000;font-weight:bold">if</span>(p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    proc_freekernelpagetable(p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>  p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>;
 </code></pre></div>
     </div>
   </article>
@@ -376,6 +408,11 @@ an array of pointers to a function that returns uint64，也就是一个函数�
         <li><a href="#syscall-system-call">Syscall system call</a></li>
         <li><a href="#risc-v-系统调用的一些规则摘录">RISC-V 系统调用的一些规则摘录</a></li>
         <li><a href="#sysinfo-system-call">Sysinfo system call</a></li>
+      </ul>
+    </li>
+    <li><a href="#lec-3">LEC 3</a>
+      <ul>
+        <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
       </ul>
     </li>
   </ul>

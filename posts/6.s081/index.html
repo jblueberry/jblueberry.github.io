@@ -170,7 +170,11 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
         <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
       </ul>
     </li>
-    <li><a href="#trap">Trap</a></li>
+    <li><a href="#trap">Trap</a>
+      <ul>
+        <li><a href="#用户空间下的-trap">用户空间下的 trap</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>
@@ -384,9 +388,24 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 </ul>
 <p>当 RISC-V CPU 要开始一个 trap 的时候依次做如下的事情：</p>
 <ol>
-<li>如果是一个设备终端且 <code>status</code> 中的 SIE 位是空的，就不往下走了；</li>
-<li></li>
+<li>如果是一个设备终端且 <code>sstatus</code> 中的 SIE 位是空的，就不往下走了；</li>
+<li>清楚 SIE 位（保证原子性）；</li>
+<li>将当前的 <code>pc</code> 复制到 <code>sepc</code> ；</li>
+<li>将当前的 mode 复制到 <code>sstatus</code> 的 SPP 位；</li>
+<li>设置 <code>scause</code>；</li>
+<li>将 mode 设置为 supervisor mode；</li>
+<li>将 <code>stvec</code> 复制到 <code>pc</code> ；</li>
+<li>go on 运行指令。</li>
 </ol>
+<h3 id="用户空间下的-trap">用户空间下的 trap</h3>
+<p>流程是</p>
+<ol>
+<li><code>trampoline.S</code> 中的 <code>uservec</code> 函数，这个函数被 <code>stvec</code> 所指</li>
+<li>转到 <code>trap.c</code> 中的 <code>usertrap</code> 函数</li>
+<li>trap 结束后转到 <code>trap.c</code> 中的 <code>usertrapret</code> 函数</li>
+<li>然后转到 <code>trampoline.S</code> 中的 <code>userret</code> 函数</li>
+</ol>
+<p>首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 <code>uservec</code> ；同时 <code>uservec</code> 函数必须显示将 <code>satp</code> 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 <code>trampoline</code> 页来映射 <code>trampoline.S</code> 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。</p>
 
     </div>
   </article>
@@ -430,7 +449,11 @@ an array of pointers to a function that returns uint64，也就是一个函数�
         <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
       </ul>
     </li>
-    <li><a href="#trap">Trap</a></li>
+    <li><a href="#trap">Trap</a>
+      <ul>
+        <li><a href="#用户空间下的-trap">用户空间下的 trap</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>

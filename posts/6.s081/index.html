@@ -10,7 +10,7 @@
   <meta name="googlebot" content="index,follow,snippet,archive">
   <meta property="og:title" content="6.S081 随记" />
 <meta property="og:description" content="因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
-LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
+System call Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
 遇到的一些疑问   英语太垃，看不懂这句话：
  Add a sys_trace() function in kernel/sysproc.c that implements the new system call by remembering its argument in a new variable in the proc structure (see kernel/proc.h). The functions to retrieve system call arguments from user space are in kernel/syscall.c, and you can see examples of their use in kernel/sysproc." />
 <meta property="og:type" content="article" />
@@ -22,7 +22,7 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
   <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="6.S081 随记"/>
 <meta name="twitter:description" content="因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
-LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
+System call Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
 遇到的一些疑问   英语太垃，看不懂这句话：
  Add a sys_trace() function in kernel/sysproc.c that implements the new system call by remembering its argument in a new variable in the proc structure (see kernel/proc.h). The functions to retrieve system call arguments from user space are in kernel/syscall.c, and you can see examples of their use in kernel/sysproc."/>
 
@@ -143,7 +143,7 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aLEC%202%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
       <i class="fab fa-tumblr " aria-hidden="true"></i>
     </a>
   </li>
@@ -158,18 +158,19 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
     <div id="toc">
       <nav id="TableOfContents">
   <ul>
-    <li><a href="#lec-2">LEC 2</a>
+    <li><a href="#system-call">System call</a>
       <ul>
         <li><a href="#syscall-system-call">Syscall system call</a></li>
         <li><a href="#risc-v-系统调用的一些规则摘录">RISC-V 系统调用的一些规则摘录</a></li>
         <li><a href="#sysinfo-system-call">Sysinfo system call</a></li>
       </ul>
     </li>
-    <li><a href="#lec-3">LEC 3</a>
+    <li><a href="#page-table">Page table</a>
       <ul>
         <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
       </ul>
     </li>
+    <li><a href="#trap">Trap</a></li>
   </ul>
 </nav>
     </div>
@@ -199,7 +200,7 @@ LEC 2 Syscall system call 第一个 lab 没什么好记录的，只不过用 sys
   
     <div class="content" itemprop="articleBody">
       <p>因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。</p>
-<h2 id="lec-2">LEC 2</h2>
+<h2 id="system-call">System call</h2>
 <h3 id="syscall-system-call">Syscall system call</h3>
 <p>第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。</p>
 <h4 id="遇到的一些疑问">遇到的一些疑问</h4>
@@ -345,7 +346,7 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-</code></pre></div><h2 id="lec-3">LEC 3</h2>
+</code></pre></div><h2 id="page-table">Page table</h2>
 <h3 id="每个进程的-kernel-page-table">每个进程的 kernel page table</h3>
 <p>说实话，做到这一步的时候，我很莫名其妙为什么要去修改内核的这个机制，也就是「内核拥有一个自己的页表」机制。</p>
 <p>读了一下 xv6 的 rec-book，这个 lab 的意思大致就是因为 xv6 的内核采用的是 direct-mapping 机制，所以可以让「内核拥有一个自己的页表」，但这样的话在运行内核代码的时候，就要用一个「转换机制」来访问用户的数据，接下来几个事情就是为了改变这个事情，至于改了之后到底有什么好处，我也不知道，做了再说。</p>
@@ -372,7 +373,21 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#000;font-weight:bold">if</span>(p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    proc_freekernelpagetable(p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable);
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>  p<span style="color:#000;font-weight:bold">-&gt;</span>kernel_pagetable <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>;
-</code></pre></div>
+</code></pre></div><h2 id="trap">Trap</h2>
+<p>一些关键的寄存器：</p>
+<ul>
+<li><code>stvec</code> 用于存储 trap handler 的地址，由内核写入</li>
+<li><code>sepc</code> 来保存进入 trap 前的 <code>pc</code></li>
+<li><code>scause</code> 保存 trap 的原因</li>
+<li><code>sccratch</code> 在调用 trap handler 的时候会用到这个寄存器</li>
+<li><code>sstatus</code> 中的 SIE 位表示是否阻塞设备中断，SPP 位表示 trap 来自于用户态还是内核态</li>
+</ul>
+<p>当 RISC-V CPU 要开始一个 trap 的时候依次做如下的事情：</p>
+<ol>
+<li>如果是一个设备终端且 <code>status</code> 中的 SIE 位是空的，就不往下走了；</li>
+<li></li>
+</ol>
+
     </div>
   </article>
 
@@ -403,18 +418,19 @@ an array of pointers to a function that returns uint64，也就是一个函数�
     <div id="toc-footer" style="display: none">
       <nav id="TableOfContents">
   <ul>
-    <li><a href="#lec-2">LEC 2</a>
+    <li><a href="#system-call">System call</a>
       <ul>
         <li><a href="#syscall-system-call">Syscall system call</a></li>
         <li><a href="#risc-v-系统调用的一些规则摘录">RISC-V 系统调用的一些规则摘录</a></li>
         <li><a href="#sysinfo-system-call">Sysinfo system call</a></li>
       </ul>
     </li>
-    <li><a href="#lec-3">LEC 3</a>
+    <li><a href="#page-table">Page table</a>
       <ul>
         <li><a href="#每个进程的-kernel-page-table">每个进程的 kernel page table</a></li>
       </ul>
     </li>
+    <li><a href="#trap">Trap</a></li>
   </ul>
 </nav>
     </div>
@@ -463,7 +479,7 @@ an array of pointers to a function that returns uint64，也就是一个函数�
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aLEC%202%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
       <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
     </a>
   </li>

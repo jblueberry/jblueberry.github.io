@@ -405,10 +405,66 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <li>trap 结束后转到 <code>trap.c</code> 中的 <code>usertrapret</code> 函数</li>
 <li>然后转到 <code>trampoline.S</code> 中的 <code>userret</code> 函数</li>
 </ol>
-<p>首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 <code>uservec</code> ；同时 <code>uservec</code> 函数必须显示将 <code>satp</code> 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 <code>trampoline</code> 页来映射 <code>trampoline.S</code> 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。</p>
+<p>首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 <code>uservec</code> ；同时 <code>uservec</code> 函数必须显示将 <code>satp</code> 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 <code>TRAMPOLINE</code> 的虚拟地址和  <code>trampoline</code> 页来映射 <code>trampoline.S</code> 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。也就是说，当 trap 发生时，首先从 <code>stvec</code> 中读到 <code>uservec</code> 的虚拟地址，也就是 <code>TRAMPOLINE</code> 然后经过页表映射到 <code>trampoline</code> 。</p>
 <h4 id="trampolines-的部分代码"><code>trampoline.S</code> 的部分代码：</h4>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>csrrw a0, sscratch, a0
-</code></pre></div>
+<p>Xv6 还开辟了另外一个 page （就在 <code>trampoline</code> 下面）用来保存发生 trap 时被打断的指令的寄存器值，这个 page 叫做 <code>trapframe</code> 。一开始，寄存器 <code>sscratch</code> 保存着映射到 <code>trapframe</code> 页的<strong>虚拟地址</strong>，也就是 <code>TRAPFRAME</code> 。（想想这里为什么是虚拟地址而不是物理地址，因为运行到这的时候仍然没有切换页表，所以用户空间页表也需要保证好 <code>TRAPFRAME</code> 的映射）</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>				csrrw a0, sscratch, a0
+</code></pre></div><p>这个时候，<code>a0</code> 的值和 <code>sscratch</code> 就被交换了。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>				sd ra, 40(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>        sd sp, 48(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        sd gp, 56(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        sd tp, 64(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        sd t0, 72(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        sd t1, 80(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        sd t2, 88(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        sd s0, 96(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        sd s1, 104(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>        sd a1, 120(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        sd a2, 128(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        sd a3, 136(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>        sd a4, 144(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        sd a5, 152(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        sd a6, 160(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        sd a7, 168(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        sd s2, 176(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>        sd s3, 184(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>        sd s4, 192(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>        sd s5, 200(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>        sd s6, 208(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>        sd s7, 216(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>        sd s8, 224(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>        sd s9, 232(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>        sd s10, 240(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>        sd s11, 248(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>        sd t3, 256(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>        sd t4, 264(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>        sd t5, 272(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>        sd t6, 280(a0)
+</code></pre></div><p>这里把除了 <code>a0</code> 以外的寄存器都保存到了 <code>trapframe</code> 中。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>        csrr t0, sscratch
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>        sd t0, 112(a0)
+</code></pre></div><p>这里把 <code>a0</code> 也保存到了 <code>trapframe</code> 中。</p>
+<p>而注意到，这里的指令是从 <code>40(a0)</code> 开始的，说明 <code>trapframe</code> 里面原本还存了 5 个值，其中包括了<strong>内核的页表</strong>、<strong>进程的内核栈</strong>、<strong><code>usertrap()</code></strong> 的地址和当前 CPU 的 <code>hartid</code> 。为什么还缺一个呢，我也不知道缺了什么，反正代码里看不出来。为了进入 <code>usertrap()</code> ，需要恢复这些值。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>        # restore kernel stack pointer from p-&gt;trapframe-&gt;kernel_sp
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>        ld sp, 8(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        # make tp hold the current hartid, from p-&gt;trapframe-&gt;kernel_hartid
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        ld tp, 32(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        # load the address of usertrap(), p-&gt;trapframe-&gt;kernel_trap
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        ld t0, 16(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>        # restore kernel page table from p-&gt;trapframe-&gt;kernel_satp
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        ld t1, 0(a0)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        csrw satp, t1
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>        sfence.vma zero, zero
+</code></pre></div><p>注意到，运行完最后的指令（也就是切换到内核页表）后，<code>a0</code> 中保存的 <code>TRAPFRAME</code> 虚拟地址已经失效了。</p>
+<p>最后，跳转到 <code>usertrap()</code>。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>        jr t0
+</code></pre></div><p>读到这里，我仍然有些许的疑问，因为 xv6 的文档上说其实用户空间涉及到了 32 个寄存器，但这里其实只保存了 31 个寄存器，我的疑惑是缺了哪一个？</p>
+<h4 id="进入-usertrap-后">进入 <code>usertrap()</code> 后</h4>
+<p>首先，验证是不是从 user mode 来的，然后修改了 <code>stvec</code> 的值（为什么？）。因为如果这个时候再次发生一些 trap ，就需要内核的 handler 来解决了，所以将这个入口改为了内核的 handler 的函数地址。然后根据 trap 的成因（<code>scause</code> 寄存器）来决定是系统调用、设备中断还是一个单纯的异常，做完这些事情后调用 <code>usertrapret()</code> 。</p>
+
     </div>
   </article>
 

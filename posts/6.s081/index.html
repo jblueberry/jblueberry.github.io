@@ -406,7 +406,9 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <li>然后转到 <code>trampoline.S</code> 中的 <code>userret</code> 函数</li>
 </ol>
 <p>首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 <code>uservec</code> ；同时 <code>uservec</code> 函数必须显示将 <code>satp</code> 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 <code>trampoline</code> 页来映射 <code>trampoline.S</code> 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。</p>
-
+<h4 id="trampolines-的部分代码"><code>trampoline.S</code> 的部分代码：</h4>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>csrrw a0, sscratch, a0
+</code></pre></div>
     </div>
   </article>
 

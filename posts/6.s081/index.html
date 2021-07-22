@@ -173,6 +173,9 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
     <li><a href="#trap">Trap</a>
       <ul>
         <li><a href="#user-mode-下的-trap">User mode 下的 trap</a></li>
+        <li><a href="#syscall-中如何传递参数">Syscall 中如何传递参数</a></li>
+        <li><a href="#kernel-mode-下的-trap">Kernel mode 下的 trap</a></li>
+        <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
   </ul>
@@ -488,7 +491,79 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>        csrw satp, a1
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>        sfence.vma zero, zero
 </code></pre></div><p>然后把所有的寄存器都还原，这里用到了 <code>sscratch</code> 这个寄存器，使得一系列操作完成之后 <code>sscratch</code> 的值又恢复到了 <code>TRAPFRAME</code> 后执行了 <code>sret</code> 指令，皆大欢喜地回到了用户的程序中。</p>
-
+<h3 id="syscall-中如何传递参数">Syscall 中如何传递参数</h3>
+<p>由于在进入系统调用之前，所有的寄存器都被存在了 <code>trapframe</code> 页中，因此 syscall 函数只需要从当前进程的 <code>trapframe</code> 中获取寄存器内容。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">static</span> uint64
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">argraw</span>(<span style="color:#458;font-weight:bold">int</span> n)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  <span style="color:#000;font-weight:bold">struct</span> proc <span style="color:#000;font-weight:bold">*</span>p <span style="color:#000;font-weight:bold">=</span> myproc();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  <span style="color:#000;font-weight:bold">switch</span> (n) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">0</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a0;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">1</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a1;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">2</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a2;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">3</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a3;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">4</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a4;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>  <span style="color:#000;font-weight:bold">case</span> <span style="color:#099">5</span><span style="color:#000;font-weight:bold">:</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    <span style="color:#000;font-weight:bold">return</span> p<span style="color:#000;font-weight:bold">-&gt;</span>trapframe<span style="color:#000;font-weight:bold">-&gt;</span>a5;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>  }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>  panic(<span style="color:#d14">&#34;argraw&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>  <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
+</code></pre></div><h3 id="kernel-mode-下的-trap">Kernel mode 下的 trap</h3>
+<p>CPU 处于 kernel mode 的时候， <code>stvec</code> 寄存器的值指向的是 <code>kernelvec</code> 函数，这个函数的行为和 <code>uservec</code> 很相似，存下当前的所有寄存器（31个），然后调用 <code>kerneltrap</code> 。</p>
+<p>注意这里的机制需要两个东西来帮助：</p>
+<ol>
+<li>内核的页表需要保证某个虚拟地址到 <code>kernelvec</code> 的映射；</li>
+<li>需要内核 stack 帮忙保存寄存器。</li>
+</ol>
+<p>Kernel mode 下的 trap 只有两类：设备中断和异常，xv6 的异常处理比较简单，直接报错。</p>
+<p>设备中断中有一个特殊的中断叫做<strong>时钟中断</strong>，这个时候会调用 <code>yield</code> 来挂起自己。（这个机制和调度函数 <code>scheduler</code> 有关系）</p>
+<p>在某个时间点，<code>kerneltrap</code> 准备返回后，它会重新设置回之前保存在<strong>内核栈</strong>上的 <code>sepc</code> 、<code>sstatus</code> （这里是在 <code>kerneltrap</code> 函数里保存的），然后再回到 <code>kernelvec</code> ，恢复之前的那 31 个寄存器，然后运行 <code>sret</code> 指令，恢复原本的执行流。</p>
+<h3 id="trap-lab">Trap lab</h3>
+<p>Trap 的东西快读完了，还剩一个 COW 没读，先做做看 lab 吧。</p>
+<p>首先是要加一个 <code>backtrace</code> 来追踪 function calls ，这其实很简单，因为大致就能知道要怎么办了，先用一个实例代码来看看 RISC-V 的函数调用。首先看一段简单的 C 代码。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#458;font-weight:bold">int</span> <span style="color:#900;font-weight:bold">g</span>(<span style="color:#458;font-weight:bold">int</span> x) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  <span style="color:#000;font-weight:bold">return</span> x<span style="color:#000;font-weight:bold">+</span><span style="color:#099">3</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>翻译成汇编是这样：</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>   0:	1141                	addi	sp,sp,-16
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>   2:	e422                	sd	s0,8(sp)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>   4:	0800                	addi	s0,sp,16
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>   6:	250d                	addiw	a0,a0,3
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>   8:	6422                	ld	s0,8(sp)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>   a:	0141                	addi	sp,sp,16
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>   c:	8082                	ret
+</code></pre></div><p>首先，进入函数后将栈指针（<code>sp</code>）减 16（我也不知道为什么是 16，我猜是为了对齐），然后把旧的 <code>s0</code> 存到了前 8 个字节中，再把旧的 <code>sp</code> （减 16 之前的）存到了 <code>s0</code> 当中；</p>
+<p>在函数返回的时候，先把刚刚进入这个 stack frame 时保存在栈上的旧值返回到 <code>s0</code> 中，再重置 <code>sp</code> ，运行 <code>ret</code> 指令。</p>
+<p>可以想象一下函数 A 调用函数 B 再调用函数 C 的过程：</p>
+<p>这里假设函数 A 是这个进程最初最初的函数，也就是说它的栈是从新分配的栈页的最高地址开始的。</p>
+<ol>
+<li>一开始在函数 A 中，<code>s0</code> 保存的是 A 的 stack frame 的首指针（高地址）；</li>
+<li>进入函数 B 后，A 的 frame pointer 被保存到了 B 的 stack 的前八个字节中，此时 <code>s0</code> 保存的是 B 的 frame pointer；</li>
+<li>进入 C 后，B 的 pointer 被保存在了 C 的 stack 上，<code>s0</code> 保存 C 的 pointer。</li>
+</ol>
+<p>如果想要回溯，那只需要在函数 C 中取出 <code>s0</code> 的值，然后用这个值取到 B 的 frame pointer，然后层层循环，直到取到 0 为止。注意循环的终止条件：<strong>pointer 如果等于这个 pointer 所在的 page 的最高地址，那就停止，因为这意味着这是最最最初始的一个函数调用。</strong></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#458;font-weight:bold">void</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">backtrace</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  uint64 s0 <span style="color:#000;font-weight:bold">=</span> r_fp();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  uint64 last_s0 <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">*</span>(uint64<span style="color:#000;font-weight:bold">*</span>)(s0 <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">16</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  uint64 ra <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">*</span>(uint64<span style="color:#000;font-weight:bold">*</span>)(s0 <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">8</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  printf(<span style="color:#d14">&#34;backtrace:</span><span style="color:#d14">\n</span><span style="color:#d14">&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  <span style="color:#000;font-weight:bold">while</span> (s0 <span style="color:#000;font-weight:bold">!=</span> PGROUNDUP(s0)) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    printf(<span style="color:#d14">&#34;%p</span><span style="color:#d14">\n</span><span style="color:#d14">&#34;</span>, ra);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    s0 <span style="color:#000;font-weight:bold">=</span> last_s0;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    last_s0 <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">*</span>(uint64<span style="color:#000;font-weight:bold">*</span>)(s0 <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">16</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    ra <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">*</span>(uint64<span style="color:#000;font-weight:bold">*</span>)(s0 <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">8</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
+</code></pre></div>
     </div>
   </article>
 
@@ -534,6 +609,9 @@ an array of pointers to a function that returns uint64，也就是一个函数�
     <li><a href="#trap">Trap</a>
       <ul>
         <li><a href="#user-mode-下的-trap">User mode 下的 trap</a></li>
+        <li><a href="#syscall-中如何传递参数">Syscall 中如何传递参数</a></li>
+        <li><a href="#kernel-mode-下的-trap">Kernel mode 下的 trap</a></li>
+        <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
   </ul>

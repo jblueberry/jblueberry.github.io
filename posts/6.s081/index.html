@@ -563,7 +563,14 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    ra <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">*</span>(uint64<span style="color:#000;font-weight:bold">*</span>)(s0 <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">8</span>);
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-</code></pre></div>
+</code></pre></div><p>然后要加一个简易的 signal 机制，其实很简单。</p>
+<ul>
+<li>首先要知道 <code>sigalarm</code> 和 <code>sigreturn</code> 都是属于 syscall ，也就是说这些函数的调用和返回中间都会和当前进程的 <code>trapframe</code> 域打交道。</li>
+<li>对于 <code>sigalarm</code> 只要在 <code>proc</code> 结构体中保存相应的 <code>alarm_ticks</code> 和 <code>handler</code> 的地址就好了。同时在保存一个 <code>ticks</code> 让它每产生一次时钟中断就自增，如果在时钟中断发生时既设置了 <code>alarm_ticks</code> 、 <code>ticks</code> 又超过了 <code>alarm_ticks</code> 就修改返回的指令地址，让它跳转到 <code>handler</code>。</li>
+<li>接下来的问题就是如何让 <code>handler</code> 结束后再返回到原本被打断的指令。根据 MIT 的提示，只需要在修改 <code>pc</code> 为 <code>handler</code> 之前，把整个 <code>trapframe</code> 保存下来就好了（在 <code>proc</code> 结构体中再开一个域用来保存）。因为 <code>sigreturn</code> 也是一个 syscall ，在它返回之前再把之前的整个 <code>saved_trapframe</code> 覆盖当前的 <code>trapframe</code> ，然后再返回交给操作系统，就能顺利回到原本的指令。</li>
+<li>最后需要注意的是，需要一个 <code>flag</code> 来表明此时该进程已经进入 <code>signal_handler</code> ，来避免 signal 的重入问题。</li>
+</ul>
+
     </div>
   </article>
 

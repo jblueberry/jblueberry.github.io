@@ -178,6 +178,7 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
         <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
+    <li><a href="#lazy-page-allocation">Lazy page allocation</a></li>
   </ul>
 </nav>
     </div>
@@ -570,6 +571,122 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 <li>接下来的问题就是如何让 <code>handler</code> 结束后再返回到原本被打断的指令。根据 MIT 的提示，只需要在修改 <code>pc</code> 为 <code>handler</code> 之前，把整个 <code>trapframe</code> 保存下来就好了（在 <code>proc</code> 结构体中再开一个域用来保存）。因为 <code>sigreturn</code> 也是一个 syscall ，在它返回之前再把之前的整个 <code>saved_trapframe</code> 覆盖当前的 <code>trapframe</code> ，然后再返回交给操作系统，就能顺利回到原本的指令。</li>
 <li>最后需要注意的是，需要一个 <code>flag</code> 来表明此时该进程已经进入 <code>signal_handler</code> ，来避免 signal 的重入问题。</li>
 </ul>
+<h2 id="lazy-page-allocation">Lazy page allocation</h2>
+<p>起因很简单，假如说用户要求内核分配很多很多的页，内核需要花很多时间来分配，所以产生了 lazy allocation 的概念。值得注意的是，这里的 allocation 是针对用户的 heap ，没有涉及到 stack 。但其实这里我有一个疑惑，为什么对栈不实现一个 lazy allocation 呢？虽然这其实显得很反常，因为栈的增长其实是不可控的。</p>
+<p>首先很简单，由于用户申请堆实际上只能通过 system call <code>sbrk()</code> ，那实现懒加载的第一步就是<strong>不加载</strong>，修改这个系统调用对应的函数 <code>sys_sbrk(void)</code> 。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>uint64
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">sys_sbrk</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  <span style="color:#458;font-weight:bold">int</span> addr;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  <span style="color:#458;font-weight:bold">int</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>  <span style="color:#000;font-weight:bold">if</span>(argint(<span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;</span>n)<span style="color:#000;font-weight:bold">&lt;</span><span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  addr <span style="color:#000;font-weight:bold">=</span> myproc()<span style="color:#000;font-weight:bold">-&gt;</span>sz;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  <span style="color:#998;font-style:italic">/**
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">   * 删除对于 growproc() 的调用
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic">   */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>  myproc()<span style="color:#000;font-weight:bold">-&gt;</span>sz <span style="color:#000;font-weight:bold">+=</span> n;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  <span style="color:#000;font-weight:bold">return</span> addr;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
+</code></pre></div><p>这样改了之后当然会 panic ，因为其实压根就没有没有分配空间，所以对于这些用户以为已经分配了空间的虚拟地址的访问会触发一个用户态下的 page fault 。但我此时在想的是，在调用了 <code>echo</code> 程序后，到底在哪一步调用了 <code>sys_sbrk()</code> 呢？这个事情其实很难去追溯，因为操作系统在背后做了太多的事情。我用 gdb 看了一下。</p>
+<p>最后发现了几件事情：</p>
+<ol>
+<li>在用户输入命令 <code>echo hi</code> 后、 Shell 调用 exec 之前，就已经进入了 trap 并导致 panic 。</li>
+<li><code>sys_sbrk</code> 的调用是在输入命令之后，但是也在 Shell 调用 exec 之前。</li>
+<li>其实自始自终只调用了一次 <code>sys_sbrk</code> 。</li>
+<li>上面的那次 <code>sys_sbrk</code> 的调用是触发了 trap 的关键 。</li>
+</ol>
+<p>我用 gdb 追踪到的事情：</p>
+<ol>
+<li>
+<p>首先 xv6 非常正常的启动，直到进入到终端，也就是 <code>sh</code> 程序被加载进来。</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">/**
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"> * sh 程序的部分代码
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"> */</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#458;font-weight:bold">int</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#900;font-weight:bold">main</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  <span style="color:#000;font-weight:bold">if</span>(fork1() <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    runcmd(parsecmd(buf));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>  wait(<span style="color:#099">0</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#900;font-weight:bold">parsecmd</span>(<span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>s)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>  cmd <span style="color:#000;font-weight:bold">=</span> parseline(<span style="color:#000;font-weight:bold">&amp;</span>s, es);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#900;font-weight:bold">parseline</span>(<span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">**</span>ps, <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>es)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>  <span style="color:#000;font-weight:bold">struct</span> cmd <span style="color:#000;font-weight:bold">*</span>cmd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>  cmd <span style="color:#000;font-weight:bold">=</span> parsepipe(ps, es);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span style="color:#900;font-weight:bold">parsepipe</span>(<span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">**</span>ps, <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>es)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>  <span style="color:#000;font-weight:bold">struct</span> cmd <span style="color:#000;font-weight:bold">*</span>cmd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>  cmd <span style="color:#000;font-weight:bold">=</span> parseexec(ps, es);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span><span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48</span><span style="color:#900;font-weight:bold">parseexec</span>(<span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">**</span>ps, <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>es)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52</span>  ret <span style="color:#000;font-weight:bold">=</span> execcmd();
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53</span>     
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54</span>  ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57</span><span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58</span><span style="color:#900;font-weight:bold">execcmd</span>(<span style="color:#458;font-weight:bold">void</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60</span>  <span style="color:#000;font-weight:bold">struct</span> execcmd <span style="color:#000;font-weight:bold">*</span>cmd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62</span>  cmd <span style="color:#000;font-weight:bold">=</span> malloc(<span style="color:#000;font-weight:bold">sizeof</span>(<span style="color:#000;font-weight:bold">*</span>cmd));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63</span>  memset(cmd, <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">sizeof</span>(<span style="color:#000;font-weight:bold">*</span>cmd));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64</span>  cmd<span style="color:#000;font-weight:bold">-&gt;</span>type <span style="color:#000;font-weight:bold">=</span> EXEC;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65</span>  <span style="color:#000;font-weight:bold">return</span> (<span style="color:#000;font-weight:bold">struct</span> cmd<span style="color:#000;font-weight:bold">*</span>)cmd;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66</span>}
+</code></pre></div><p>经过了一个下午的目力 gdb，我终于发现了这个非常非常恶心的调用栈：在用户输入了任何命令后，终端程序（也就是 <code>sh</code> ）的执行流是这样走的： <code>main -&gt; parsecmd -&gt; parseline -&gt; parsepipe -&gt; parseexec -&gt; execcmd</code>  ，最后到达了 <code>execcmd</code> 函数中的 <code>malloc</code> 调用，这里的 <code>malloc</code> 函数定义在另一个文件 <code>user/umalloc.c</code> 中。很操蛋的是，gdb 似乎没有办法识别 <code>umalloc.c</code> 的符号，因此执行流进入到这个函数后，我只能对着看不懂的 RISCV 汇编纯猜了，不过也大致猜到了：<code>malloc</code> 函数调用了同一个文件中定义的 <code>morecore</code> 函数，该函数如下：</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">static</span> Header<span style="color:#000;font-weight:bold">*</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">morecore</span>(uint nu)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  <span style="color:#458;font-weight:bold">char</span> <span style="color:#000;font-weight:bold">*</span>p;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  Header <span style="color:#000;font-weight:bold">*</span>hp;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>   
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>  <span style="color:#000;font-weight:bold">if</span>(nu <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">4096</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    nu <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">4096</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  p <span style="color:#000;font-weight:bold">=</span> sbrk(nu <span style="color:#000;font-weight:bold">*</span> <span style="color:#000;font-weight:bold">sizeof</span>(Header));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  <span style="color:#000;font-weight:bold">if</span>(p <span style="color:#000;font-weight:bold">==</span> (<span style="color:#458;font-weight:bold">char</span><span style="color:#000;font-weight:bold">*</span>)<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>  hp <span style="color:#000;font-weight:bold">=</span> (Header<span style="color:#000;font-weight:bold">*</span>)p;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>  hp<span style="color:#000;font-weight:bold">-&gt;</span>s.size <span style="color:#000;font-weight:bold">=</span> nu;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>  free((<span style="color:#458;font-weight:bold">void</span><span style="color:#000;font-weight:bold">*</span>)(hp <span style="color:#000;font-weight:bold">+</span> <span style="color:#099">1</span>));
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>  <span style="color:#000;font-weight:bold">return</span> freep;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
+</code></pre></div><p>这里才得知，是 <code>morecore</code> 函数真正正正的调用了系统调用 <code>sbrk</code> （在汇编曾经调用了 <code>ecall</code>）。从调试的过程中发现，实际上 <code>sbrk</code> 调用是成功的，<code>ecall</code> 和 <code>eret</code> 都没有出差错，真正出问题的地方在 <code>hp-&gt;s.size = nu;</code> 这句 C 程序上。从汇编的层面上看，机器在运行指令 <code>sw  s6, 8(a0)</code> 后直接报了 panic 。也就是说，在操作系统仅仅修改了进程的一个字段而没有真正的分配一个页给它后，当该进程试图去写（这里 <code>sw</code> 指令就是写内存）时，触发了用户态的 trap 。</p>
+</li>
+</ol>
 
     </div>
   </article>
@@ -621,6 +738,7 @@ an array of pointers to a function that returns uint64，也就是一个函数�
         <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
+    <li><a href="#lazy-page-allocation">Lazy page allocation</a></li>
   </ul>
 </nav>
     </div>

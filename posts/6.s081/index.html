@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title> 6.S081 随记 | 橘子屋</title>
+  <title> 6.S081 Notes | 橘子屋</title>
   <meta name="description" content="A spec of dust who is trying to learning Computer Science. I hate useless involution and want to seek my own area. ">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="all,follow">
   <meta name="googlebot" content="index,follow,snippet,archive">
-  <meta property="og:title" content="6.S081 随记" />
+  <meta property="og:title" content="6.S081 Notes" />
 <meta property="og:description" content="因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
 System call Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
 遇到的一些疑问   英语太垃，看不懂这句话：
@@ -20,7 +20,7 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
 
 
   <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="6.S081 随记"/>
+<meta name="twitter:title" content="6.S081 Notes"/>
 <meta name="twitter:description" content="因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
 System call Syscall system call 第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
 遇到的一些疑问   英语太垃，看不懂这句话：
@@ -113,42 +113,42 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
     </a>
   </li>
   <li>
-    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&text=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Twitter">
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&text=6.S081%20Notes" aria-label="Twitter">
       <i class="fab fa-twitter " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Linkedin">
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="Linkedin">
       <i class="fab fa-linkedin " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&is_video=false&description=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Pinterest">
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&is_video=false&description=6.S081%20Notes" aria-label="Pinterest">
       <i class="fab fa-pinterest " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="mailto:?subject=6.S081%20%e9%9a%8f%e8%ae%b0&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f" aria-label="Email">
+    <a class="icon" href="mailto:?subject=6.S081%20Notes&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f" aria-label="Email">
       <i class="fas fa-envelope " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Pocket">
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="Pocket">
       <i class="fab fa-get-pocket " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="reddit">
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="reddit">
       <i class="fab fa-reddit " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20Notes&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
       <i class="fab fa-tumblr " aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&t=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Hacker News">
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&t=6.S081%20Notes" aria-label="Hacker News">
       <i class="fab fa-hacker-news " aria-hidden="true"></i>
     </a>
   </li>
@@ -178,7 +178,12 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
         <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
-    <li><a href="#lazy-page-allocation">Lazy page allocation</a></li>
+    <li><a href="#lazy-page-allocation">Lazy page allocation</a>
+      <ul>
+        <li><a href="#追溯-panic">追溯 panic</a></li>
+        <li><a href="#解决-panic">解决 panic</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>
@@ -189,7 +194,7 @@ System call Syscall system call 第一个 lab 没什么好记录的，只不过�
   <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
     <header>
       <h1 class="posttitle" itemprop="name headline">
-        6.S081 随记
+        6.S081 Notes
       </h1>
       <div class="meta">
         
@@ -573,6 +578,7 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 </ul>
 <h2 id="lazy-page-allocation">Lazy page allocation</h2>
 <p>起因很简单，假如说用户要求内核分配很多很多的页，内核需要花很多时间来分配，所以产生了 lazy allocation 的概念。值得注意的是，这里的 allocation 是针对用户的 heap ，没有涉及到 stack 。但其实这里我有一个疑惑，为什么对栈不实现一个 lazy allocation 呢？虽然这其实显得很反常，因为栈的增长其实是不可控的。</p>
+<h3 id="追溯-panic">追溯 panic</h3>
 <p>首先很简单，由于用户申请堆实际上只能通过 system call <code>sbrk()</code> ，那实现懒加载的第一步就是<strong>不加载</strong>，修改这个系统调用对应的函数 <code>sys_sbrk(void)</code> 。</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>uint64
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#900;font-weight:bold">sys_sbrk</span>(<span style="color:#458;font-weight:bold">void</span>)
@@ -687,6 +693,9 @@ an array of pointers to a function that returns uint64，也就是一个函数�
 </code></pre></div><p>这里才得知，是 <code>morecore</code> 函数真正正正的调用了系统调用 <code>sbrk</code> （在汇编曾经调用了 <code>ecall</code>）。从调试的过程中发现，实际上 <code>sbrk</code> 调用是成功的，<code>ecall</code> 和 <code>eret</code> 都没有出差错，真正出问题的地方在 <code>hp-&gt;s.size = nu;</code> 这句 C 程序上。从汇编的层面上看，机器在运行指令 <code>sw  s6, 8(a0)</code> 后直接报了 panic 。也就是说，在操作系统仅仅修改了进程的一个字段而没有真正的分配一个页给它后，当该进程试图去写（这里 <code>sw</code> 指令就是写内存）时，触发了用户态的 trap 。</p>
 </li>
 </ol>
+<h3 id="解决-panic">解决 panic</h3>
+<hr>
+<p>2021 年 8 月 10 日，此时我已经做完了 lazy lab 和 cow lab。由于对并发的 lab 并不感兴趣，持久化的内容准备下学期在 CSE 上再学，因此 6.S081 的学习到这里暂时结束，有空再补上 lazy 和 cow 的思考，开了个新坑：6.824 。</p>
 
     </div>
   </article>
@@ -738,7 +747,12 @@ an array of pointers to a function that returns uint64，也就是一个函数�
         <li><a href="#trap-lab">Trap lab</a></li>
       </ul>
     </li>
-    <li><a href="#lazy-page-allocation">Lazy page allocation</a></li>
+    <li><a href="#lazy-page-allocation">Lazy page allocation</a>
+      <ul>
+        <li><a href="#追溯-panic">追溯 panic</a></li>
+        <li><a href="#解决-panic">解决 panic</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>
@@ -757,42 +771,42 @@ an array of pointers to a function that returns uint64，也就是一个函数�
     </a>
   </li>
   <li>
-    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&text=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Twitter">
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&text=6.S081%20Notes" aria-label="Twitter">
       <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Linkedin">
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="Linkedin">
       <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&is_video=false&description=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Pinterest">
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&is_video=false&description=6.S081%20Notes" aria-label="Pinterest">
       <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="mailto:?subject=6.S081%20%e9%9a%8f%e8%ae%b0&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f" aria-label="Email">
+    <a class="icon" href="mailto:?subject=6.S081%20Notes&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f" aria-label="Email">
       <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Pocket">
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="Pocket">
       <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="reddit">
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&title=6.S081%20Notes" aria-label="reddit">
       <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20%e9%9a%8f%e8%ae%b0&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&name=6.S081%20Notes&description=%e5%9b%a0%e4%b8%ba%e5%85%b6%e5%ae%9e%e4%b8%80%e7%9b%b4%e9%83%bd%e6%b2%a1%e6%9c%89%e5%a5%bd%e5%a5%bd%e8%af%bb%e8%bf%87%20OSTEP%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%9c%a8%e6%9c%80%e8%bf%91%e4%b8%80%e5%91%a8%e4%b8%80%e5%8f%a3%e6%b0%94%e6%8a%8a%e8%bf%99%e6%9c%ac%e4%b9%a6%e8%af%bb%e5%ae%8c%e4%ba%86%ef%bc%8c%e4%bd%86%e8%bf%98%e6%98%af%e6%84%9f%e8%a7%89%e4%b8%8d%e5%a4%9f%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%88%91%e7%9f%a5%e9%81%93%e8%a6%81%e5%ad%a6%e4%bc%9a%e8%bf%99%e7%8e%a9%e6%84%8f%e5%bf%85%e9%a1%bb%e8%a6%81%20make%20hands%20dirty%e3%80%82%e4%ba%8e%e6%98%af%e5%87%86%e5%a4%87%e5%bf%ab%e9%80%9f%e7%9a%84%e6%8a%8a%206.S081%20%e8%bf%87%e5%ae%8c%ef%bc%8c%e7%84%b6%e5%90%8e%e6%8a%8a%20lab%20%e5%81%9a%e6%8e%89%ef%bc%8c%e5%86%8d%e9%85%8d%e5%90%88%e8%af%bb%20xv6%20%e7%9a%84%e4%bb%a3%e7%a0%81%e3%80%82%0aSystem%20call%20Syscall%20system%20call%20%e7%ac%ac%e4%b8%80%e4%b8%aa%20lab%20%e6%b2%a1%e4%bb%80%e4%b9%88%e5%a5%bd%e8%ae%b0%e5%bd%95%e7%9a%84%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%94%a8%20system%20call%20%e5%b0%8f%e6%89%93%e5%b0%8f%e9%97%b9%e8%80%8c%e5%b7%b2%ef%bc%8c%e4%bb%8e%e7%ac%ac%e4%ba%8c%e4%b8%aa%20lab%20%e5%bc%80%e5%a7%8b%e6%89%8d%e6%98%af%e7%9c%9f%e7%9a%84%e5%af%b9%20kernel%20%e5%81%9a%e4%ba%8b%e6%83%85%e3%80%82%0a%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae%20%20%20%e8%8b%b1%e8%af%ad%e5%a4%aa%e5%9e%83%ef%bc%8c%e7%9c%8b%e4%b8%8d%e6%87%82%e8%bf%99%e5%8f%a5%e8%af%9d%ef%bc%9a%0a%20Add%20a%20sys_trace%28%29%20function%20in%20kernel%2fsysproc.c%20that%20implements%20the%20new%20system%20call%20by%20remembering%20its%20argument%20in%20a%20new%20variable%20in%20the%20proc%20structure%20%28see%20kernel%2fproc.h%29.%20The%20functions%20to%20retrieve%20system%20call%20arguments%20from%20user%20space%20are%20in%20kernel%2fsyscall.c%2c%20and%20you%20can%20see%20examples%20of%20their%20use%20in%20kernel%2fsysproc." aria-label="Tumblr">
       <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
     </a>
   </li>
   <li>
-    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&t=6.S081%20%e9%9a%8f%e8%ae%b0" aria-label="Hacker News">
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2f6.s081%2f&t=6.S081%20Notes" aria-label="Hacker News">
       <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
     </a>
   </li>

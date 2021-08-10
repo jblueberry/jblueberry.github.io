@@ -7,7 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>zhu</copyright>
-    <lastBuildDate>Thu, 15 Jul 2021 15:51:07 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 10 Aug 2021 16:53:13 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Notes of MapReduce</title>
+      <link>https://zhujunhui.com/posts/mapreduce/</link>
+      <pubDate>Tue, 10 Aug 2021 16:53:13 +0800</pubDate>
+      
+      <guid>https://zhujunhui.com/posts/mapreduce/</guid>
+      <description>简言之，MapReduce 是一种 programming model，用于处理并产生大数据。
+Map 和 Reduce 整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用户的两个 interface 是 Map 和 Reduce。
+ Map 接收一个 KV 作为输入，输出一个 KV 集合，集合被称为 intermediate KV pairs ； MapReduce library 从 intermediate 数据中将相同的 key 的 values 整合成一个集合后传递给 Reduce ； Reduce 从 intermediate KV paris 中接收某个特定的 key 和这个 key 对应的一个 value 集合，将其处理之后输出一个新的 value 集合。  类似于这样：
+1map: &amp;lt;k1,v1&amp;gt; -&amp;gt; list(&amp;lt;k2,v2&amp;gt;) 2reduce: &amp;lt;k2,list(v2)&amp;gt; -&amp;gt; list(v2) 其中，Reduce 的输出域和 intermediate 数据的域是相同的，和 Map 的输入域可以不同。
+Google 的 MapReduce Implementation 不同的 environment 对应于不同的 implementation ，谷歌使用的计算 environment 为：</description>
+    </item>
+    
     <item>
       <title>6.S081 Notes</title>
       <link>https://zhujunhui.com/posts/6.s081/</link>

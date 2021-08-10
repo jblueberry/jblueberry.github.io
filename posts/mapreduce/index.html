@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title> Notes of MapReduce | 橘子屋</title>
+  <meta name="description" content="A spec of dust who is trying to learning Computer Science. I hate useless involution and want to seek my own area. ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <meta name="googlebot" content="index,follow,snippet,archive">
+  <meta property="og:title" content="Notes of MapReduce" />
+<meta property="og:description" content="简言之，MapReduce 是一种 programming model，用于处理并产生大数据。
+Map 和 Reduce 整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用户的两个 interface 是 Map 和 Reduce。
+ Map 接收一个 KV 作为输入，输出一个 KV 集合，集合被称为 intermediate KV pairs ； MapReduce library 从 intermediate 数据中将相同的 key 的 values 整合成一个集合后传递给 Reduce ； Reduce 从 intermediate KV paris 中接收某个特定的 key 和这个 key 对应的一个 value 集合，将其处理之后输出一个新的 value 集合。  类似于这样：
+1map: &lt;k1,v1&gt; -&gt; list(&lt;k2,v2&gt;) 2reduce: &lt;k2,list(v2)&gt; -&gt; list(v2) 其中，Reduce 的输出域和 intermediate 数据的域是相同的，和 Map 的输入域可以不同。
+Google 的 MapReduce Implementation 不同的 environment 对应于不同的 implementation ，谷歌使用的计算 environment 为：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zhujunhui.com/posts/mapreduce/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-10T16:53:13&#43;08:00" />
+<meta property="article:modified_time" content="2021-08-10T16:53:13&#43;08:00" />
+
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Notes of MapReduce"/>
+<meta name="twitter:description" content="简言之，MapReduce 是一种 programming model，用于处理并产生大数据。
+Map 和 Reduce 整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用户的两个 interface 是 Map 和 Reduce。
+ Map 接收一个 KV 作为输入，输出一个 KV 集合，集合被称为 intermediate KV pairs ； MapReduce library 从 intermediate 数据中将相同的 key 的 values 整合成一个集合后传递给 Reduce ； Reduce 从 intermediate KV paris 中接收某个特定的 key 和这个 key 对应的一个 value 集合，将其处理之后输出一个新的 value 集合。  类似于这样：
+1map: &lt;k1,v1&gt; -&gt; list(&lt;k2,v2&gt;) 2reduce: &lt;k2,list(v2)&gt; -&gt; list(v2) 其中，Reduce 的输出域和 intermediate 数据的域是相同的，和 Map 的输入域可以不同。
+Google 的 MapReduce Implementation 不同的 environment 对应于不同的 implementation ，谷歌使用的计算 environment 为："/>
+
+  
+  
+    
+  
+  
+  <link rel="stylesheet" href="https://zhujunhui.com/css/style-light.css">
+  
+  
+  
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  
+
+  
+<link rel="icon" type="image/png" href="https://zhujunhui.com/images/favicon.ico" />
+
+  
+  
+  
+  
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+  <div class="content index py4">
+
+  <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;" aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">Writings</a></li>
+         
+        <li><a href="/about">About</a></li>
+         
+        <li><a href="/anti-involution/">反内卷自动分组工具</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li>
+          <a class="icon" href=" https://zhujunhui.com/posts/6.s081/" aria-label="Previous">
+            <i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i>
+          </a>
+        </li>
+        
+        
+        <li>
+          <a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+            <i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i>
+          </a>
+        </li>
+        <li>
+          <a class="icon" href="#" aria-label="Share">
+            <i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i>
+          </a>
+        </li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f" aria-label="Facebook">
+      <i class="fab fa-facebook " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&text=Notes%20of%20MapReduce" aria-label="Twitter">
+      <i class="fab fa-twitter " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="Linkedin">
+      <i class="fab fa-linkedin " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&is_video=false&description=Notes%20of%20MapReduce" aria-label="Pinterest">
+      <i class="fab fa-pinterest " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Notes%20of%20MapReduce&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f" aria-label="Email">
+      <i class="fas fa-envelope " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="Pocket">
+      <i class="fab fa-get-pocket " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="reddit">
+      <i class="fab fa-reddit " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&name=Notes%20of%20MapReduce&description=%e7%ae%80%e8%a8%80%e4%b9%8b%ef%bc%8cMapReduce%20%e6%98%af%e4%b8%80%e7%a7%8d%20programming%20model%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%a4%84%e7%90%86%e5%b9%b6%e4%ba%a7%e7%94%9f%e5%a4%a7%e6%95%b0%e6%8d%ae%e3%80%82%0aMap%20%e5%92%8c%20Reduce%20%e6%95%b4%e4%b8%aa%e8%ae%a1%e7%ae%97%e8%bf%87%e7%a8%8b%e9%9c%80%e8%a6%81%e7%9a%84%e8%be%93%e5%85%a5%e6%98%af%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%ef%bc%8c%e8%be%93%e5%87%ba%e4%b9%9f%e6%98%af%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%e3%80%82%e6%9a%b4%e9%9c%b2%e7%bb%99%e7%94%a8%e6%88%b7%e7%9a%84%e4%b8%a4%e4%b8%aa%20interface%20%e6%98%af%20Map%20%e5%92%8c%20Reduce%e3%80%82%0a%20Map%20%e6%8e%a5%e6%94%b6%e4%b8%80%e4%b8%aa%20KV%20%e4%bd%9c%e4%b8%ba%e8%be%93%e5%85%a5%ef%bc%8c%e8%be%93%e5%87%ba%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%ef%bc%8c%e9%9b%86%e5%90%88%e8%a2%ab%e7%a7%b0%e4%b8%ba%20intermediate%20KV%20pairs%20%ef%bc%9b%20MapReduce%20library%20%e4%bb%8e%20intermediate%20%e6%95%b0%e6%8d%ae%e4%b8%ad%e5%b0%86%e7%9b%b8%e5%90%8c%e7%9a%84%20key%20%e7%9a%84%20values%20%e6%95%b4%e5%90%88%e6%88%90%e4%b8%80%e4%b8%aa%e9%9b%86%e5%90%88%e5%90%8e%e4%bc%a0%e9%80%92%e7%bb%99%20Reduce%20%ef%bc%9b%20Reduce%20%e4%bb%8e%20intermediate%20KV%20paris%20%e4%b8%ad%e6%8e%a5%e6%94%b6%e6%9f%90%e4%b8%aa%e7%89%b9%e5%ae%9a%e7%9a%84%20key%20%e5%92%8c%e8%bf%99%e4%b8%aa%20key%20%e5%af%b9%e5%ba%94%e7%9a%84%e4%b8%80%e4%b8%aa%20value%20%e9%9b%86%e5%90%88%ef%bc%8c%e5%b0%86%e5%85%b6%e5%a4%84%e7%90%86%e4%b9%8b%e5%90%8e%e8%be%93%e5%87%ba%e4%b8%80%e4%b8%aa%e6%96%b0%e7%9a%84%20value%20%e9%9b%86%e5%90%88%e3%80%82%20%20%e7%b1%bb%e4%bc%bc%e4%ba%8e%e8%bf%99%e6%a0%b7%ef%bc%9a%0a1map%3a%20%26lt%3bk1%2cv1%26gt%3b%20-%26gt%3b%20list%28%26lt%3bk2%2cv2%26gt%3b%29%202reduce%3a%20%26lt%3bk2%2clist%28v2%29%26gt%3b%20-%26gt%3b%20list%28v2%29%20%e5%85%b6%e4%b8%ad%ef%bc%8cReduce%20%e7%9a%84%e8%be%93%e5%87%ba%e5%9f%9f%e5%92%8c%20intermediate%20%e6%95%b0%e6%8d%ae%e7%9a%84%e5%9f%9f%e6%98%af%e7%9b%b8%e5%90%8c%e7%9a%84%ef%bc%8c%e5%92%8c%20Map%20%e7%9a%84%e8%be%93%e5%85%a5%e5%9f%9f%e5%8f%af%e4%bb%a5%e4%b8%8d%e5%90%8c%e3%80%82%0aGoogle%20%e7%9a%84%20MapReduce%20Implementation%20%e4%b8%8d%e5%90%8c%e7%9a%84%20environment%20%e5%af%b9%e5%ba%94%e4%ba%8e%e4%b8%8d%e5%90%8c%e7%9a%84%20implementation%20%ef%bc%8c%e8%b0%b7%e6%ad%8c%e4%bd%bf%e7%94%a8%e7%9a%84%e8%ae%a1%e7%ae%97%20environment%20%e4%b8%ba%ef%bc%9a" aria-label="Tumblr">
+      <i class="fab fa-tumblr " aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&t=Notes%20of%20MapReduce" aria-label="Hacker News">
+      <i class="fab fa-hacker-news " aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#map-和-reduce">Map 和 Reduce</a></li>
+    <li><a href="#google-的-mapreduce-implementation">Google 的 MapReduce Implementation</a></li>
+    <li><a href="#mapreduce-建立倒排索引的例子">MapReduce 建立倒排索引的例子</a></li>
+  </ul>
+</nav>
+    </div>
+  </span>
+</div>
+
+
+  <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+      <h1 class="posttitle" itemprop="name headline">
+        Notes of MapReduce
+      </h1>
+      <div class="meta">
+        
+        <div class="postdate">
+          
+          <time datetime="2021-08-10 16:53:13 &#43;0800 &#43;0800" itemprop="datePublished">2021-08-10</time>
+          
+        </div>
+        
+        
+        
+        
+      </div>
+    </header>
+
+  
+    <div class="content" itemprop="articleBody">
+      <p>简言之，MapReduce 是一种 programming model，用于<strong>处理</strong>并<strong>产生</strong>大数据。</p>
+<h2 id="map-和-reduce">Map 和 Reduce</h2>
+<p>整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用户的两个 interface 是 Map 和 Reduce。</p>
+<ul>
+<li>Map 接收一个 KV 作为输入，输出一个 KV 集合，集合被称为 intermediate KV pairs ；</li>
+<li>MapReduce library 从 intermediate 数据中将相同的 key 的 values 整合成一个集合后传递给 Reduce ；</li>
+<li>Reduce 从 intermediate KV paris 中接收某个特定的 key 和这个 key 对应的一个 value 集合，将其处理之后输出一个新的 value 集合。</li>
+</ul>
+<p>类似于这样：</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>map: &lt;k1,v1&gt; -&gt; list(&lt;k2,v2&gt;)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>reduce: &lt;k2,list(v2)&gt; -&gt; list(v2)
+</code></pre></div><p>其中，Reduce 的输出域和 intermediate 数据的域是相同的，和 Map 的输入域可以不同。</p>
+<h2 id="google-的-mapreduce-implementation">Google 的 MapReduce Implementation</h2>
+<p>不同的 environment 对应于不同的 implementation ，谷歌使用的计算 environment 为：</p>
+<ol>
+<li>机器大多是 x86 架构，跑 Linux ，内存 2-4 GB；</li>
+<li>商用网络，通常是 100 Mb/s 或者 1Gb/s；</li>
+<li>一个集群有上百或者上千个机器，出故障很正常；</li>
+<li>用便宜的 IDE 硬盘直接保存每个机器自己的数据，用内部开发的分布式文件系统来管理文件；</li>
+<li>用户向一个调度系统提交 jobs ，每个 job 是一个 task 集合，由调度系统来分配到集群中的可用机器上。</li>
+</ol>
+<p><img src="https://typora-img-tanwei.oss-cn-beijing.aliyuncs.com/img/image-20200602163943114.png" alt="image-20210810172027074"></p>
+<p>论文里这段话没看懂：</p>
+<blockquote>
+<p>The Map invocations are distributed across multiple machines by automatically partitioning the input data USENIX Association OSDI ’04: 6th Symposium on Operating Systems Design and Implementation 139 into a set of M splits. The input splits can be processed in parallel by different machines. Reduce invocations are distributed by partitioning the intermediate key space into R pieces using a partitioning function (e.g., hash(key) mod R). The number of partitions (R) and the partitioning function are specified by the user.</p>
+</blockquote>
+<p>但不影响，现在只知道原始的 raw data 被分割成了 M 个 splits ，可以由 M 个机器来并行 map ；并且也有 R 台机器可以并行执行 reduce 。具体的过程为：</p>
+<ol>
+<li>MapReduce library 将输入数据分割为 M 个 splits ，每个 16 到 64 MB。然后在集群中 fork 出很多自己的复制（这里我理解为在不同的机器上都跑一个（或者多个）当前程序的 fork ）；</li>
+<li>其中有一个 copy 比较特殊，称之为 master，其他的 copies 需要被 master 分配任务，一共有 M 个 map 任务和 R 个 reduce 任务，master 会挑没事做的 worker 来分配 map 或者 reduce 任务；</li>
+<li>如果一个 worker 被分配了一个 map 任务 ，那它会读取特定的那个 split ，从数据中提取出 KV 对集合传输给用户定义的 <code>Map</code> 函数，<code>Map</code> 函数产生的 intermediate KV 对存在内存缓冲区中；</li>
+<li>内存缓冲区中的 intermediate 数据会被周期性写到磁盘上（map worker 自己的磁盘）并被分割为 R 个区域。这些缓冲数据在磁盘上的位置会被传递到 master ，master 需要把这些区域转发给 reduce workers ；</li>
+<li>当一个 reduce worker 被告知了缓冲数据的位置，它会调用 RPC 从特定的 map worker 那里读到这些数据。当所有的 intermediate data 都被读完后（这里其实留下了一个疑点，如何判断被读完了？），reduce worker 用 key 将这些数据排序，这样相同 key 的数据会被分到一起；</li>
+<li>对于被排序好的 intermediate data，reduce worker 遍历地将 <code>&lt;k2, list(v2)&gt;</code> 传到用户实现的 <code>Reduce</code> 函数（因为已经排序好了），并把输出 append 到该 reduce partition （一共有 R 个）的输出文件中；</li>
+<li>当所有的 map 和 reduce 任务都被完成后，master 唤醒用户程序，执行流回到用户代码中。</li>
+</ol>
+<h2 id="mapreduce-建立倒排索引的例子">MapReduce 建立倒排索引的例子</h2>
+<blockquote>
+<p>倒排索引：记录每个词条出现在哪些文档，以及文档中的位置。</p>
+</blockquote>
+<p>摘录一下 MapReduce 应用于倒排索引的算法：</p>
+<blockquote>
+<p>Inverted Index: The map function parses each document, and emits a sequence of hword, document IDi pairs. The reduce function accepts all pairs for a given word, sorts the corresponding document IDs and emits a hword, list(document ID)i pair. The set of all output pairs forms a simple inverted index. It is easy to augment this computation to keep track of word positions.</p>
+</blockquote>
+<p>假如说有三条词条：有 id 和 内容</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Jay eats food.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>food &amp; music</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Jay attends party.</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>首先将 raw data 进行 split，分成三条内容：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Jay eats food.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>food &amp; music</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Jay attends party.</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>分配出三个 map worker ，对三个 split 处理，将其转换为：</p>
+<ol>
+<li>
+<p>Map worker 1:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Map worker 2:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Map worker 3:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>假设分配两个 reduce worker ，那需要一个算法对 map worker 产生的 KV 对分类。这里有无数种方法，比如说用 key 的长度为奇数还是偶数来分类。每个 map worker 都有 disk A 和 disk B 来存储这两类 KV 对。</p>
+<ol>
+<li>
+<p>对于 Map worker 1:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>对于 Map worker 2:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>对于 Map worker 3:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>一旦有一个 Map worker 的某个 disk 被写完毕了时候，它会告诉 master，然后 master 会调用 Reduce worker 来做 Reduce 的工作；</p>
+<ol>
+<li>
+<p>对于 Reduce worker 1:</p>
+<p>得到的数据最终为：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>对于 Reduce worker 2:</p>
+<p>得到的数据最终为：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>经过排序（有很多方法排序）然后整理成 <code>&lt;key, list(value)&gt;</code> ：</p>
+<ol>
+<li>
+<p>对于 Reduce worker 1:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1, 3</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>对于 Reduce worker 2:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1, 2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>最后整合：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1, 3</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+<tr>
+<td>food</td>
+<td>1, 2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p>一个典型的分布式的倒排索引的过程就是这样。</p>
+
+    </div>
+  </article>
+
+  
+  
+
+
+
+
+
+  <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/posts">Writings</a></li>
+         
+          <li><a href="/about">About</a></li>
+         
+          <li><a href="/anti-involution/">反内卷自动分组工具</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#map-和-reduce">Map 和 Reduce</a></li>
+    <li><a href="#google-的-mapreduce-implementation">Google 的 MapReduce Implementation</a></li>
+    <li><a href="#mapreduce-建立倒排索引的例子">MapReduce 建立倒排索引的例子</a></li>
+  </ul>
+</nav>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      
+      <ul>
+  
+  
+    
+  
+  
+  <li>
+    <a class="icon" href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f" aria-label="Facebook">
+      <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://twitter.com/share?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&text=Notes%20of%20MapReduce" aria-label="Twitter">
+      <i class="fab fa-twitter fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="Linkedin">
+      <i class="fab fa-linkedin fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&is_video=false&description=Notes%20of%20MapReduce" aria-label="Pinterest">
+      <i class="fab fa-pinterest fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="mailto:?subject=Notes%20of%20MapReduce&body=Check out this article: https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f" aria-label="Email">
+      <i class="fas fa-envelope fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://getpocket.com/save?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="Pocket">
+      <i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://reddit.com/submit?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&title=Notes%20of%20MapReduce" aria-label="reddit">
+      <i class="fab fa-reddit fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="http://www.tumblr.com/share/link?url=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&name=Notes%20of%20MapReduce&description=%e7%ae%80%e8%a8%80%e4%b9%8b%ef%bc%8cMapReduce%20%e6%98%af%e4%b8%80%e7%a7%8d%20programming%20model%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%a4%84%e7%90%86%e5%b9%b6%e4%ba%a7%e7%94%9f%e5%a4%a7%e6%95%b0%e6%8d%ae%e3%80%82%0aMap%20%e5%92%8c%20Reduce%20%e6%95%b4%e4%b8%aa%e8%ae%a1%e7%ae%97%e8%bf%87%e7%a8%8b%e9%9c%80%e8%a6%81%e7%9a%84%e8%be%93%e5%85%a5%e6%98%af%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%ef%bc%8c%e8%be%93%e5%87%ba%e4%b9%9f%e6%98%af%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%e3%80%82%e6%9a%b4%e9%9c%b2%e7%bb%99%e7%94%a8%e6%88%b7%e7%9a%84%e4%b8%a4%e4%b8%aa%20interface%20%e6%98%af%20Map%20%e5%92%8c%20Reduce%e3%80%82%0a%20Map%20%e6%8e%a5%e6%94%b6%e4%b8%80%e4%b8%aa%20KV%20%e4%bd%9c%e4%b8%ba%e8%be%93%e5%85%a5%ef%bc%8c%e8%be%93%e5%87%ba%e4%b8%80%e4%b8%aa%20KV%20%e9%9b%86%e5%90%88%ef%bc%8c%e9%9b%86%e5%90%88%e8%a2%ab%e7%a7%b0%e4%b8%ba%20intermediate%20KV%20pairs%20%ef%bc%9b%20MapReduce%20library%20%e4%bb%8e%20intermediate%20%e6%95%b0%e6%8d%ae%e4%b8%ad%e5%b0%86%e7%9b%b8%e5%90%8c%e7%9a%84%20key%20%e7%9a%84%20values%20%e6%95%b4%e5%90%88%e6%88%90%e4%b8%80%e4%b8%aa%e9%9b%86%e5%90%88%e5%90%8e%e4%bc%a0%e9%80%92%e7%bb%99%20Reduce%20%ef%bc%9b%20Reduce%20%e4%bb%8e%20intermediate%20KV%20paris%20%e4%b8%ad%e6%8e%a5%e6%94%b6%e6%9f%90%e4%b8%aa%e7%89%b9%e5%ae%9a%e7%9a%84%20key%20%e5%92%8c%e8%bf%99%e4%b8%aa%20key%20%e5%af%b9%e5%ba%94%e7%9a%84%e4%b8%80%e4%b8%aa%20value%20%e9%9b%86%e5%90%88%ef%bc%8c%e5%b0%86%e5%85%b6%e5%a4%84%e7%90%86%e4%b9%8b%e5%90%8e%e8%be%93%e5%87%ba%e4%b8%80%e4%b8%aa%e6%96%b0%e7%9a%84%20value%20%e9%9b%86%e5%90%88%e3%80%82%20%20%e7%b1%bb%e4%bc%bc%e4%ba%8e%e8%bf%99%e6%a0%b7%ef%bc%9a%0a1map%3a%20%26lt%3bk1%2cv1%26gt%3b%20-%26gt%3b%20list%28%26lt%3bk2%2cv2%26gt%3b%29%202reduce%3a%20%26lt%3bk2%2clist%28v2%29%26gt%3b%20-%26gt%3b%20list%28v2%29%20%e5%85%b6%e4%b8%ad%ef%bc%8cReduce%20%e7%9a%84%e8%be%93%e5%87%ba%e5%9f%9f%e5%92%8c%20intermediate%20%e6%95%b0%e6%8d%ae%e7%9a%84%e5%9f%9f%e6%98%af%e7%9b%b8%e5%90%8c%e7%9a%84%ef%bc%8c%e5%92%8c%20Map%20%e7%9a%84%e8%be%93%e5%85%a5%e5%9f%9f%e5%8f%af%e4%bb%a5%e4%b8%8d%e5%90%8c%e3%80%82%0aGoogle%20%e7%9a%84%20MapReduce%20Implementation%20%e4%b8%8d%e5%90%8c%e7%9a%84%20environment%20%e5%af%b9%e5%ba%94%e4%ba%8e%e4%b8%8d%e5%90%8c%e7%9a%84%20implementation%20%ef%bc%8c%e8%b0%b7%e6%ad%8c%e4%bd%bf%e7%94%a8%e7%9a%84%e8%ae%a1%e7%ae%97%20environment%20%e4%b8%ba%ef%bc%9a" aria-label="Tumblr">
+      <i class="fab fa-tumblr fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li>
+    <a class="icon" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fzhujunhui.com%2fposts%2fmapreduce%2f&t=Notes%20of%20MapReduce" aria-label="Hacker News">
+      <i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      
+        <a id="menu-toggle" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;" aria-label="Menu">
+          <i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc-toggle" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;" aria-label="TOC">
+          <i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share-toggle" class="icon" href="#" onclick="$('#share-footer').toggle();return false;" aria-label="Share">
+          <i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" aria-label="Top of Page">
+          <i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+
+  <footer id="footer">
+  <div class="footer-left">
+    Copyright  &copy; 2021  zhu 
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+        <li><a href="/">Home</a></li>
+         
+        <li><a href="/posts">Writings</a></li>
+         
+        <li><a href="/about">About</a></li>
+         
+        <li><a href="/anti-involution/">反内卷自动分组工具</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+
+  </div>
+</body>
+
+<link rel="stylesheet" href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+
+
+
+</html>

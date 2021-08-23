@@ -7,7 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>zhu</copyright>
-    <lastBuildDate>Tue, 10 Aug 2021 16:53:13 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 23 Aug 2021 19:04:48 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>6.824 lab1 踩坑</title>
+      <link>https://zhujunhui.com/posts/6.824-lab1/</link>
+      <pubDate>Mon, 23 Aug 2021 19:04:48 +0800</pubDate>
+      
+      <guid>https://zhujunhui.com/posts/6.824-lab1/</guid>
+      <description>上周就一边写着一边破烂的 Go 做完了，但是过不了 crash test ，今天重新写了一遍，简化了流程和复杂性（同时减少了一定的并行性）。
+首先测试脚本有一个 bug ，在 src/main/test-mr.sh 的 202 行：
+1wait -n 把 -n 去掉，不然在 macOS 下这是一条非法的脚本指令。会导致脚本继续往下走，直接运行后面的 sort （但此时需要 sort 的文件还没生成）最后导致 FAIL 。可能是 macOS 的问题，也可能是 zsh 的问题，反正修改之后我就顺利的 All PASS 了。
+起初，我是想着 map 和 reduce 的 task 轨迹是完全并行的。换句话说，就是可以同时有 map task 和 reduce task 同时跑着，后来发现一没必要二让 master 的逻辑大大增加。于是简化为：
+ master 将整个过程分为 mapPhase 和 reducePhase ，在 map 阶段还有 map 任务没完成之前，master 不会去分配 reduce 任务； 只用一把大锁锁住整个 master 对 task 的分配过程； worker 不用向 master 注册，只需要询问要任务就可以了； master 只需要根据当前的状态（map 阶段还是 reduce 阶段）回应 worker 的 request 就好，如果此时没有相应的任务了（所有任务都是完成或者进行阶段），就让 worker 等一等。  而比较麻烦的东西是 intermediate 文件的原子操作。举个例子，一个 reduce task 需要涉及到 nMap 个 intermediate 文件，而如果有多个 worker 同时在跑这个 reduce task ，这会产生一些并发问题，经过简化后是这样解决的：</description>
+    </item>
+    
     <item>
       <title>Notes of MapReduce</title>
       <link>https://zhujunhui.com/posts/mapreduce/</link>

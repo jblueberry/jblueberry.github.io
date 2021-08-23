@@ -2,16 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://zhujunhui.com/posts/6.824-lab1/</loc>
+    <lastmod>2021-08-23T19:04:48+08:00</lastmod>
+  </url><url>
+    <loc>https://zhujunhui.com/posts/</loc>
+    <lastmod>2021-08-23T19:04:48+08:00</lastmod>
+  </url><url>
+    <loc>https://zhujunhui.com/</loc>
+    <lastmod>2021-08-23T19:04:48+08:00</lastmod>
+  </url><url>
     <loc>https://zhujunhui.com/pyf/</loc>
     <lastmod>2021-08-11T13:59:24+08:00</lastmod>
   </url><url>
     <loc>https://zhujunhui.com/posts/mapreduce/</loc>
-    <lastmod>2021-08-10T16:53:13+08:00</lastmod>
-  </url><url>
-    <loc>https://zhujunhui.com/posts/</loc>
-    <lastmod>2021-08-10T16:53:13+08:00</lastmod>
-  </url><url>
-    <loc>https://zhujunhui.com/</loc>
     <lastmod>2021-08-10T16:53:13+08:00</lastmod>
   </url><url>
     <loc>https://zhujunhui.com/posts/6.s081/</loc>

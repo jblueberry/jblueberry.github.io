@@ -71,7 +71,7 @@ params:
   # Extra links in navigation
   links:
     ## e.g.
-    - name: My Zhihu
+    - name: Zhihu
       path: https://www.zhihu.com/people/zhu-jun-hui-40-47
     
 

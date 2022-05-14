@@ -42,7 +42,7 @@ params:
   # Site Author
   author: Junhui Zhu
   # Author biography
-  bio: Student
+  bio: Graduate Student
   # Site Description, used in HTML meat
   description: Record something.
 
@@ -71,8 +71,9 @@ params:
   # Extra links in navigation
   links:
     ## e.g.
-    # - name: Project
-    #   path: /project
+    - name: My Zhihu
+      path: https://www.zhihu.com/people/zhu-jun-hui-40-47
+    
 
   # You can put your custom css and js to `static` directory, or use remote css and js files which start with `http://` or `https://`
   customCSS:

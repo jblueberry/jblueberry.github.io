@@ -151,3 +151,69 @@ std::cout << sizeof(arr2) << std::endl; // 输出是 12
 ```
 
 当 argument 是一个函数时，行为和数组是一样的。
+
+### Understand `auto`
+
+#### `auto` and Template Type Deduction
+
+除了一个例外，`auto` 的类型推导和模板类型推导可以直接一一映射：
+
+```C++
+template<typename T>
+void f(ParmaType param);
+
+f(expr);
+```
+
+可以被试做一个含有 `auto` 的声明，而 `auto` 就是 `T`：
+```C++
+ParamType param = expr;
+// ParamType 中含有 auto
+
+// 比如：
+const auto cx = 2;
+// 和下面等价：
+template<typename T>
+void func_for_cx(const T param);
+
+func_for_cx(2);
+// param 的推导类型就是 cx 的类型
+```
+
+用数组和函数退化为指针的特性来举个 `auto` 的例子：
+```C++
+int main() {
+    int arr[] = {1, 2, 3};
+    auto arr1 = arr;
+    auto & arr2 = arr;
+    
+    std::cout << (typeid(arr1) == typeid(arr)) << std::endl; // false
+    std::cout << (typeid(arr1) == typeid(&arr[0])) << std::endl; // true
+    std::cout << (typeid(arr2) == typeid(arr)) << std::endl; // true
+    std::cout << (typeid(arr2) == typeid(&arr[0])) << std::endl; // false
+}
+```
+
+#### An exception
+
+对于 C++11 的 uniform initialization，`auto` 和 template type deduction 的行为不太一样。
+
+```c++
+auto x = {2};
+std::cout << typeid(x).name() << std::endl; // output: St16initializer_listIiE
+int y = {2};
+std::cout << typeid(y).name() << std::endl; // output: i
+```
+
+显然 `x` 应该是个 int，但其实 `x` 是 `std::initializer_list<int>`，将其转化为 template type deduction 语法：
+
+```c++
+template<typename T>
+void f(T param) {
+    std::cout << typeid(param).name() << std::endl;
+}
+
+f({2});
+```
+
+上面这段代码是直接编译报错的，因为模板类型推导不知道怎么处理 `std::initializer_list` 的 argument，这就是唯一的区别：`auto` 会把花括号初始化视作 `std::initializer_list`。

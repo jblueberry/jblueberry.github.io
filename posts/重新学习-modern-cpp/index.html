@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          1070 words
+          1485 words
         </span>
         <span class="split">
           ·
@@ -82,6 +82,7 @@
     <li><a href="#type-deduction">Type Deduction</a>
       <ul>
         <li><a href="#template-type-deduction">Template Type Deduction</a></li>
+        <li><a href="#understand-auto">Understand <code>auto</code></a></li>
       </ul>
     </li>
   </ul>
@@ -195,6 +196,47 @@ f(arr);
 <span style="color:#0b0;font-weight:bold">int</span> arr2[arraySize(arr1)];
 std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> <span style="color:#a2f;font-weight:bold">sizeof</span>(arr2) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// 输出是 12
 </span></code></pre></div><p>当 argument 是一个函数时，行为和数组是一样的。</p>
+<h3 id="understand-auto">Understand <code>auto</code> <a href="#understand-auto" class="anchor">🔗</a></h3><h4 id="auto-and-template-type-deduction"><code>auto</code> and Template Type Deduction <a href="#auto-and-template-type-deduction" class="anchor">🔗</a></h4><p>除了一个例外，<code>auto</code> 的类型推导和模板类型推导可以直接一一映射：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(ParmaType param);
+
+f(expr);
+</code></pre></div><p>可以被试做一个含有 <code>auto</code> 的声明，而 <code>auto</code> 就是 <code>T</code>：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++">ParamType param <span style="color:#666">=</span> expr;
+<span style="color:#080;font-style:italic">// ParamType 中含有 auto
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic">// 比如：
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">const</span> <span style="color:#a2f;font-weight:bold">auto</span> cx <span style="color:#666">=</span> <span style="color:#666">2</span>;
+<span style="color:#080;font-style:italic">// 和下面等价：
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> func_for_cx(<span style="color:#a2f;font-weight:bold">const</span> T param);
+
+func_for_cx(<span style="color:#666">2</span>);
+<span style="color:#080;font-style:italic">// param 的推导类型就是 cx 的类型
+</span></code></pre></div><p>用数组和函数退化为指针的特性来举个 <code>auto</code> 的例子：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#0b0;font-weight:bold">int</span> <span style="color:#00a000">main</span>() {
+    <span style="color:#0b0;font-weight:bold">int</span> arr[] <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>};
+    <span style="color:#a2f;font-weight:bold">auto</span> arr1 <span style="color:#666">=</span> arr;
+    <span style="color:#a2f;font-weight:bold">auto</span> <span style="color:#666">&amp;</span> arr2 <span style="color:#666">=</span> arr;
+    
+    std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> (<span style="color:#a2f;font-weight:bold">typeid</span>(arr1) <span style="color:#666">==</span> <span style="color:#a2f;font-weight:bold">typeid</span>(arr)) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// false
+</span><span style="color:#080;font-style:italic"></span>    std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> (<span style="color:#a2f;font-weight:bold">typeid</span>(arr1) <span style="color:#666">==</span> <span style="color:#a2f;font-weight:bold">typeid</span>(<span style="color:#666">&amp;</span>arr[<span style="color:#666">0</span>])) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// true
+</span><span style="color:#080;font-style:italic"></span>    std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> (<span style="color:#a2f;font-weight:bold">typeid</span>(arr2) <span style="color:#666">==</span> <span style="color:#a2f;font-weight:bold">typeid</span>(arr)) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// true
+</span><span style="color:#080;font-style:italic"></span>    std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> (<span style="color:#a2f;font-weight:bold">typeid</span>(arr2) <span style="color:#666">==</span> <span style="color:#a2f;font-weight:bold">typeid</span>(<span style="color:#666">&amp;</span>arr[<span style="color:#666">0</span>])) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// false
+</span><span style="color:#080;font-style:italic"></span>}
+</code></pre></div><h4 id="an-exception">An exception <a href="#an-exception" class="anchor">🔗</a></h4><p>对于 C++11 的 uniform initialization，<code>auto</code> 和 template type deduction 的行为不太一样。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#a2f;font-weight:bold">auto</span> x <span style="color:#666">=</span> {<span style="color:#666">2</span>};
+std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> <span style="color:#a2f;font-weight:bold">typeid</span>(x).name() <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// output: St16initializer_listIiE
+</span><span style="color:#080;font-style:italic"></span><span style="color:#0b0;font-weight:bold">int</span> y <span style="color:#666">=</span> {<span style="color:#666">2</span>};
+std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> <span style="color:#a2f;font-weight:bold">typeid</span>(y).name() <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// output: i
+</span></code></pre></div><p>显然 <code>x</code> 应该是个 int，但其实 <code>x</code> 是 <code>std::initializer_list&lt;int&gt;</code>，将其转化为 template type deduction 语法：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T param) {
+    std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> <span style="color:#a2f;font-weight:bold">typeid</span>(param).name() <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl;
+}
+
+f({<span style="color:#666">2</span>});
+</code></pre></div><p>上面这段代码是直接编译报错的，因为模板类型推导不知道怎么处理 <code>std::initializer_list</code> 的 argument，这就是唯一的区别：<code>auto</code> 会把花括号初始化视作 <code>std::initializer_list</code>。</p>
     </div>
 
     

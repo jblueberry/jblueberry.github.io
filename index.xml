@@ -6,68 +6,14 @@
     <description>Recent content on Jim Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Aug 2021 19:04:48 +0800</lastBuildDate><atom:link href="https://zhujunhui.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 14 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://zhujunhui.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>6.824 lab1 踩坑</title>
-      <link>https://zhujunhui.com/posts/6.824-lab1-%E8%B8%A9%E5%9D%91/</link>
-      <pubDate>Mon, 23 Aug 2021 19:04:48 +0800</pubDate>
+      <title>重新学习 Modern Cpp</title>
+      <link>https://zhujunhui.com/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</link>
+      <pubDate>Sat, 14 May 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://zhujunhui.com/posts/6.824-lab1-%E8%B8%A9%E5%9D%91/</guid>
-      <description>上周就一边写着一边破烂的 Go 做完了，但是过不了 crash test ，今天重新写了一遍，简化了流程和复杂性（同时减少了一定的并行性）。 首先测试脚本有一个 bug ，在 src/main/test-mr.sh</description>
-    </item>
-    
-    <item>
-      <title>Notes of MapReduce</title>
-      <link>https://zhujunhui.com/posts/notes-of-mapreduce/</link>
-      <pubDate>Tue, 10 Aug 2021 16:53:13 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/notes-of-mapreduce/</guid>
-      <description>简言之，MapReduce 是一种 programming model，用于处理并产生大数据。 Map 和 Reduce 🔗整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用</description>
-    </item>
-    
-    <item>
-      <title>6.S081 Notes</title>
-      <link>https://zhujunhui.com/posts/6.s081-notes/</link>
-      <pubDate>Thu, 15 Jul 2021 15:51:07 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/6.s081-notes/</guid>
-      <description>因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是</description>
-    </item>
-    
-    <item>
-      <title>One Night in Beijing</title>
-      <link>https://zhujunhui.com/posts/one-night-in-beijing/</link>
-      <pubDate>Mon, 28 Jun 2021 14:54:53 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/one-night-in-beijing/</guid>
-      <description>2021年6月28日，距离入职还有一天，我好想橘子。 北京和上海好像，全是高楼大厦，甚是失望。今天晚上想去第五大道看看，看看还仅存的一些老北京</description>
-    </item>
-    
-    <item>
-      <title>CSAPP Chapter 10</title>
-      <link>https://zhujunhui.com/posts/csapp-chapter-10/</link>
-      <pubDate>Wed, 12 May 2021 16:45:57 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/csapp-chapter-10/</guid>
-      <description>RIO without buffer 🔗ssize_t rio_readn(int fd, void *usrbuf, size_t n); 和 Unix IO 的 read 函数的区别： 被中断打断可以重新读 成功时返回 0， 遇到 EOF 时同样返回差值。 ssize_t rio_writen(int fd, void *usrbuf, size_t n); 被中断打断可以</description>
-    </item>
-    
-    <item>
-      <title>One Record</title>
-      <link>https://zhujunhui.com/posts/one-record/</link>
-      <pubDate>Wed, 12 May 2021 16:45:57 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/one-record/</guid>
-      <description>仅记录。</description>
-    </item>
-    
-    <item>
-      <title>JDASP</title>
-      <link>https://zhujunhui.com/posts/jdasp/</link>
-      <pubDate>Thu, 22 Apr 2021 20:20:19 +0800</pubDate>
-      
-      <guid>https://zhujunhui.com/posts/jdasp/</guid>
-      <description>建议 JD 学子转美本，已 run to SG。</description>
+      <guid>https://zhujunhui.com/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</guid>
+      <description></description>
     </item>
     
   </channel>

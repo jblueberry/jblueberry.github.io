@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <title>6.824 lab1 踩坑 | Jim Zhu</title>
+    <title>重新学习 Modern Cpp | Jim Zhu</title>
 
     <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
 <meta name="viewport" content="width=device-width,minimum-scale=1">
-<meta name="description" content="上周就一边写着一边破烂的 Go 做完了，但是过不了 crash test ，今天重新写了一遍，简化了流程和复杂性（同时减少了一定的并行性）。 首先测试脚本有一个 bug ，在 src/main/test-mr.sh">
+<meta name="description" content="">
 <meta name="generator" content="Hugo 0.82.1" />
 
 
@@ -37,6 +37,8 @@
 	<a href="/about">About</a>
 
 	
+		<a href="https://www.zhihu.com/people/zhu-jun-hui-40-47">My Zhihu</a>
+	
 
 	
 	  <a class="button" href="https://zhujunhui.com/index.xml">Subscribe</a>
@@ -48,21 +50,21 @@
       
 
 <section id="single">
-    <h1 class="title">6.824 lab1 踩坑</h1>
+    <h1 class="title">重新学习 Modern Cpp</h1>
 
     <div class="tip">
-        <time datetime="2021-08-23 19:04:48 &#43;0800 &#43;0800">Aug 23, 2021</time>
+        <time datetime="2022-05-14 00:00:00 &#43;0000 UTC">May 14, 2022</time>
         <span class="split">
           ·
         </span>
         <span>
-          763 words
+          0 words
         </span>
         <span class="split">
           ·
         </span>
         <span>
-          2 minute read
+          0 minute read
         </span>
     </div>
 
@@ -76,29 +78,15 @@
 
 
     <div class="content">
-      <p>上周就一边写着一边破烂的 Go 做完了，但是过不了 crash test ，今天重新写了一遍，简化了流程和复杂性（同时减少了一定的并行性）。</p>
-<p>首先测试脚本有一个 bug ，在 <code>src/main/test-mr.sh</code> 的 202 行：</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">wait</span> -n
-</code></pre></div><p>把 <code>-n</code> 去掉，不然在 macOS 下这是一条非法的脚本指令。会导致脚本继续往下走，直接运行后面的 <code>sort</code> （但此时需要 <code>sort</code> 的文件还没生成）最后导致 FAIL 。可能是 macOS 的问题，也可能是 zsh 的问题，反正修改之后我就顺利的 All PASS 了。</p>
-<p>起初，我是想着 map 和 reduce 的 task 轨迹是完全并行的。换句话说，就是可以同时有 map task 和 reduce task 同时跑着，后来发现一没必要二让 master 的逻辑大大增加。于是简化为：</p>
-<ul>
-<li>master 将整个过程分为 mapPhase 和 reducePhase ，在 map 阶段还有 map 任务没完成之前，master 不会去分配 reduce 任务；</li>
-<li>只用一把大锁锁住整个 master 对 task 的分配过程；</li>
-<li>worker 不用向 master 注册，只需要询问要任务就可以了；</li>
-<li>master 只需要根据当前的状态（map 阶段还是 reduce 阶段）回应 worker 的 request 就好，如果此时没有相应的任务了（所有任务都是完成或者进行阶段），就让 worker 等一等。</li>
-</ul>
-<p>而比较麻烦的东西是 intermediate 文件的<strong>原子操作</strong>。举个例子，一个 reduce task 需要涉及到 <code>nMap</code> 个 intermediate 文件，而如果有多个 worker 同时在跑这个 reduce task ，这会产生一些并发问题，经过简化后是这样解决的：</p>
-<ol>
-<li>对于多个 worker 同时跑同一个 map task 时，首先对于 raw data 的读是不会产生竞争的，随意同时读；</li>
-<li>上一个情况中，每个 worker 都先创建一个<strong>不会有命名冲突</strong>的 tmp 文件，在完成创建之后再将其重命名为标准的中间文件名，这样就不会产生对同一个文件的 write race 了，而且即使发生了两次重命名，也不影响整个任务的正确执行，顶多有点浪费资源；</li>
-<li>同样的，多个 worker 同时跑同一个 reduce task 时，对于 intermediate 文件的并发读没有问题；</li>
-<li>产生最终的 <code>mr-out-X</code> 之前，也遵循 2 中说的策略，先写到永远不会冲突的 tmp 文件后重命名即可。</li>
-</ol>
-<p>我用的是 <code>os.Getpid()</code> 作为临时文件的后缀名，这样不同的进程就不会产生冲突了。</p>
-<p>值得优化的地方是，我完全没有用到 Golang 引以为豪的 channel ，而且我也不太明白这个到底有什么用。。。既然过了就开始看 Raft 了。</p>
-
+      
     </div>
 
+    
+        <div class="tags">
+            
+                <a href="https://zhujunhui.com/tags/c&#43;&#43;">C&#43;&#43;</a>
+            
+        </div>
     
     
     

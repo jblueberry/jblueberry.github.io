@@ -6,7 +6,7 @@
     <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
 <meta name="viewport" content="width=device-width,minimum-scale=1">
-<meta name="description" content="">
+<meta name="description" content="记录一些 Modern Cpp 的学习。">
 <meta name="generator" content="Hugo 0.82.1" />
 
 
@@ -58,13 +58,13 @@
           ·
         </span>
         <span>
-          0 words
+          1070 words
         </span>
         <span class="split">
           ·
         </span>
         <span>
-          0 minute read
+          3 minute read
         </span>
     </div>
 
@@ -72,13 +72,129 @@
     
         
   
+    <aside class="toc">
+      <details>
+          <summary>Table of Contents
+          </summary>
+          <div>
+              <nav id="TableOfContents">
+  <ul>
+    <li><a href="#type-deduction">Type Deduction</a>
+      <ul>
+        <li><a href="#template-type-deduction">Template Type Deduction</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+          </div>
+      </details>
+    </aside>
+  
 
 
     
 
 
     <div class="content">
-      
+      <p>记录一些 Modern Cpp 的学习。</p>
+<h2 id="type-deduction">Type Deduction <a href="#type-deduction" class="anchor">🔗</a></h2><h3 id="template-type-deduction">Template Type Deduction <a href="#template-type-deduction" class="anchor">🔗</a></h3><p>将 Template Type Deduction 看做一个这样的函数模板：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(ParamType param);
+</code></pre></div><p>编译器就像一个黑箱，接受一个表达式 <code>expr</code> 并根据 <code>ParamType</code> 的形式，推导出 <code>T</code> 和 <code>param</code> 的实际类型。</p>
+<h4 id="paramtype-是一个引用或者指针时">ParamType 是一个引用或者指针时， <a href="#paramtype-%e6%98%af%e4%b8%80%e4%b8%aa%e5%bc%95%e7%94%a8%e6%88%96%e8%80%85%e6%8c%87%e9%92%88%e6%97%b6" class="anchor">🔗</a></h4><ol>
+<li>忽略 <code>expr</code> 的引用；</li>
+<li>根据忽略引用后的类型和 <code>ParamType</code> 进行模式匹配。</li>
+</ol>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">&amp;</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+f(x); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被推导为 int &amp;
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> cx <span style="color:#666">=</span> x;
+f(cx); <span style="color:#080;font-style:italic">// T 被推导为 const int，param 被推导为 const int &amp;
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;</span> rx <span style="color:#666">=</span> x;
+f(rx) <span style="color:#080;font-style:italic">// T 被推导为 const int，param 被推导为 const int &amp;
+</span></code></pre></div><p>我自己的理解：将 <code>T&amp;</code> 用 backwards 的方法展开：reference to T，这里的 T 和 expr 的类型进行模式匹配。
+因此，当传递一个 const 对象给 <code>T&amp;</code> 时，该对象在函数中也保持了 constness。</p>
+<p>当 <code>ParamType</code> 是 <code>const T &amp;</code> aka reference to const T 时，<code>x</code> 作为 <code>expr</code> 会让 <code>T</code> 被规约为 int，但是 <code>cx</code> 和 <code>rx</code> 也会让 <code>T</code> 被规约为 int，因为 const 特性已经在 <code>ParamType</code> 里了。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(<span style="color:#a2f;font-weight:bold">const</span> T<span style="color:#666">&amp;</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+f(x); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被推导为 const int &amp;
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> cx <span style="color:#666">=</span> x;
+f(cx); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被推导为 const int &amp;
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;</span> rx <span style="color:#666">=</span> x;
+f(rx) <span style="color:#080;font-style:italic">// T 被推导为 int，param 被推导为 const int &amp;
+</span></code></pre></div><p>这也是很自然的结果，因为在函数中制定 parameter 是 const 的目的便是避免对其修改。</p>
+<p>同样，当 <code>ParamType</code> 是指针时，</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">*</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">*</span>px <span style="color:#666">=</span> <span style="color:#666">&amp;</span>x;
+
+f(<span style="color:#666">&amp;</span>x); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被被推导为 int*
+</span><span style="color:#080;font-style:italic"></span>f(px); <span style="color:#080;font-style:italic">// T 被推导为 const int，param 被被推导为 const int*
+</span></code></pre></div><p>加了 const 后：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(<span style="color:#a2f;font-weight:bold">const</span> T<span style="color:#666">*</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">*</span>px <span style="color:#666">=</span> <span style="color:#666">&amp;</span>x;
+
+f(<span style="color:#666">&amp;</span>x); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被被推导为 const int*
+</span><span style="color:#080;font-style:italic"></span>f(px); <span style="color:#080;font-style:italic">// T 被推导为 int，param 被被推导为 const int*
+</span></code></pre></div><p>下面的代码是不能通过编译的：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">*</span> <span style="color:#a2f;font-weight:bold">const</span> param);
+
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+
+f(<span style="color:#666">&amp;</span>x); <span style="color:#080;font-style:italic">// 破坏了 x 的 constness
+</span></code></pre></div><h4 id="paramtype-是一个通用引用时">ParamType 是一个通用引用时， <a href="#paramtype-%e6%98%af%e4%b8%80%e4%b8%aa%e9%80%9a%e7%94%a8%e5%bc%95%e7%94%a8%e6%97%b6" class="anchor">🔗</a></h4><div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">&amp;&amp;</span> param);
+</code></pre></div><p>这样的通用引用是可以接受左值 argument 的，当 argument 是右值时和上面是一样的。</p>
+<p>当 argument 是左值时，<code>T</code> 和 <code>ParamType</code> 都会被推导为左值引用。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">&amp;&amp;</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span><span style="">；</span>
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> cx <span style="color:#666">=</span> x;
+<span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;</span> rx <span style="color:#666">=</span> cx;
+
+f(x); <span style="color:#080;font-style:italic">// T 和 ParamType 都是 int &amp;
+</span><span style="color:#080;font-style:italic"></span>f(cx); <span style="color:#080;font-style:italic">// T 和 ParamType 都是 const int &amp;
+</span><span style="color:#080;font-style:italic"></span>f(rx); <span style="color:#080;font-style:italic">// T 和 ParamType 都是 const int &amp;
+</span><span style="color:#080;font-style:italic"></span>f(<span style="color:#666">1</span>); <span style="color:#080;font-style:italic">// T 是 int，ParamType 是 int &amp;&amp;
+</span></code></pre></div><h4 id="paramtype-不是引用也不是指针时">ParamType 不是引用也不是指针时 <a href="#paramtype-%e4%b8%8d%e6%98%af%e5%bc%95%e7%94%a8%e4%b9%9f%e4%b8%8d%e6%98%af%e6%8c%87%e9%92%88%e6%97%b6" class="anchor">🔗</a></h4><p>这种情况下，总是会 copy 一份 argument，因此忽略 argument 自己的引用和 constness 或者 <code>volatile</code> 特性。</p>
+<h4 id="数组或者函数-argument">数组或者函数 argument <a href="#%e6%95%b0%e7%bb%84%e6%88%96%e8%80%85%e5%87%bd%e6%95%b0-argument" class="anchor">🔗</a></h4><p>对一个普通函数来说，如果 parameter 是一个数组类型，那其实就是一个指针类型。换言之，<code>f(int param[])</code> 和 <code>f(int *param)</code> 是一回事。</p>
+<p>但是模板函数中的 <code>ParamType</code> 包含引用时，可以获取到数组的所有信息，也就是说 <code>T</code> 会被推导为一个数组类型而不是指针。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T<span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">&amp;</span> param);
+
+<span style="color:#0b0;font-weight:bold">int</span> arr[] <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>};
+f(arr);
+<span style="color:#080;font-style:italic">// T 被推导为 int [3]
+</span><span style="color:#080;font-style:italic">// param 被推导为 int (&amp;)[3]
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic">/**
+</span><span style="color:#080;font-style:italic"> * 借助这个特性，可以写一个编译期就能运行的函数，获取数组的大小
+</span><span style="color:#080;font-style:italic"> */</span>
+<span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">typename</span> T, std<span style="color:#666">::</span>size_t N<span style="color:#666">&gt;</span>
+<span style="color:#a2f;font-weight:bold">constexpr</span> std<span style="color:#666">::</span>size_t arraySize(T (<span style="color:#666">&amp;</span>)[N]) <span style="color:#a2f;font-weight:bold">noexcept</span>
+{
+    <span style="color:#a2f;font-weight:bold">return</span> N;
+}
+
+<span style="color:#0b0;font-weight:bold">int</span> arr1[] <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>};
+<span style="color:#0b0;font-weight:bold">int</span> arr2[arraySize(arr1)];
+std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> <span style="color:#a2f;font-weight:bold">sizeof</span>(arr2) <span style="color:#666">&lt;&lt;</span> std<span style="color:#666">::</span>endl; <span style="color:#080;font-style:italic">// 输出是 12
+</span></code></pre></div><p>当 argument 是一个函数时，行为和数组是一样的。</p>
     </div>
 
     

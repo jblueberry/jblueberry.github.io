@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>MapReduce with Go | Jim Zhu</title>
+
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
+<meta name="viewport" content="width=device-width,minimum-scale=1">
+<meta name="description" content="6.824 lab1 的 notes。">
+<meta name="generator" content="Hugo 0.82.1" />
+
+
+  <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+
+
+
+
+
+
+
+  </head>
+
+  <body>
+    <nav class="navigation">
+	
+		<a href="/"> <span class="arrow">←</span>Home</a>
+	
+	<a href="/posts">Archive</a>
+	<a href="/tags">Tags</a>
+	<a href="/about">About</a>
+
+	
+		<a href="https://www.zhihu.com/people/zhu-jun-hui-40-47">Zhihu</a>
+	
+
+	
+	  <a class="button" href="https://zhujunhui.com/index.xml">Subscribe</a>
+	
+</nav>
+
+
+    <main class="main">
+      
+
+<section id="single">
+    <h1 class="title">MapReduce with Go</h1>
+
+    <div class="tip">
+        <time datetime="2021-08-10 00:00:00 &#43;0000 UTC">Aug 10, 2021</time>
+        <span class="split">
+          ·
+        </span>
+        <span>
+          2340 words
+        </span>
+        <span class="split">
+          ·
+        </span>
+        <span>
+          5 minute read
+        </span>
+    </div>
+
+    
+    
+        
+  
+    <aside class="toc">
+      <details>
+          <summary>Table of Contents
+          </summary>
+          <div>
+              <nav id="TableOfContents">
+  <ul>
+    <li><a href="#mapreduce">MapReduce</a>
+      <ul>
+        <li><a href="#map-和-reduce">Map 和 Reduce</a></li>
+        <li><a href="#google-的-mapreduce-implementation">Google 的 MapReduce Implementation</a></li>
+        <li><a href="#mapreduce-建立倒排索引的例子">MapReduce 建立倒排索引的例子</a></li>
+      </ul>
+    </li>
+    <li><a href="#6824-lab1-的坑">6.824 lab1 的坑</a></li>
+  </ul>
+</nav>
+          </div>
+      </details>
+    </aside>
+  
+
+
+    
+
+
+    <div class="content">
+      <p>6.824 lab1 的 notes。</p>
+<h2 id="mapreduce">MapReduce <a href="#mapreduce" class="anchor">🔗</a></h2><p>简言之，MapReduce 是一种 programming model，用于<strong>处理</strong>并<strong>产生</strong>大数据。</p>
+<h3 id="map-和-reduce">Map 和 Reduce <a href="#map-%e5%92%8c-reduce" class="anchor">🔗</a></h3><p>整个计算过程需要的输入是一个 KV 集合，输出也是一个 KV 集合。暴露给用户的两个 interface 是 Map 和 Reduce。</p>
+<ul>
+<li>Map 接收一个 KV 作为输入，输出一个 KV 集合，集合被称为 intermediate KV pairs ；</li>
+<li>MapReduce library 从 intermediate 数据中将相同的 key 的 values 整合成一个集合后传递给 Reduce ；</li>
+<li>Reduce 从 intermediate KV paris 中接收某个特定的 key 和这个 key 对应的一个 value 集合，将其处理之后输出一个新的 value 集合。</li>
+</ul>
+<p>类似于这样：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">map: &lt;k1,v1&gt; -&gt; list(&lt;k2,v2&gt;)
+reduce: &lt;k2,list(v2)&gt; -&gt; list(v2)
+</code></pre></div><p>其中，Reduce 的输出域和 intermediate 数据的域是相同的，和 Map 的输入域可以不同。</p>
+<h3 id="google-的-mapreduce-implementation">Google 的 MapReduce Implementation <a href="#google-%e7%9a%84-mapreduce-implementation" class="anchor">🔗</a></h3><p>不同的 environment 对应于不同的 implementation ，谷歌使用的计算 environment 为：</p>
+<ol>
+<li>机器大多是 x86 架构，跑 Linux ，内存 2-4 GB；</li>
+<li>商用网络，通常是 100 Mb/s 或者 1Gb/s；</li>
+<li>一个集群有上百或者上千个机器，出故障很正常；</li>
+<li>用便宜的 IDE 硬盘直接保存每个机器自己的数据，用内部开发的分布式文件系统来管理文件；</li>
+<li>用户向一个调度系统提交 jobs ，每个 job 是一个 task 集合，由调度系统来分配到集群中的可用机器上。</li>
+</ol>
+<p><p class="markdown-image">
+  <img src="https://typora-img-tanwei.oss-cn-beijing.aliyuncs.com/img/image-20200602163943114.png" alt="image-20210810172027074"  />
+</p></p>
+<p>论文里这段话没看懂：</p>
+<blockquote>
+<p>The Map invocations are distributed across multiple machines by automatically partitioning the input data USENIX Association OSDI ’04: 6th Symposium on Operating Systems Design and Implementation 139 into a set of M splits. The input splits can be processed in parallel by different machines. Reduce invocations are distributed by partitioning the intermediate key space into R pieces using a partitioning function (e.g., hash(key) mod R). The number of partitions (R) and the partitioning function are specified by the user.</p>
+</blockquote>
+<p>但不影响，现在只知道原始的 raw data 被分割成了 M 个 splits ，可以由 M 个机器来并行 map ；并且也有 R 台机器可以并行执行 reduce 。具体的过程为：</p>
+<ol>
+<li>MapReduce library 将输入数据分割为 M 个 splits ，每个 16 到 64 MB。然后在集群中 fork 出很多自己的复制（这里我理解为在不同的机器上都跑一个（或者多个）当前程序的 fork ）；</li>
+<li>其中有一个 copy 比较特殊，称之为 master，其他的 copies 需要被 master 分配任务，一共有 M 个 map 任务和 R 个 reduce 任务，master 会挑没事做的 worker 来分配 map 或者 reduce 任务；</li>
+<li>如果一个 worker 被分配了一个 map 任务 ，那它会读取特定的那个 split ，从数据中提取出 KV 对集合传输给用户定义的 <code>Map</code> 函数，<code>Map</code> 函数产生的 intermediate KV 对存在内存缓冲区中；</li>
+<li>内存缓冲区中的 intermediate 数据会被周期性写到磁盘上（map worker 自己的磁盘）并被分割为 R 个区域。这些缓冲数据在磁盘上的位置会被传递到 master ，master 需要把这些区域转发给 reduce workers ；</li>
+<li>当一个 reduce worker 被告知了缓冲数据的位置，它会调用 RPC 从特定的 map worker 那里读到这些数据。当所有的 intermediate data 都被读完后（这里其实留下了一个疑点，如何判断被读完了？），reduce worker 用 key 将这些数据排序，这样相同 key 的数据会被分到一起；</li>
+<li>对于被排序好的 intermediate data，reduce worker 遍历地将 <code>&lt;k2, list(v2)&gt;</code> 传到用户实现的 <code>Reduce</code> 函数（因为已经排序好了），并把输出 append 到该 reduce partition （一共有 R 个）的输出文件中；</li>
+<li>当所有的 map 和 reduce 任务都被完成后，master 唤醒用户程序，执行流回到用户代码中。</li>
+</ol>
+<h3 id="mapreduce-建立倒排索引的例子">MapReduce 建立倒排索引的例子 <a href="#mapreduce-%e5%bb%ba%e7%ab%8b%e5%80%92%e6%8e%92%e7%b4%a2%e5%bc%95%e7%9a%84%e4%be%8b%e5%ad%90" class="anchor">🔗</a></h3><blockquote>
+<p>倒排索引：记录每个词条出现在哪些文档，以及文档中的位置。</p>
+</blockquote>
+<p>摘录一下 MapReduce 应用于倒排索引的算法：</p>
+<blockquote>
+<p>Inverted Index: The map function parses each document, and emits a sequence of hword, document IDi pairs. The reduce function accepts all pairs for a given word, sorts the corresponding document IDs and emits a hword, list(document ID)i pair. The set of all output pairs forms a simple inverted index. It is easy to augment this computation to keep track of word positions.</p>
+</blockquote>
+<p>假如说有三条词条：有 id 和 内容</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Jay eats food.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>food &amp; music</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Jay attends party.</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>首先将 raw data 进行 split，分成三条内容：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Jay eats food.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>food &amp; music</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>Jay attends party.</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>分配出三个 map worker ，对三个 split 处理，将其转换为：</p>
+<ol>
+<li>
+<p>Map worker 1:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Map worker 2:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Map worker 3:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>假设分配两个 reduce worker ，那需要一个算法对 map worker 产生的 KV 对分类。这里有无数种方法，比如说用 key 的长度为奇数还是偶数来分类。每个 map worker 都有 disk A 和 disk B 来存储这两类 KV 对。</p>
+<ol>
+<li>
+<p>对于 Map worker 1:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>对于 Map worker 2:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>对于 Map worker 3:</p>
+<ul>
+<li>
+<p>Disk A</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Disk B</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>一旦有一个 Map worker 的某个 disk 被写完毕了时候，它会告诉 master，然后 master 会调用 Reduce worker 来做 Reduce 的工作；</p>
+<ol>
+<li>
+<p>对于 Reduce worker 1:</p>
+<p>得到的数据最终为：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Jay</td>
+<td>3</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>对于 Reduce worker 2:</p>
+<p>得到的数据最终为：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1</td>
+</tr>
+<tr>
+<td>food</td>
+<td>2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>经过排序（有很多方法排序）然后整理成 <code>&lt;key, list(value)&gt;</code> ：</p>
+<ol>
+<li>
+<p>对于 Reduce worker 1:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1, 3</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>对于 Reduce worker 2:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>food</td>
+<td>1, 2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+</li>
+<li>
+<p>最后整合：</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>document ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jay</td>
+<td>1, 3</td>
+</tr>
+<tr>
+<td>eat</td>
+<td>1</td>
+</tr>
+<tr>
+<td>music</td>
+<td>2</td>
+</tr>
+<tr>
+<td>party</td>
+<td>3</td>
+</tr>
+<tr>
+<td>food</td>
+<td>1, 2</td>
+</tr>
+<tr>
+<td>attend</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p>一个典型的分布式的倒排索引的过程就是这样。</p>
+<h2 id="6824-lab1-的坑">6.824 lab1 的坑 <a href="#6824-lab1-%e7%9a%84%e5%9d%91" class="anchor">🔗</a></h2><p>首先测试脚本有一个 bug ，在 <code>src/main/test-mr.sh</code> 的 202 行：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">wait</span> -n
+</code></pre></div><p>把 <code>-n</code> 去掉，不然在 macOS 下这是一条非法的脚本指令。会导致脚本继续往下走，直接运行后面的 <code>sort</code> （但此时需要 <code>sort</code> 的文件还没生成）最后导致 FAIL 。可能是 macOS 的问题，也可能是 zsh 的问题，反正修改之后我就顺利的 All PASS 了。</p>
+<p>起初，我是想着 map 和 reduce 的 task 轨迹是完全并行的。换句话说，就是可以同时有 map task 和 reduce task 同时跑着，后来发现一没必要二让 master 的逻辑大大增加。于是简化为：</p>
+<ul>
+<li>master 将整个过程分为 mapPhase 和 reducePhase ，在 map 阶段还有 map 任务没完成之前，master 不会去分配 reduce 任务；</li>
+<li>只用一把大锁锁住整个 master 对 task 的分配过程；</li>
+<li>worker 不用向 master 注册，只需要询问要任务就可以了；</li>
+<li>master 只需要根据当前的状态（map 阶段还是 reduce 阶段）回应 worker 的 request 就好，如果此时没有相应的任务了（所有任务都是完成或者进行阶段），就让 worker 等一等。</li>
+</ul>
+<p>而比较麻烦的东西是 intermediate 文件的<strong>原子操作</strong>。举个例子，一个 reduce task 需要涉及到 <code>nMap</code> 个 intermediate 文件，而如果有多个 worker 同时在跑这个 reduce task ，这会产生一些并发问题，经过简化后是这样解决的：</p>
+<ol>
+<li>对于多个 worker 同时跑同一个 map task 时，首先对于 raw data 的读是不会产生竞争的，随意同时读；</li>
+<li>上一个情况中，每个 worker 都先创建一个<strong>不会有命名冲突</strong>的 tmp 文件，在完成创建之后再将其重命名为标准的中间文件名，这样就不会产生对同一个文件的 write race 了，而且即使发生了两次重命名，也不影响整个任务的正确执行，顶多有点浪费资源；</li>
+<li>同样的，多个 worker 同时跑同一个 reduce task 时，对于 intermediate 文件的并发读没有问题；</li>
+<li>产生最终的 <code>mr-out-X</code> 之前，也遵循 2 中说的策略，先写到永远不会冲突的 tmp 文件后重命名即可。</li>
+</ol>
+<p>我用的是 <code>os.Getpid()</code> 作为临时文件的后缀名，这样不同的进程就不会产生冲突了。</p>
+<p>值得优化的地方是，我完全没有用到 Golang 引以为豪的 channel ，而且我也不太明白这个到底有什么用。。。既然过了就开始看 Raft 了。</p>
+    </div>
+
+    
+        <div class="tags">
+            
+                <a href="https://zhujunhui.com/tags/go">Go</a>
+            
+                <a href="https://zhujunhui.com/tags/distributed-systems">Distributed Systems</a>
+            
+        </div>
+    
+    
+    
+
+</section>
+
+
+    </main>
+    
+    <footer id="footer">
+    
+        <div id="social">
+
+
+    <a class="symbol" href="https://github.com/n1ujunhui" rel="me" target="_blank">
+        
+        <svg fill="#bbbbbb" width="28" height="28"  viewBox="0 0 72 72" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    
+    <title>Github</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Social-Icons---Rounded-Black" transform="translate(-264.000000, -939.000000)">
+            <g id="Github" transform="translate(264.000000, 939.000000)">
+                <path d="M8,72 L64,72 C68.418278,72 72,68.418278 72,64 L72,8 C72,3.581722 68.418278,-8.11624501e-16 64,0 L8,0 C3.581722,8.11624501e-16 -5.41083001e-16,3.581722 0,8 L0,64 C5.41083001e-16,68.418278 3.581722,72 8,72 Z" id="Rounded" fill="#bbbbbb"></path>
+                <path d="M35.9985,13 C22.746,13 12,23.7870921 12,37.096644 C12,47.7406712 18.876,56.7718301 28.4145,59.9584121 C29.6145,60.1797862 30.0525,59.4358488 30.0525,58.7973276 C30.0525,58.2250681 30.0315,56.7100863 30.0195,54.6996482 C23.343,56.1558981 21.9345,51.4693938 21.9345,51.4693938 C20.844,48.6864054 19.2705,47.9454799 19.2705,47.9454799 C17.091,46.4500754 19.4355,46.4801943 19.4355,46.4801943 C21.843,46.6503662 23.1105,48.9634994 23.1105,48.9634994 C25.2525,52.6455377 28.728,51.5823398 30.096,50.9649018 C30.3135,49.4077535 30.9345,48.3460615 31.62,47.7436831 C26.2905,47.1352808 20.688,45.0691228 20.688,35.8361671 C20.688,33.2052792 21.6225,31.0547881 23.1585,29.3696344 C22.911,28.7597262 22.0875,26.3110578 23.3925,22.9934585 C23.3925,22.9934585 25.4085,22.3459017 29.9925,25.4632101 C31.908,24.9285993 33.96,24.6620468 36.0015,24.6515052 C38.04,24.6620468 40.0935,24.9285993 42.0105,25.4632101 C46.5915,22.3459017 48.603,22.9934585 48.603,22.9934585 C49.9125,26.3110578 49.089,28.7597262 48.8415,29.3696344 C50.3805,31.0547881 51.309,33.2052792 51.309,35.8361671 C51.309,45.0917119 45.6975,47.1292571 40.3515,47.7256117 C41.2125,48.4695491 41.9805,49.9393525 41.9805,52.1877301 C41.9805,55.4089489 41.9505,58.0067059 41.9505,58.7973276 C41.9505,59.4418726 42.3825,60.1918338 43.6005,59.9554002 C53.13,56.7627944 60,47.7376593 60,37.096644 C60,23.7870921 49.254,13 35.9985,13" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>
+    </a>
+
+    <a class="symbol" href="https://twitter.com/niujunhui" rel="me" target="_blank">
+        
+        <svg fill="#bbbbbb" width="28" height="28" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="438.536px" height="438.536px" viewBox="0 0 438.536 438.536" style="enable-background:new 0 0 438.536 438.536;"
+	 xml:space="preserve">
+<g>
+	<path d="M414.41,24.123C398.333,8.042,378.963,0,356.315,0H82.228C59.58,0,40.21,8.042,24.126,24.123
+		C8.045,40.207,0.003,59.576,0.003,82.225v274.084c0,22.647,8.042,42.018,24.123,58.102c16.084,16.084,35.454,24.126,58.102,24.126
+		h274.084c22.648,0,42.018-8.042,58.095-24.126c16.084-16.084,24.126-35.454,24.126-58.102V82.225
+		C438.532,59.576,430.49,40.204,414.41,24.123z M335.471,168.735c0.191,1.713,0.288,4.278,0.288,7.71
+		c0,15.989-2.334,32.025-6.995,48.104c-4.661,16.087-11.8,31.504-21.416,46.254c-9.606,14.749-21.074,27.791-34.396,39.115
+		c-13.325,11.32-29.311,20.365-47.968,27.117c-18.648,6.762-38.637,10.143-59.953,10.143c-33.116,0-63.76-8.952-91.931-26.836
+		c4.568,0.568,9.329,0.855,14.275,0.855c27.6,0,52.439-8.565,74.519-25.7c-12.941-0.185-24.506-4.179-34.688-11.991
+		c-10.185-7.803-17.273-17.699-21.271-29.691c4.947,0.76,8.658,1.137,11.132,1.137c4.187,0,9.042-0.76,14.56-2.279
+		c-13.894-2.669-25.598-9.562-35.115-20.697c-9.519-11.136-14.277-23.84-14.277-38.114v-0.571
+		c10.085,4.755,19.602,7.229,28.549,7.422c-17.321-11.613-25.981-28.265-25.981-49.963c0-10.66,2.758-20.747,8.278-30.264
+		c15.035,18.464,33.311,33.213,54.816,44.252c21.507,11.038,44.54,17.227,69.092,18.558c-0.95-3.616-1.427-8.186-1.427-13.704
+		c0-16.562,5.853-30.692,17.56-42.399c11.703-11.706,25.837-17.561,42.394-17.561c17.515,0,32.079,6.283,43.688,18.846
+		c13.134-2.474,25.892-7.33,38.26-14.56c-4.757,14.652-13.613,25.788-26.55,33.402c12.368-1.716,23.88-4.95,34.537-9.708
+		C357.458,149.793,347.462,160.166,335.471,168.735z"/>
+</g>
+</svg>
+
+    </a>
+
+
+</div>
+
+    
+
+    <div class="copyright">
+    
+       © Copyright 
+       2022 
+       <span class="split">
+        <svg fill="#bbbbbb" width="15" height="15" version="1.1" id="heart-15" xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 15 15">
+  <path d="M13.91,6.75c-1.17,2.25-4.3,5.31-6.07,6.94c-0.1903,0.1718-0.4797,0.1718-0.67,0C5.39,12.06,2.26,9,1.09,6.75&#xA;&#x9;C-1.48,1.8,5-1.5,7.5,3.45C10-1.5,16.48,1.8,13.91,6.75z"/>
+</svg>
+       </span>
+       Junhui Zhu
+    
+    </div>
+
+    
+      <div class="powerby">
+        Powered by <a href='http://www.gohugo.io/'>Hugo</a> Theme By <a href='https://github.com/nodejh/hugo-theme-mini'>nodejh</a>
+      </div>
+    
+</footer>
+
+
+
+  </body>
+</html>

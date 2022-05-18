@@ -16,5 +16,23 @@
       <description></description>
     </item>
     
+    <item>
+      <title>Distributed Systems</title>
+      <link>https://zhujunhui.com/tags/distributed-systems/</link>
+      <pubDate>Tue, 10 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://zhujunhui.com/tags/distributed-systems/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://zhujunhui.com/tags/go/</link>
+      <pubDate>Tue, 10 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://zhujunhui.com/tags/go/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

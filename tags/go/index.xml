@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Go on Jim Zhu</title>
+    <link>https://zhujunhui.com/tags/go/</link>
+    <description>Recent content in Go on Jim Zhu</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 10 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://zhujunhui.com/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MapReduce with Go</title>
+      <link>https://zhujunhui.com/posts/mapreduce-with-go/</link>
+      <pubDate>Tue, 10 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://zhujunhui.com/posts/mapreduce-with-go/</guid>
+      <description>&lt;p&gt;6.824 lab1 的 notes。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -12,6 +12,8 @@ script:
   - hugo -D
   - ls -l
 
+before_install:
+  - rvm install 2.6.0
 # 构建完成后会自动更新Github Pages
 deploy:
   provider: pages

@@ -12,6 +12,9 @@ script:
   - hugo -D
   - ls -l
 
+before_install:
+  - gem install multipart-post -v 2.2.0
+
 # 构建完成后会自动更新Github Pages
 deploy:
   provider: pages

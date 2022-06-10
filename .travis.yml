@@ -10,8 +10,7 @@ install:
 
 script:
   - hugo -D
-
-
+  - ll
 
 # 构建完成后会自动更新Github Pages
 deploy:

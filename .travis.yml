@@ -1,7 +1,7 @@
 dist: xenial
-language: python # 默认是ruby
+language: ruby # 默认是ruby
 python: 
-  - "3.7"
+  - "2.6.0"
 submodules: true
 install:
   # nuo主题需要extended版本的hugo，其他主题可以用最新的普通版本就行
@@ -11,9 +11,6 @@ install:
 script:
   - hugo -D
   - ls -l
-
-before_install:
-  - gem install multipart-post -v 2.2.0
 
 # 构建完成后会自动更新Github Pages
 deploy:

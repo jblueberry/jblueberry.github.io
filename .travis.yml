@@ -11,6 +11,8 @@ install:
 script:
   - hugo -D
 
+
+
 # 构建完成后会自动更新Github Pages
 deploy:
   provider: pages

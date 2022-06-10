@@ -1,7 +1,7 @@
 dist: xenial
 language: ruby # 默认是ruby
-python: 
-  - "2.6.0"
+rvm:
+  - 2.6
 submodules: true
 install:
   # nuo主题需要extended版本的hugo，其他主题可以用最新的普通版本就行

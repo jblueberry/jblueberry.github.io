@@ -2,12 +2,13 @@
 title = "About"
 +++
 
-I am a current graduate student at NUS SoC and am interested in the following.
+I am a current graduate student at NUS SoC and am interested in programming.
+<!-- the following.
 - C++
 - Distribute systems
 - Database
 - OS
-- Blockchain
+- Blockchain -->
 
 This blog aims to share and document some of the problems I encountered in my studies, and you can also follow me on [Twitter](https://twitter.com/niujunhui).
 

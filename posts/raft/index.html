@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          16 words
+          105 words
         </span>
         <span class="split">
           ·
@@ -79,7 +79,11 @@
           <div>
               <nav id="TableOfContents">
   <ul>
-    <li><a href="#raft">Raft</a></li>
+    <li><a href="#raft">Raft</a>
+      <ul>
+        <li><a href="#leader-election">Leader election</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
           </div>
@@ -93,7 +97,12 @@
 
     <div class="content">
       <p>6.824 lab2 极限折磨。</p>
-<h2 id="raft">Raft <a href="#raft" class="anchor">🔗</a></h2><p>Raft 的简单</p>
+<h2 id="raft">Raft <a href="#raft" class="anchor">🔗</a></h2><p>Raft 是简化版的、工程化的 Paxos，分成了 Leader election、Log replication 和 Safety三个相对独立的模块。</p>
+<p><a href="https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf" target="_blank" rel="noopener">Extended Raft paper</a> 详细阐明了 Raft 的逻辑，6.824 的 2A、2B 和 2C 都可以用 paper 里的 Figure 2 来概括。</p>
+<p><p class="markdown-image">
+  <img src="/images/raft.png" alt="Raft"  />
+</p></p>
+<h3 id="leader-election">Leader election <a href="#leader-election" class="anchor">🔗</a></h3>
     </div>
 
     
@@ -102,6 +111,8 @@
                 <a href="https://zhujunhui.com/tags/go">Go</a>
             
                 <a href="https://zhujunhui.com/tags/distributed-systems">Distributed Systems</a>
+            
+                <a href="https://zhujunhui.com/tags/raft">Raft</a>
             
         </div>
     

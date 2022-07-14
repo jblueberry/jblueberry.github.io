@@ -2,44 +2,44 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Junhui Zhu</title>
-    <link>https://zhujunhui.com/posts/</link>
+    <link>https://jhzhu.xyz/posts/</link>
     <description>Recent content in Posts on Junhui Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://zhujunhui.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Raft</title>
-      <link>https://zhujunhui.com/posts/raft/</link>
+      <link>https://jhzhu.xyz/posts/raft/</link>
       <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://zhujunhui.com/posts/raft/</guid>
+      <guid>https://jhzhu.xyz/posts/raft/</guid>
       <description>&lt;p&gt;6.824 lab2 极限折磨。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>重新学习 Modern Cpp</title>
-      <link>https://zhujunhui.com/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</link>
+      <link>https://jhzhu.xyz/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</link>
       <pubDate>Sat, 14 May 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://zhujunhui.com/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</guid>
+      <guid>https://jhzhu.xyz/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</guid>
       <description>&lt;p&gt;记录一些 Modern Cpp 的学习。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>MapReduce with Go</title>
-      <link>https://zhujunhui.com/posts/mapreduce-with-go/</link>
+      <link>https://jhzhu.xyz/posts/mapreduce-with-go/</link>
       <pubDate>Tue, 10 Aug 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://zhujunhui.com/posts/mapreduce-with-go/</guid>
+      <guid>https://jhzhu.xyz/posts/mapreduce-with-go/</guid>
       <description>&lt;p&gt;6.824 lab1 的 notes。&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>6.S081 Notes</title>
-      <link>https://zhujunhui.com/posts/6.s081-notes/</link>
+      <link>https://jhzhu.xyz/posts/6.s081-notes/</link>
       <pubDate>Thu, 15 Jul 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://zhujunhui.com/posts/6.s081-notes/</guid>
+      <guid>https://jhzhu.xyz/posts/6.s081-notes/</guid>
       <description>&lt;p&gt;6.S081 的一些 notes。&lt;/p&gt;</description>
     </item>
     

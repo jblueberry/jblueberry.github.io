@@ -2,44 +2,44 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://zhujunhui.com/tags/distributed-systems/</loc>
+    <loc>https://jhzhu.xyz/tags/distributed-systems/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/tags/go/</loc>
+    <loc>https://jhzhu.xyz/tags/go/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/</loc>
+    <loc>https://jhzhu.xyz/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/posts/</loc>
+    <loc>https://jhzhu.xyz/posts/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/tags/raft/</loc>
+    <loc>https://jhzhu.xyz/tags/raft/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/posts/raft/</loc>
+    <loc>https://jhzhu.xyz/posts/raft/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/tags/</loc>
+    <loc>https://jhzhu.xyz/tags/</loc>
     <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/tags/c&#43;&#43;/</loc>
+    <loc>https://jhzhu.xyz/tags/c&#43;&#43;/</loc>
     <lastmod>2022-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</loc>
+    <loc>https://jhzhu.xyz/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</loc>
     <lastmod>2022-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/posts/mapreduce-with-go/</loc>
+    <loc>https://jhzhu.xyz/posts/mapreduce-with-go/</loc>
     <lastmod>2021-08-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/posts/6.s081-notes/</loc>
+    <loc>https://jhzhu.xyz/posts/6.s081-notes/</loc>
     <lastmod>2021-07-15T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/tags/os/</loc>
+    <loc>https://jhzhu.xyz/tags/os/</loc>
     <lastmod>2021-07-15T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://zhujunhui.com/about/</loc>
+    <loc>https://jhzhu.xyz/about/</loc>
   </url><url>
-    <loc>https://zhujunhui.com/categories/</loc>
+    <loc>https://jhzhu.xyz/categories/</loc>
   </url>
 </urlset>

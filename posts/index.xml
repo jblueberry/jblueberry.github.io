@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Junhui Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 25 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>左值、右值和类型推导</title>
+      <link>https://jhzhu.xyz/posts/%E5%B7%A6%E5%80%BC%E5%8F%B3%E5%80%BC%E5%92%8C%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/</link>
+      <pubDate>Thu, 25 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhzhu.xyz/posts/%E5%B7%A6%E5%80%BC%E5%8F%B3%E5%80%BC%E5%92%8C%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/</guid>
+      <description>&lt;p&gt;就是说，在尝试理解 C++ 语法层面的概念时，最好不要用理解 C 的那一套思路。也就是说，不要试图从高级语言的语法去揣测底层内存的行为。不然，看到“右值引用能够延长一个右值的生命周期而本身该引用是一个左值”时，可能会发疯。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>Raft</title>
       <link>https://jhzhu.xyz/posts/raft/</link>

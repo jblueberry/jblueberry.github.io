@@ -6,7 +6,16 @@
     <description>Recent content in Tags on Junhui Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 25 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>https://jhzhu.xyz/tags/c&#43;&#43;/</link>
+      <pubDate>Thu, 25 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhzhu.xyz/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Distributed Systems</title>
       <link>https://jhzhu.xyz/tags/distributed-systems/</link>
@@ -31,15 +40,6 @@
       <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
       
       <guid>https://jhzhu.xyz/tags/raft/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>C&#43;&#43;</title>
-      <link>https://jhzhu.xyz/tags/c&#43;&#43;/</link>
-      <pubDate>Sat, 14 May 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhzhu.xyz/tags/c&#43;&#43;/</guid>
       <description></description>
     </item>
     

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <title>Junhui Zhu</title>
+    <title>左值、右值和类型推导 | Junhui Zhu</title>
 
     <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
 <meta name="viewport" content="width=device-width,minimum-scale=1">
-<meta name="description" content="Record something.">
+<meta name="description" content="就是说，在尝试理解 C&#43;&#43; 语法层面的概念时，最好不要用理解 C 的那一套思路。也就是说，不要试图从高级语言的语法去揣测底层内存的行为。不然，看到“右值引用能够延长一个右值的生命周期而本身该引用是一个左值”时，可能会发疯。">
 <meta name="generator" content="Hugo 0.82.1" />
 
 
@@ -49,73 +49,88 @@
     <main class="main">
       
 
-<div id="page-404">
-  <div class="text">
-      
-          <h1>404 - Page Not Found</h1>
-      
+<section id="single">
+    <h1 class="title">左值、右值和类型推导</h1>
 
-      
-          <div>The content you&#39;re looking for doesn&#39;t seem to exist.</div>
-      
+    <div class="tip">
+        <time datetime="2022-08-25 00:00:00 &#43;0000 UTC">Aug 25, 2022</time>
+        <span class="split">
+          ·
+        </span>
+        <span>
+          399 words
+        </span>
+        <span class="split">
+          ·
+        </span>
+        <span>
+          1 minute read
+        </span>
     </div>
 
+    
+    
+        
   
-      <h2 class="read-more">Read more</h2> 
+    <aside class="toc">
+      <details>
+          <summary>Table of Contents
+          </summary>
+          <div>
+              <nav id="TableOfContents">
+  <ul>
+    <li><a href="#左值和右值">左值和右值</a>
+      <ul>
+        <li><a href="#左值引用和右值引用">左值引用和右值引用</a></li>
+        <li><a href="#stdmove-的作用"><code>std::move</code> 的作用</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+          </div>
+      </details>
+    </aside>
   
 
-  
-
 
     
+
+
+    <div class="content">
+      <p>就是说，在尝试理解 C++ 语法层面的概念时，最好不要用理解 C 的那一套思路。也就是说，不要试图从高级语言的语法去揣测底层内存的行为。不然，看到“右值引用能够延长一个右值的生命周期而本身该引用是一个左值”时，可能会发疯。</p>
+<h2 id="左值和右值">左值和右值 <a href="#%e5%b7%a6%e5%80%bc%e5%92%8c%e5%8f%b3%e5%80%bc" class="anchor">🔗</a></h2><p>能<strong>寻址</strong>的变量就是左值，不能的就是右值。</p>
+<h3 id="左值引用和右值引用">左值引用和右值引用 <a href="#%e5%b7%a6%e5%80%bc%e5%bc%95%e7%94%a8%e5%92%8c%e5%8f%b3%e5%80%bc%e5%bc%95%e7%94%a8" class="anchor">🔗</a></h3><p>左值引用只可以引用左值,右值引用只可以引用右值。恩，废话。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+<span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;</span> x_lref <span style="color:#666">=</span> x; <span style="color:#080;font-style:italic">// 左值引用引用左值
+</span><span style="color:#080;font-style:italic">// int &amp; x_lref_wrong = 1; 报错，左值引用只可以引用左值
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;&amp;</span> x_rref <span style="color:#666">=</span> <span style="color:#666">1</span>; <span style="color:#080;font-style:italic">// 右值引用可以引用右值
+</span><span style="color:#080;font-style:italic">// int &amp;&amp; x_rref_wrong = x; 报错，右值引用只可以引用右值
+</span></code></pre></div><p>同时，类别（types）和值类别（value categories，也就是左值或右值）是两个事情。</p>
+<h3 id="stdmove-的作用"><code>std::move</code> 的作用 <a href="#stdmove-%e7%9a%84%e4%bd%9c%e7%94%a8" class="anchor">🔗</a></h3><p><code>std::move</code> 就是把一个值强制转换成右值（右值也可以），本质上和 <code>static_cast&lt;T &amp;&amp;&gt;()</code> 是一样的。</p>
+<p>但是单单的 <code>std::move</code> 并不会改变这个值，也不会移动这个对象，以下代码会输出两个 <code>1</code>。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
+
+<span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;&amp;</span> x_rref <span style="color:#666">=</span> std<span style="color:#666">::</span>move(x);
+<span style="color:#080;font-style:italic">// 等同于：
+</span><span style="color:#080;font-style:italic">// int &amp;&amp; x_rref = static_cast&lt;int &amp;&amp;&gt;(x);
+</span><span style="color:#080;font-style:italic"></span>
+std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> x <span style="color:#666">&lt;&lt;</span> x_rref;
+</code></pre></div>
+    </div>
+
+    
+        <div class="tags">
+            
+                <a href="https://jhzhu.xyz/tags/c&#43;&#43;">C&#43;&#43;</a>
+            
+        </div>
     
     
-        
-        
-        <section class="item">
-          <div>
-            <h1 class="title"><a href='/posts/%E5%B7%A6%E5%80%BC%E5%8F%B3%E5%80%BC%E5%92%8C%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC/'>左值、右值和类型推导</a></h1>   
-            <div class="date">Aug 25, 2022</div>
-          </div>
-        </section>
     
-        
-        
-        <section class="item">
-          <div>
-            <h1 class="title"><a href='/posts/raft/'>Raft</a></h1>   
-            <div class="date">Jun 10, 2022</div>
-          </div>
-        </section>
-    
-        
-        
-        <section class="item">
-          <div>
-            <h1 class="title"><a href='/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/'>重新学习 Modern Cpp</a></h1>   
-            <div class="date">May 14, 2022</div>
-          </div>
-        </section>
-    
-        
-        
-        <section class="item">
-          <div>
-            <h1 class="title"><a href='/posts/mapreduce-with-go/'>MapReduce with Go</a></h1>   
-            <div class="date">Aug 10, 2021</div>
-          </div>
-        </section>
-    
-        
-        
-        <section class="item">
-          <div>
-            <h1 class="title"><a href='/posts/6.s081-notes/'>6.S081 Notes</a></h1>   
-            <div class="date">Jul 15, 2021</div>
-          </div>
-        </section>
-    
-</div>
+
+</section>
+
 
     </main>
     

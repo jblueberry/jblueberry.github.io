@@ -16,14 +16,5 @@
       <description>&lt;p&gt;就是说，在尝试理解 C++ 语法层面的概念时，最好不要用理解 C 的那一套思路。也就是说，不要试图从高级语言的语法去揣测底层内存的行为。不然，看到“右值引用能够延长一个右值的生命周期而本身该引用是一个左值”时，可能会发疯。&lt;/p&gt;</description>
     </item>
     
-    <item>
-      <title>重新学习 Modern Cpp</title>
-      <link>https://jhzhu.xyz/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</link>
-      <pubDate>Sat, 14 May 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://jhzhu.xyz/posts/%E9%87%8D%E6%96%B0%E5%AD%A6%E4%B9%A0-modern-cpp/</guid>
-      <description>&lt;p&gt;记录一些 Modern Cpp 的学习。&lt;/p&gt;</description>
-    </item>
-    
   </channel>
 </rss>

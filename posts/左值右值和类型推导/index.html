@@ -58,13 +58,13 @@
           ·
         </span>
         <span>
-          399 words
+          521 words
         </span>
         <span class="split">
           ·
         </span>
         <span>
-          1 minute read
+          2 minute read
         </span>
     </div>
 
@@ -82,6 +82,7 @@
     <li><a href="#左值和右值">左值和右值</a>
       <ul>
         <li><a href="#左值引用和右值引用">左值引用和右值引用</a></li>
+        <li><a href="#const--可以指向右值"><code>const &amp;</code> 可以指向右值</a></li>
         <li><a href="#stdmove-的作用"><code>std::move</code> 的作用</a></li>
       </ul>
     </li>
@@ -107,7 +108,16 @@
 <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;&amp;</span> x_rref <span style="color:#666">=</span> <span style="color:#666">1</span>; <span style="color:#080;font-style:italic">// 右值引用可以引用右值
 </span><span style="color:#080;font-style:italic">// int &amp;&amp; x_rref_wrong = x; 报错，右值引用只可以引用右值
 </span></code></pre></div><p>同时，类别（types）和值类别（value categories，也就是左值或右值）是两个事情。</p>
-<h3 id="stdmove-的作用"><code>std::move</code> 的作用 <a href="#stdmove-%e7%9a%84%e4%bd%9c%e7%94%a8" class="anchor">🔗</a></h3><p><code>std::move</code> 就是把一个值强制转换成右值（右值也可以），本质上和 <code>static_cast&lt;T &amp;&amp;&gt;()</code> 是一样的。</p>
+<h3 id="const--可以指向右值"><code>const &amp;</code> 可以指向右值 <a href="#const--%e5%8f%af%e4%bb%a5%e6%8c%87%e5%90%91%e5%8f%b3%e5%80%bc" class="anchor">🔗</a></h3><div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">const</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">&amp;</span>x <span style="color:#666">=</span> <span style="color:#666">5</span>; <span style="color:#080;font-style:italic">// 可以过编译
+</span></code></pre></div><p>具体的原因是为了能少重载一次，不然对于某个函数 <code>void f(T const &amp;t)</code>，还需要对右值参数进行一次重载，换句话说，</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">class T;
+T get_T();
+void f(T const &amp;t);
+
+T t{};
+f(t); // OK
+f(get_T()) // Also OK 因为 const &amp; 接受右值
+</code></pre></div><h3 id="stdmove-的作用"><code>std::move</code> 的作用 <a href="#stdmove-%e7%9a%84%e4%bd%9c%e7%94%a8" class="anchor">🔗</a></h3><p><code>std::move</code> 就是把一个值强制转换成右值（右值也可以），本质上和 <code>static_cast&lt;T &amp;&amp;&gt;()</code> 是一样的。</p>
 <p>但是单单的 <code>std::move</code> 并不会改变这个值，也不会移动这个对象，以下代码会输出两个 <code>1</code>。</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#0b0;font-weight:bold">int</span> x <span style="color:#666">=</span> <span style="color:#666">1</span>;
 
@@ -116,7 +126,7 @@
 </span><span style="color:#080;font-style:italic">// int &amp;&amp; x_rref = static_cast&lt;int &amp;&amp;&gt;(x);
 </span><span style="color:#080;font-style:italic"></span>
 std<span style="color:#666">::</span>cout <span style="color:#666">&lt;&lt;</span> x <span style="color:#666">&lt;&lt;</span> x_rref;
-</code></pre></div>
+</code></pre></div><p>有名字的变量都是左值，所以 <code>x_rref</code> 也是左值。</p>
     </div>
 
     

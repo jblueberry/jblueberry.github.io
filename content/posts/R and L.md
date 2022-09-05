@@ -89,4 +89,4 @@ unique_ptr(unique_ptr&& __u) noexcept
 : _M_t(__u.release(), std::forward<deleter_type>(__u.get_deleter())) { }
 ```
 
-然而，`move` 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 `f(T &&)` 这类函数，这件事本身依然非常鸡肋，**完美转发**解决了这件事情。
+然而，`move` 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 `f(T &&)` 这类函数，这件事本身依然非常鸡肋。但也没办法 :kissing:

@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          823 words
+          817 words
         </span>
         <span class="split">
           ·
@@ -143,7 +143,7 @@ f(x_rref); <span style="color:#080;font-style:italic">// 编译错误
 <span style="color:#080;font-style:italic">/// Move constructor.
 </span><span style="color:#080;font-style:italic"></span>unique_ptr(unique_ptr<span style="color:#666">&amp;&amp;</span> __u) <span style="color:#a2f;font-weight:bold">noexcept</span>
 <span style="color:#666">:</span> _M_t(__u.release(), std<span style="color:#666">::</span>forward<span style="color:#666">&lt;</span>deleter_type<span style="color:#666">&gt;</span>(__u.get_deleter())) { }
-</code></pre></div><p>然而，<code>move</code> 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 <code>f(T &amp;&amp;)</code> 这类函数，这件事本身依然非常鸡肋，<strong>完美转发</strong>解决了这件事情。</p>
+</code></pre></div><p>然而，<code>move</code> 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 <code>f(T &amp;&amp;)</code> 这类函数，这件事本身依然非常鸡肋。但也没办法 :kissing:</p>
     </div>
 
     

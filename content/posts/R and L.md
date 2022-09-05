@@ -30,6 +30,23 @@ int && x_rref = 1; // 右值引用可以引用右值
 
 同时，类别（types）和值类别（value categories，也就是左值或右值）是两个事情。
 
+### `const &` 可以指向右值
+
+```C++
+const int &x = 5; // 可以过编译
+```
+
+具体的原因是为了能少重载一次，不然对于某个函数 `void f(T const &t)`，还需要对右值参数进行一次重载，换句话说，
+
+```
+class T;
+T get_T();
+void f(T const &t);
+
+T t{};
+f(t); // OK
+f(get_T()) // Also OK 因为 const & 接受右值
+```
 ### `std::move` 的作用
 
 `std::move` 就是把一个值强制转换成右值（右值也可以），本质上和 `static_cast<T &&>()` 是一样的。
@@ -45,4 +62,6 @@ int && x_rref = std::move(x);
 
 std::cout << x << x_rref;
 ```
+
+有名字的变量都是左值，所以 `x_rref` 也是左值。
 

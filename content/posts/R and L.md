@@ -38,7 +38,7 @@ const int &x = 5; // 可以过编译
 
 具体的原因是为了能少重载一次，不然对于某个函数 `void f(T const &t)`，还需要对右值参数进行一次重载，换句话说，
 
-```
+```C++
 class T;
 T get_T();
 void f(T const &t);
@@ -63,5 +63,30 @@ int && x_rref = std::move(x);
 std::cout << x << x_rref;
 ```
 
-有名字的变量都是左值，所以 `x_rref` 也是左值。
+有名字的变量都是左值，所以 `x_rref` 也是左值。**`move`的作用在于把右值提升成了左值，延长了生命周期。**`x_rref` 和 `x` 仍然有着引用的关系，如：
 
+```C++
+void f(int &&);
+
+int x = 1;
+int && x_rref = std::move(x);
+x = 2;
+std::cout << x_rref << std::endl; // output: 2
+
+f(x_rref); // 编译错误
+f(std::move(x)); // 可以编译
+```
+
+### 右值引用的作用
+
+根据以上，右值引用很奇怪，其作用在于移动语义，一个在传统的对象拷贝情境中，如果被拷贝对象在拷贝完成后不再需要，就可以简化为**移动**。比如说，`std::unique_ptr` 是一个极端的例子，该指针所指向的对象必须只能被一个智能指针所指向，所以拷贝构造函数是被禁用的。
+
+```c++
+// Move constructors.
+
+/// Move constructor.
+unique_ptr(unique_ptr&& __u) noexcept
+: _M_t(__u.release(), std::forward<deleter_type>(__u.get_deleter())) { }
+```
+
+然而，`move` 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 `f(T &&)` 这类函数，这件事本身依然非常鸡肋，**完美转发**解决了这件事情。

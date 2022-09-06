@@ -89,4 +89,17 @@ unique_ptr(unique_ptr&& __u) noexcept
 : _M_t(__u.release(), std::forward<deleter_type>(__u.get_deleter())) { }
 ```
 
-然而，`move` 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 `f(T &&)` 这类函数，这件事本身依然非常鸡肋。但也没办法 :kissing:
+然而，`move` 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 `f(T &&)` 这类函数，这件事本身依然非常鸡肋。但也没办法 XD
+
+## 类型推导
+
+template 和左值右值有着更加奇怪的耦合。
+
+### Universal Reference
+
+Universal reference 并不是右值引用：
+```c++
+template <class T>
+void func(T&& t) {
+}
+```

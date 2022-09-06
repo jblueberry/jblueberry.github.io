@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          817 words
+          874 words
         </span>
         <span class="split">
           ·
@@ -85,6 +85,11 @@
         <li><a href="#const--可以指向右值"><code>const &amp;</code> 可以指向右值</a></li>
         <li><a href="#stdmove-的作用"><code>std::move</code> 的作用</a></li>
         <li><a href="#右值引用的作用">右值引用的作用</a></li>
+      </ul>
+    </li>
+    <li><a href="#类型推导">类型推导</a>
+      <ul>
+        <li><a href="#universal-reference">Universal Reference</a></li>
       </ul>
     </li>
   </ul>
@@ -143,7 +148,13 @@ f(x_rref); <span style="color:#080;font-style:italic">// 编译错误
 <span style="color:#080;font-style:italic">/// Move constructor.
 </span><span style="color:#080;font-style:italic"></span>unique_ptr(unique_ptr<span style="color:#666">&amp;&amp;</span> __u) <span style="color:#a2f;font-weight:bold">noexcept</span>
 <span style="color:#666">:</span> _M_t(__u.release(), std<span style="color:#666">::</span>forward<span style="color:#666">&lt;</span>deleter_type<span style="color:#666">&gt;</span>(__u.get_deleter())) { }
-</code></pre></div><p>然而，<code>move</code> 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 <code>f(T &amp;&amp;)</code> 这类函数，这件事本身依然非常鸡肋。但也没办法 :kissing:</p>
+</code></pre></div><p>然而，<code>move</code> 出的对象是一个左值，但类型是右值引用而不能被作为 argument 传入类似于 <code>f(T &amp;&amp;)</code> 这类函数，这件事本身依然非常鸡肋。但也没办法 XD</p>
+<h2 id="类型推导">类型推导 <a href="#%e7%b1%bb%e5%9e%8b%e6%8e%a8%e5%af%bc" class="anchor">🔗</a></h2><p>template 和左值右值有着更加奇怪的耦合。</p>
+<h3 id="universal-reference">Universal Reference <a href="#universal-reference" class="anchor">🔗</a></h3><p>Universal reference 并不是右值引用：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">T</span><span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> func(T<span style="color:#666">&amp;&amp;</span> t) {
+}
+</code></pre></div>
     </div>
 
     

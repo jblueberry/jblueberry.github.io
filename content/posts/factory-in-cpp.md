@@ -6,6 +6,8 @@ draft: true
 
 - Using smart pointers.
 
+<!--more-->
+
 ```c++
 #include <iostream>
 #include <vector>

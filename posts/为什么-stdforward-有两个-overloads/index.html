@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          13 words
+          192 words
         </span>
         <span class="split">
           ·
@@ -72,6 +72,20 @@
     
         
   
+    <aside class="toc">
+      <details>
+          <summary>Table of Contents
+          </summary>
+          <div>
+              <nav id="TableOfContents">
+  <ul>
+    <li><a href="#6-种实现">6 种实现</a></li>
+  </ul>
+</nav>
+          </div>
+      </details>
+    </aside>
+  
 
 
     
@@ -79,7 +93,93 @@
 
     <div class="content">
       <p>翻译自 C++ 委员会 Howard E. Hinnant 的 <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2009/n2951.html" target="_blank" rel="noopener">paper</a>.</p>
-<p>hello</p>
+<p><code>forward</code> 并不只是为了以下使用场景而生的：</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">T</span><span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">void</span> f(T<span style="color:#666">&amp;&amp;</span> x)
+{
+    <span style="color:#080;font-style:italic">// x is an lvalue here.  If the actual argument to f was an
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic">// rvalue, pass static_cast&lt;T&amp;&amp;&gt;(x) to g; otherwise, pass x.
+</span><span style="color:#080;font-style:italic"></span>    g(forward<span style="color:#666">&lt;</span>T<span style="color:#666">&gt;</span>(x));
+}
+</code></pre></div><p>如果只要满足以上场景，那仅仅用 <code>static_cast&lt;T&amp;&amp;&gt;(x)</code> 就够了。</p>
+<p>作者给出了 6 个 <code>forward</code> 的实现，并用 A to F 的使用场景测试，0 号实现就是 <code>static_cast&lt;T&amp;&amp;&gt;(x)</code> ，5 号实现是现在真正的 <code>forward</code>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>pass</td>
+<td>pass</td>
+<td>rfail</td>
+<td>pass</td>
+<td>pass</td>
+<td>rfail</td>
+<td>67%</td>
+</tr>
+<tr>
+<td>1</td>
+<td>pass</td>
+<td>cfail</td>
+<td>rfail</td>
+<td>pass</td>
+<td>pass</td>
+<td>rfail</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pass</td>
+<td>cfail</td>
+<td>pass</td>
+<td>cfail</td>
+<td>cfail</td>
+<td>pass</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>rfail</td>
+<td>83%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>cfail</td>
+<td>pass</td>
+<td>83%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>pass</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-种实现">6 种实现 <a href="#6-%e7%a7%8d%e5%ae%9e%e7%8e%b0" class="anchor">🔗</a></h2>
     </div>
 
     

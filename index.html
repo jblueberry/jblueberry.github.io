@@ -71,6 +71,22 @@
         
         <section class="item">
           <div>
+            <h1 class="title"><a href='/posts/factory-implement-in-cpp/'>Factory Implement in Cpp</a></h1>
+            <div class ="date">
+                <time datetime="2022-11-07 20:37:04 &#43;0800 &#43;0800">Nov 7, 2022</time>  
+            </div>
+          </div>
+
+          
+              <div class="summary">Using smart pointers.  #include &lt;iostream&gt;#include &lt;vector&gt;#include &lt;algorithm&gt;#include &lt;queue&gt;#include &lt;unordered_map&gt;#include &lt;functional&gt;#include &lt;memory&gt; using namespace std; template &lt;typename T&gt; class AutoRegister { public: struct AutoRegisterProxy { AutoRegisterProxy() { T::Register(); } }; static AutoRegisterProxy __proxy; }; template &lt;class T&gt; typename AutoRegister&lt;T&gt;::AutoRegisterProxy AutoRegister&lt;T&gt;::__proxy; class Base { public: virtual void printName() = 0; }; template&lt;typename Result, typename Key = std::string, typename ...Args&gt; class FactoryRegistry { public: static shared_ptr&lt;Result&gt; Make(const Key&amp; name, Args... args) { auto registry = GetStorage(); auto it = registry-&gt;find(name); if(it == registry-&gt;end()) return nullptr; return it-&gt;second(std::forward&lt;Args&gt;(args).</div>
+          
+
+        </section>
+    
+        
+        
+        <section class="item">
+          <div>
             <h1 class="title"><a href='/posts/%E4%B8%BA%E4%BB%80%E4%B9%88-stdforward-%E6%9C%89%E4%B8%A4%E4%B8%AA-overloads/'>为什么 std::forward 有两个 overloads</a></h1>
             <div class ="date">
                 <time datetime="2022-09-06 00:00:00 &#43;0000 UTC">Sep 6, 2022</time>  

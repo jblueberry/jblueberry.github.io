@@ -2,13 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://jhzhu.xyz/tags/c&#43;&#43;/</loc>
-    <lastmod>2022-09-06T00:00:00+00:00</lastmod>
+    <loc>https://jhzhu.xyz/posts/factory-implement-in-cpp/</loc>
+    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/</loc>
-    <lastmod>2022-09-06T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/posts/</loc>
+    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
+  </url><url>
+    <loc>https://jhzhu.xyz/tags/c&#43;&#43;/</loc>
     <lastmod>2022-09-06T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/tags/</loc>

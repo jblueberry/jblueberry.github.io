@@ -78,7 +78,7 @@
           </div>
 
           
-              <div class="summary">Using smart pointers.  #include &lt;iostream&gt;#include &lt;vector&gt;#include &lt;algorithm&gt;#include &lt;queue&gt;#include &lt;unordered_map&gt;#include &lt;functional&gt;#include &lt;memory&gt; using namespace std; template &lt;typename T&gt; class AutoRegister { public: struct AutoRegisterProxy { AutoRegisterProxy() { T::Register(); } }; static AutoRegisterProxy __proxy; }; template &lt;class T&gt; typename AutoRegister&lt;T&gt;::AutoRegisterProxy AutoRegister&lt;T&gt;::__proxy; class Base { public: virtual void printName() = 0; }; template&lt;typename Result, typename Key = std::string, typename ...Args&gt; class FactoryRegistry { public: static shared_ptr&lt;Result&gt; Make(const Key&amp; name, Args... args) { auto registry = GetStorage(); auto it = registry-&gt;find(name); if(it == registry-&gt;end()) return nullptr; return it-&gt;second(std::forward&lt;Args&gt;(args).</div>
+              <div class="summary"> Using smart pointers. </div>
           
 
         </section>

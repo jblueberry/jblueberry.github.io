@@ -13,7 +13,9 @@
       <pubDate>Mon, 07 Nov 2022 20:37:04 +0800</pubDate>
       
       <guid>https://jhzhu.xyz/posts/factory-implement-in-cpp/</guid>
-      <description>Using smart pointers.  #include &amp;lt;iostream&amp;gt;#include &amp;lt;vector&amp;gt;#include &amp;lt;algorithm&amp;gt;#include &amp;lt;queue&amp;gt;#include &amp;lt;unordered_map&amp;gt;#include &amp;lt;functional&amp;gt;#include &amp;lt;memory&amp;gt; using namespace std; template &amp;lt;typename T&amp;gt; class AutoRegister { public: struct AutoRegisterProxy { AutoRegisterProxy() { T::Register(); } }; static AutoRegisterProxy __proxy; }; template &amp;lt;class T&amp;gt; typename AutoRegister&amp;lt;T&amp;gt;::AutoRegisterProxy AutoRegister&amp;lt;T&amp;gt;::__proxy; class Base { public: virtual void printName() = 0; }; template&amp;lt;typename Result, typename Key = std::string, typename ...Args&amp;gt; class FactoryRegistry { public: static shared_ptr&amp;lt;Result&amp;gt; Make(const Key&amp;amp; name, Args... args) { auto registry = GetStorage(); auto it = registry-&amp;gt;find(name); if(it == registry-&amp;gt;end()) return nullptr; return it-&amp;gt;second(std::forward&amp;lt;Args&amp;gt;(args).</description>
+      <description>&lt;ul&gt;
+&lt;li&gt;Using smart pointers.&lt;/li&gt;
+&lt;/ul&gt;</description>
     </item>
     
     <item>

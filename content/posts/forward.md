@@ -36,3 +36,5 @@ void f(T&& x)
 5	| pass 	 |pass 	| pass |	 pass 	| pass| 	 pass |	100%|
 
 ## 6 种实现
+
+烂尾了。

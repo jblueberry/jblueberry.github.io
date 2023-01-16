@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          564 words
+          1000 words
         </span>
         <span class="split">
           ·
@@ -85,6 +85,8 @@
       <ul>
         <li><a href="#a-lockful-implementation">A lockful implementation</a></li>
         <li><a href="#the-first-lock-free-version">The first lock-free version</a></li>
+        <li><a href="#try-with-reference-counting">Try with reference-counting</a></li>
+        <li><a href="#next-optimization">Next optimization</a></li>
       </ul>
     </li>
   </ul>
@@ -134,7 +136,7 @@
   Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span> map_;
 
 <span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
-  V Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+  Value Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
     Lock <span style="color:#00a000">lock</span>(mutex_);
     <span style="color:#a2f;font-weight:bold">return</span> map_[key];
   }
@@ -155,7 +157,7 @@
   Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span> <span style="color:#666">*</span>map_;
 
 <span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
-  V Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+  Value Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
     <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#666">*</span>map_[key];
   }
 
@@ -171,7 +173,77 @@
     <span style="color:#080;font-style:italic">// map_ is not deleted because it is possibly accessed by some thread via lookup
 </span><span style="color:#080;font-style:italic"></span>  }
 }
-</code></pre></div><p>This map is globally wait-free, but the <code>Update</code> of a single thread is not wait-free. However, C++ does not have GC and the <code>map_</code> cannot be deleted before <code>Update</code> returns. <strong>Deterministic memory freeing is quite a fundamental problem in lock-free data structures</strong>. If it was me, I would use smart pointers to solve it XD.</p>
+</code></pre></div><p>This map is globally wait-free, but the <code>Update</code> of a single thread is not wait-free. However, C++ does not have GC and the <code>map_</code> cannot be deleted before <code>Update</code> returns. <strong>Deterministic memory freeing is quite a fundamental problem in lock-free data structures</strong>.</p>
+<h3 id="try-with-reference-counting">Try with reference-counting <a href="#try-with-reference-counting" class="anchor">🔗</a></h3><div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Key</span>, <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Value</span><span style="color:#666">&gt;</span>
+  <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">WRRMMap</span> {
+    <span style="color:#a2f;font-weight:bold">using</span> Data <span style="color:#666">=</span> std<span style="color:#666">::</span>pair<span style="color:#666">&lt;</span>Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;*</span>, <span style="color:#0b0;font-weight:bold">unsigned</span><span style="color:#666">&gt;</span>;
+    Data<span style="color:#666">*</span> data_;
+  ...
+};
+</code></pre></div><p>Then <code>Lookup</code> can increments <code>data-&gt;second</code> and decrements it after searching. If the rc hits 0, delete it. However, it is still not thread-safe.</p>
+<p>But the rc of the old <code>map_</code> will go to zero at some time, because new lookups will use the new map. So one solution is to use a queue to store old <code>map_</code>s and let a thread to check rc and delete them in loop. However, if a lookup thread is delayed a lot so that the scavenger cannot delete that map, so it is not theoretically safe.</p>
+<p>Another <a href="https://dl.acm.org/doi/proceedings/10.1145/383962" target="_blank" rel="noopener">solution</a> uses DCAS. DCAS is kind of a double-CAS:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">T1</span>, <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">T2</span><span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">bool</span> DCAS(T1<span style="color:#666">*</span> p1, T2<span style="color:#666">*</span> p2,
+          T1 e1, T2 e2,
+          T1 v1, T2 v2) {
+  <span style="color:#a2f;font-weight:bold">if</span> (<span style="color:#666">*</span>p1 <span style="color:#666">==</span> e1 <span style="color:#666">&amp;&amp;</span> <span style="color:#666">*</span>p2 <span style="color:#666">==</span> e2) {
+    <span style="color:#666">*</span>p1 <span style="color:#666">=</span> v1;
+    <span style="color:#666">*</span>p2 <span style="color:#666">=</span> v2;
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">true</span>;
+  }
+  <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">false</span>;
+}
+</code></pre></div><p>The memories pointed by <code>p1</code> and <code>p2</code> will be replaced by <code>v1</code> and <code>v2</code> <strong>if and only if</strong> <code>*p1 == e1 &amp;&amp; *p2 == e2</code>.</p>
+<h3 id="next-optimization">Next optimization <a href="#next-optimization" class="anchor">🔗</a></h3><p>CAS is still used, but a version supporting more than a pointer-length.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Key</span>, <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Value</span><span style="color:#666">&gt;</span>
+<span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">WRRMMap</span> {
+  <span style="color:#a2f;font-weight:bold">using</span> Data <span style="color:#666">=</span> std<span style="color:#666">::</span>pair<span style="color:#666">&lt;</span>Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;*</span>, <span style="color:#0b0;font-weight:bold">unsigned</span><span style="color:#666">&gt;</span>;
+  Data data_;
+<span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
+  Value Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+    Data old;
+    Data fresh;
+    <span style="color:#a2f;font-weight:bold">do</span> {
+      old <span style="color:#666">=</span> data_;
+      fresh <span style="color:#666">=</span> old;
+      <span style="color:#666">++</span>fresh.second;
+    } <span style="color:#a2f;font-weight:bold">while</span>(<span style="color:#666">!</span>CAS(<span style="color:#666">&amp;</span>data, old, fresh));
+
+    Value temp <span style="color:#666">=</span> (<span style="color:#666">*</span>fresh.first)[k];
+    <span style="color:#a2f;font-weight:bold">do</span> {
+      old <span style="color:#666">=</span> data_;
+      fresh <span style="color:#666">=</span> old;
+      <span style="color:#666">--</span>fresh.second;
+    } <span style="color:#a2f;font-weight:bold">while</span>(<span style="color:#666">!</span>CAS(<span style="color:#666">&amp;</span>data_, old, fresh));
+    <span style="color:#a2f;font-weight:bold">return</span> temp;
+  }
+
+  <span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">Update</span>(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key, <span style="color:#a2f;font-weight:bold">const</span> Value<span style="color:#666">&amp;</span> value) {
+    Data old;
+    Data fresh;
+    old.second <span style="color:#666">=</span> <span style="color:#666">1</span>;
+    fresh.first <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">nullptr</span>;
+    fresh.second <span style="color:#666">=</span> <span style="color:#666">1</span>;
+    Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;*</span> last <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">nullptr</span>;
+
+    <span style="color:#a2f;font-weight:bold">do</span> {
+      old.first <span style="color:#666">=</span> data_.first;
+      <span style="color:#a2f;font-weight:bold">if</span>(last <span style="color:#666">!=</span> old.first) {
+        <span style="color:#a2f;font-weight:bold">if</span>(fresh.first)
+          <span style="color:#a2f;font-weight:bold">delete</span> fresh.first;
+        fresh.first <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">new</span> Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span>(<span style="color:#666">*</span>old.first);
+        fresh.first<span style="color:#666">-&gt;</span>insert(key, value);
+        last <span style="color:#666">=</span> old.first;
+      }
+    } <span style="color:#a2f;font-weight:bold">while</span>(<span style="color:#666">!</span>CAS(<span style="color:#666">&amp;</span>data_, old, fresh));
+
+    <span style="color:#080;font-style:italic">// delete it confidently
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#a2f;font-weight:bold">delete</span> old.first;
+  }
+}
+</code></pre></div><p>For <code>Lookup</code> method, if there is no <code>Update</code>s, 2 CAS usage can implement the atomic increment and decrement of the reference count. If there is an <code>Update</code> running, the <code>data.first</code> will not be modified until all other <code>Lookup</code>s related to it has returned (thanks to the <code>old.second = 1</code> in <code>Update</code>). <code>last</code> is used to avoid rebuilding the map if there is only rc modified. So it is a solution which lets <code>Update</code> waits for all <code>Lookup</code>s finishing before it is going to replace the map.</p>
+<p>However, if the <code>Lookup</code>&rsquo;s rate is very high, the <code>Update</code> will be possibly starved because the rc will never decrement to one. So it is actually a WRRMBNTM (Write-Rarely-Read-Many-ButNot-Too-Many) map.</p>
     </div>
 
     

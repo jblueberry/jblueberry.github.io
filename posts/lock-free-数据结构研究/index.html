@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          7 words
+          144 words
         </span>
         <span class="split">
           ·
@@ -72,6 +72,20 @@
     
         
   
+    <aside class="toc">
+      <details>
+          <summary>Table of Contents
+          </summary>
+          <div>
+              <nav id="TableOfContents">
+  <ul>
+    <li><a href="#lock-free-still-needs-atomic-operations">Lock free still needs atomic operations</a></li>
+  </ul>
+</nav>
+          </div>
+      </details>
+    </aside>
+  
 
 
     
@@ -79,6 +93,21 @@
 
     <div class="content">
       <p>精读文章 <a href="http://erdani.org/publications/cuj-2004-12.pdf">http://erdani.org/publications/cuj-2004-12.pdf</a> and <a href="https://erdani.org/publications/cuj-2004-10.pdf">https://erdani.org/publications/cuj-2004-10.pdf</a></p>
+<h2 id="lock-free-still-needs-atomic-operations">Lock free still needs atomic operations <a href="#lock-free-still-needs-atomic-operations" class="anchor">🔗</a></h2><p>There is a minimal set of atomic primitives that would allow implementing any lock-free algorithm. There is a paper &ldquo;Wait-Free Synchronization&rdquo; discussing about it. There are some interesting summaries:</p>
+<ul>
+<li><code>test-and-set</code>, <code>swap</code>, <code>fetch-and-add</code>, <code>atomic queues</code> are insufficient for properly synchronizing more than <strong>two</strong> threads.</li>
+<li>Some simple constructs are enough for lock-free algorithm for <strong>any</strong> number of threads.</li>
+</ul>
+<p>The simplest primitive is <code>compare-and-swap</code>:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span> <span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">T</span><span style="color:#666">&gt;</span>
+<span style="color:#0b0;font-weight:bold">bool</span> CAS(T<span style="color:#666">*</span> addr, T exp, T val) {
+  <span style="color:#a2f;font-weight:bold">if</span> (<span style="color:#666">*</span>addr <span style="color:#666">==</span> exp) {
+    <span style="color:#666">*</span>addr <span style="color:#666">=</span> val;
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">true</span>;
+  }
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">false</span>;
+}
+</code></pre></div><p>CAS has three parameters: <code>addr</code>, <code>exp</code> and <code>val</code>. It compares the value pointed by <code>addr</code> with <code>exp</code>, if they are equal, sets the memory pointed by <code>addr</code> to a new value and returns <code>true</code>, otherwise returns <code>false</code> and does nothing.</p>
     </div>
 
     

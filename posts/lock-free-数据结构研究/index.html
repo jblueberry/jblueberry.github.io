@@ -58,13 +58,13 @@
           ·
         </span>
         <span>
-          408 words
+          564 words
         </span>
         <span class="split">
           ·
         </span>
         <span>
-          1 minute read
+          2 minute read
         </span>
     </div>
 
@@ -84,6 +84,7 @@
     <li><a href="#a-lock-free-map">A Lock-free Map</a>
       <ul>
         <li><a href="#a-lockful-implementation">A lockful implementation</a></li>
+        <li><a href="#the-first-lock-free-version">The first lock-free version</a></li>
       </ul>
     </li>
   </ul>
@@ -133,7 +134,7 @@
   Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span> map_;
 
 <span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
-  V lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+  V Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
     Lock <span style="color:#00a000">lock</span>(mutex_);
     <span style="color:#a2f;font-weight:bold">return</span> map_[key];
   }
@@ -144,6 +145,33 @@
   }
 }
 </code></pre></div><p>It is really a bad implmentation because parallel lookups does not need locks. (As long as there is no updates currently)</p>
+<h3 id="the-first-lock-free-version">The first lock-free version <a href="#the-first-lock-free-version" class="anchor">🔗</a></h3><ul>
+<li>Reads does not need lock.</li>
+<li>Store the <code>map_</code> as a pointer.</li>
+<li>Updates make a copy of the original map and use <code>CAS</code> to replace it.</li>
+</ul>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Key</span>, <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Value</span><span style="color:#666">&gt;</span>
+<span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">WRRMMap</span> {
+  Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span> <span style="color:#666">*</span>map_;
+
+<span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
+  V Lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#666">*</span>map_[key];
+  }
+
+  <span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">Update</span>(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key, <span style="color:#a2f;font-weight:bold">const</span> Value<span style="color:#666">&amp;</span> value) {
+    Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;*</span> new_map <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">nullptr</span>;
+    <span style="color:#a2f;font-weight:bold">do</span> {
+      Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;*</span> old_map <span style="color:#666">=</span> map_;
+      <span style="color:#a2f;font-weight:bold">if</span>(new_map) <span style="color:#a2f;font-weight:bold">delete</span> new_map;
+      new_map <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">new</span> Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span>(old_map);
+      new_map.insert(key, value);
+    } <span style="color:#a2f;font-weight:bold">while</span> (<span style="color:#666">!</span>CAS(map_, old_map, new_map));
+
+    <span style="color:#080;font-style:italic">// map_ is not deleted because it is possibly accessed by some thread via lookup
+</span><span style="color:#080;font-style:italic"></span>  }
+}
+</code></pre></div><p>This map is globally wait-free, but the <code>Update</code> of a single thread is not wait-free. However, C++ does not have GC and the <code>map_</code> cannot be deleted before <code>Update</code> returns. <strong>Deterministic memory freeing is quite a fundamental problem in lock-free data structures</strong>. If it was me, I would use smart pointers to solve it XD.</p>
     </div>
 
     

@@ -61,7 +61,7 @@ class WRRMMap {
   Map<Key, Value> map_;
 
 public:
-  V Lookup(const Key& key) {
+  Value Lookup(const Key& key) {
     Lock lock(mutex_);
     return map_[key];
   }
@@ -87,7 +87,7 @@ class WRRMMap {
   Map<Key, Value> *map_;
 
 public:
-  V Lookup(const Key& key) {
+  Value Lookup(const Key& key) {
     return *map_[key];
   }
 
@@ -105,4 +105,93 @@ public:
 }
 ```
 
-This map is globally wait-free, but the `Update` of a single thread is not wait-free. However, C++ does not have GC and the `map_` cannot be deleted before `Update` returns. **Deterministic memory freeing is quite a fundamental problem in lock-free data structures**. If it was me, I would use smart pointers to solve it XD.
+This map is globally wait-free, but the `Update` of a single thread is not wait-free. However, C++ does not have GC and the `map_` cannot be deleted before `Update` returns. **Deterministic memory freeing is quite a fundamental problem in lock-free data structures**.
+
+### Try with reference-counting
+
+```C++
+template <class Key, class Value>
+  class WRRMMap {
+    using Data = std::pair<Map<Key, Value>*, unsigned>;
+    Data* data_;
+  ...
+};
+```
+
+Then `Lookup` can increments `data->second` and decrements it after searching. If the rc hits 0, delete it. However, it is still not thread-safe.
+
+But the rc of the old `map_` will go to zero at some time, because new lookups will use the new map. So one solution is to use a queue to store old `map_`s and let a thread to check rc and delete them in loop. However, if a lookup thread is delayed a lot so that the scavenger cannot delete that map, so it is not theoretically safe.
+
+Another [solution](https://dl.acm.org/doi/proceedings/10.1145/383962) uses DCAS. DCAS is kind of a double-CAS:
+```C++
+template <class T1, class T2>
+bool DCAS(T1* p1, T2* p2,
+          T1 e1, T2 e2,
+          T1 v1, T2 v2) {
+  if (*p1 == e1 && *p2 == e2) {
+    *p1 = v1;
+    *p2 = v2;
+    return true;
+  }
+  return false;
+}
+```
+
+The memories pointed by `p1` and `p2` will be replaced by `v1` and `v2` **if and only if** `*p1 == e1 && *p2 == e2`.
+
+### Next optimization
+
+CAS is still used, but a version supporting more than a pointer-length.
+
+```C++
+template <class Key, class Value>
+class WRRMMap {
+  using Data = std::pair<Map<Key, Value>*, unsigned>;
+  Data data_;
+public:
+  Value Lookup(const Key& key) {
+    Data old;
+    Data fresh;
+    do {
+      old = data_;
+      fresh = old;
+      ++fresh.second;
+    } while(!CAS(&data, old, fresh));
+
+    Value temp = (*fresh.first)[k];
+    do {
+      old = data_;
+      fresh = old;
+      --fresh.second;
+    } while(!CAS(&data_, old, fresh));
+    return temp;
+  }
+
+  void Update(const Key& key, const Value& value) {
+    Data old;
+    Data fresh;
+    old.second = 1;
+    fresh.first = nullptr;
+    fresh.second = 1;
+    Map<Key, Value>* last = nullptr;
+
+    do {
+      old.first = data_.first;
+      if(last != old.first) {
+        if(fresh.first)
+          delete fresh.first;
+        fresh.first = new Map<Key, Value>(*old.first);
+        fresh.first->insert(key, value);
+        last = old.first;
+      }
+    } while(!CAS(&data_, old, fresh));
+
+    // delete it confidently
+    delete old.first;
+  }
+}
+```
+
+For `Lookup` method, if there is no `Update`s, 2 CAS usage can implement the atomic increment and decrement of the reference count. If there is an `Update` running, the `data.first` will not be modified until all other `Lookup`s related to it has returned (thanks to the `old.second = 1` in `Update`). `last` is used to avoid rebuilding the map if there is only rc modified. So it is a solution which lets `Update` waits for all `Lookup`s finishing before it is going to replace the map.
+
+However, if the `Lookup`'s rate is very high, the `Update` will be possibly starved because the rc will never decrement to one. So it is actually a WRRMBNTM (Write-Rarely-Read-Many-ButNot-Too-Many) map.

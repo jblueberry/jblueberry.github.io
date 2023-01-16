@@ -2,20 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://jhzhu.xyz/posts/factory-implement-in-cpp/</loc>
-    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
+    <loc>https://jhzhu.xyz/tags/c&#43;&#43;/</loc>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/</loc>
-    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhzhu.xyz/posts/lock-free-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%A0%94%E7%A9%B6/</loc>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/posts/</loc>
-    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://jhzhu.xyz/tags/c&#43;&#43;/</loc>
-    <lastmod>2022-09-06T00:00:00+00:00</lastmod>
+    <loc>https://jhzhu.xyz/tags/rust/</loc>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/tags/</loc>
-    <lastmod>2022-09-06T00:00:00+00:00</lastmod>
+    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://jhzhu.xyz/posts/factory-implement-in-cpp/</loc>
+    <lastmod>2022-11-07T20:37:04+08:00</lastmod>
   </url><url>
     <loc>https://jhzhu.xyz/posts/%E4%B8%BA%E4%BB%80%E4%B9%88-stdforward-%E6%9C%89%E4%B8%A4%E4%B8%AA-overloads/</loc>
     <lastmod>2022-09-06T00:00:00+00:00</lastmod>

@@ -6,7 +6,16 @@
     <description>Recent content on Junhui Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 07 Nov 2022 20:37:04 +0800</lastBuildDate><atom:link href="https://jhzhu.xyz/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Lock-free 数据结构研究</title>
+      <link>https://jhzhu.xyz/posts/lock-free-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%A0%94%E7%A9%B6/</link>
+      <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://jhzhu.xyz/posts/lock-free-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%A0%94%E7%A9%B6/</guid>
+      <description>&lt;p&gt;精读文章 &lt;a href=&#34;http://erdani.org/publications/cuj-2004-12.pdf&#34;&gt;http://erdani.org/publications/cuj-2004-12.pdf&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>Factory Implement in Cpp</title>
       <link>https://jhzhu.xyz/posts/factory-implement-in-cpp/</link>

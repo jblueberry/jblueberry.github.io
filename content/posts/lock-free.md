@@ -8,6 +8,6 @@ tags = [
 ]
 +++
 
-精读文章 http://erdani.org/publications/cuj-2004-12.pdf
+精读文章 http://erdani.org/publications/cuj-2004-12.pdf and https://erdani.org/publications/cuj-2004-10.pdf
 
 <!--more-->

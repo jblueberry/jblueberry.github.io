@@ -61,7 +61,7 @@ class WRRMMap {
   Map<Key, Value> map_;
 
 public:
-  V lookup(const Key& key) {
+  V Lookup(const Key& key) {
     Lock lock(mutex_);
     return map_[key];
   }
@@ -74,3 +74,35 @@ public:
 ```
 
 It is really a bad implmentation because parallel lookups does not need locks. (As long as there is no updates currently)
+
+### The first lock-free version
+
+- Reads does not need lock.
+- Store the `map_` as a pointer.
+- Updates make a copy of the original map and use `CAS` to replace it.
+
+```C++
+template<class Key, class Value>
+class WRRMMap {
+  Map<Key, Value> *map_;
+
+public:
+  V Lookup(const Key& key) {
+    return *map_[key];
+  }
+
+  void Update(const Key& key, const Value& value) {
+    Map<Key, Value>* new_map = nullptr;
+    do {
+      Map<Key, Value>* old_map = map_;
+      if(new_map) delete new_map;
+      new_map = new Map<Key, Value>(old_map);
+      new_map.insert(key, value);
+    } while (!CAS(map_, old_map, new_map));
+
+    // map_ is not deleted because it is possibly accessed by some thread via lookup
+  }
+}
+```
+
+This map is globally wait-free, but the `Update` of a single thread is not wait-free. However, C++ does not have GC and the `map_` cannot be deleted before `Update` returns. **Deterministic memory freeing is quite a fundamental problem in lock-free data structures**. If it was me, I would use smart pointers to solve it XD.

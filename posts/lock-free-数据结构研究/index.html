@@ -58,7 +58,7 @@
           ·
         </span>
         <span>
-          144 words
+          408 words
         </span>
         <span class="split">
           ·
@@ -80,6 +80,12 @@
               <nav id="TableOfContents">
   <ul>
     <li><a href="#lock-free-still-needs-atomic-operations">Lock free still needs atomic operations</a></li>
+    <li><a href="#wait-free-and-lock-free">Wait-free and lock-free</a></li>
+    <li><a href="#a-lock-free-map">A Lock-free Map</a>
+      <ul>
+        <li><a href="#a-lockful-implementation">A lockful implementation</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
           </div>
@@ -108,6 +114,36 @@
     <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#a2f">false</span>;
 }
 </code></pre></div><p>CAS has three parameters: <code>addr</code>, <code>exp</code> and <code>val</code>. It compares the value pointed by <code>addr</code> with <code>exp</code>, if they are equal, sets the memory pointed by <code>addr</code> to a new value and returns <code>true</code>, otherwise returns <code>false</code> and does nothing.</p>
+<h2 id="wait-free-and-lock-free">Wait-free and lock-free <a href="#wait-free-and-lock-free" class="anchor">🔗</a></h2><ul>
+<li>Wait-free: a procedure that can complete in a finite number of steps.</li>
+<li>Lock-free: a procedure guarantees progress of at least one of the threads executing the procedure. <strong>在每一步，至少有一个 thread 在前进</strong>。</li>
+</ul>
+<p>Lock-based programs cannot provide wait-free and lock-free guarantees (deadlock or a thread is sleeping while holding the lock). The metaphor of livelock is very interesting in the paper: Two dudes in the hallway trying to go past one another but end up doing that social dance of swinging left and right in synchronicity.</p>
+<p>Some advantages of wait-free and lock-free algs:</p>
+<ol>
+<li>A thread forcefully killed will not delay others.</li>
+<li>Lock-free routines can freely interleave execution, not like <code>malloc</code> cannot be called in signal handlers (because there is a heap lock).</li>
+<li>Immune to priority inversion.</li>
+</ol>
+<h2 id="a-lock-free-map">A Lock-free Map <a href="#a-lock-free-map" class="anchor">🔗</a></h2><p>WRRM: Write Rarely Read Many, the scenes including <code>factories</code>, <code>observer design pattern</code>, etc.</p>
+<p><code>assoc_vector</code> is used to implement it with trading update speed for lookup seed. Whatever is used, the interface is a <code>Map&lt;Key, Value&gt;</code>. And no <code>iteration</code> provided.</p>
+<h3 id="a-lockful-implementation">A lockful implementation <a href="#a-lockful-implementation" class="anchor">🔗</a></h3><div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#a2f;font-weight:bold">template</span><span style="color:#666">&lt;</span><span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Key</span>, <span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">Value</span><span style="color:#666">&gt;</span>
+<span style="color:#a2f;font-weight:bold">class</span> <span style="color:#00f">WRRMMap</span> {
+  Mutex mutex_;
+  Map<span style="color:#666">&lt;</span>Key, Value<span style="color:#666">&gt;</span> map_;
+
+<span style="color:#a2f;font-weight:bold">public</span><span style="color:#666">:</span>
+  V lookup(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key) {
+    Lock <span style="color:#00a000">lock</span>(mutex_);
+    <span style="color:#a2f;font-weight:bold">return</span> map_[key];
+  }
+
+  <span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">Update</span>(<span style="color:#a2f;font-weight:bold">const</span> Key<span style="color:#666">&amp;</span> key, <span style="color:#a2f;font-weight:bold">const</span> Value<span style="color:#666">&amp;</span> value) {
+    Lock lock(mutex_);
+    map_.insert(key, value);
+  }
+}
+</code></pre></div><p>It is really a bad implmentation because parallel lookups does not need locks. (As long as there is no updates currently)</p>
     </div>
 
     

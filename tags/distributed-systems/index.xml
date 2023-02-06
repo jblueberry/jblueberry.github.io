@@ -6,14 +6,18 @@
     <description>Recent content in Distributed Systems on Junhui Zhu</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jhzhu.xyz/tags/distributed-systems/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://jhzhu.xyz/tags/distributed-systems/index.xml" rel="self" type="application/rss+xml" />
+    
+    
     <item>
       <title>Raft</title>
       <link>https://jhzhu.xyz/posts/raft/</link>
       <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
       
       <guid>https://jhzhu.xyz/posts/raft/</guid>
-      <description>&lt;p&gt;6.824 lab2 极限折磨。&lt;/p&gt;</description>
+      <description>&lt;p&gt;2023.02.05 update: 实际上这个 lab 我做的复杂了，不一定需要用条件变量。&lt;/p&gt;</description>
     </item>
     
     <item>

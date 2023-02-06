@@ -12,6 +12,7 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    environment: github-pages
     steps:
       - uses: actions/checkout@v2
       - name: Setup Hugo

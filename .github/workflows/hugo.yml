@@ -72,8 +72,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-      with:
-        pages-directory: public
-        github-token: ${{ secrets.TOKEN }}
-        commit-message: "Deploy to GitHub Pages"
-        branch: gh-pages
+    with:
+      pages-directory: public
+      github-token: ${{ secrets.TOKEN }}
+      commit-message: "Deploy to GitHub Pages"
+      branch: gh-pages

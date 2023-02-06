@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,16 +19,11 @@ jobs:
         with:
           hugo-version: 'latest'
       - name: Build
-        run: hugo --minify
+        run: hugo --minify -D
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.TOKEN }}
+          deploy_key: ${{ secrets.TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages
-          force_orphan: true
-          user_name: github-actions
-          user_email:
-          commit_message: Deploy to GitHub Pages
 
-          

@@ -28,7 +28,7 @@ Based on the implementation in lab1, the at-most-once semantics were utilized, w
 
 ## Stable leader election
 
-The process of election itself is to go through the phase 1 process of Paxos.
+The process of election itself is to go through the phase 1 process of Paxos. Raft also uses a similar approach, but it does not specifically wrap term and server index into a ballot. The key to a successful election lies in two points: 1) obtaining at least a majority of the votes as quickly as possible (determined by the phase 1 responses); 2) sending an active leader heartbeat to all other leaders as quickly as possible before others increment their ballot and issue a new election. Therefore, choosing the right interval for sending heartbeats and starting a new election is crucial to prevent a livelock situation where every server keeps self-nominating itself as the active leader but never achieves stability.
 
 ## Slot map
 
@@ -40,3 +40,6 @@ When the active leader tries to propagate the slot information to acceptors (i.e
 
 After discussing the behavior of acceptors, let's talk about the behavior of replicas. Replicas still accept decisions, which need to contain at least the slot number and slot content. In theory, replicas will blindly accept decisions because Paxos' safety guarantees that the same slot number cannot have two different contents selected, and therefore, there will not be two different decisions for the same slot number. Hence, when a replica receives a decision, it simply needs to set the corresponding slot's status to "chosen".
 
+## Execution
+
+Next, let's talk about how to execute slots with a slot map.

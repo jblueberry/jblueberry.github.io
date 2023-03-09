@@ -42,4 +42,33 @@ After discussing the behavior of acceptors, let's talk about the behavior of rep
 
 ## Execution
 
-Next, let's talk about how to execute slots with a slot map.
+Next, let's talk about how to execute slots with a slot map. We need to maintain two variables: slot in and slot out. Slot out represents the number of the next slot to be executed, and slot in represents the next available slot number to be added to the slot map.
+
+Some places (moments) where we need to try to perform:
+
+1. When a slot receives agreement from more than half of the nodes (through Paxos phase 2 process), the active leader marks it as chosen and tries to perform it;
+2. When a passive leader receives a decision;
+3. When a leader becomes an active leader.
+
+It can be observed that each time a slot is marked as chosen, it will be attempted to perform, but why is it attempted to perform? This is because only the slot at slot out can be attempted to execute, and multi-paxos supports out-of-order commit. There is a high probability that the slot at slot out has not been committed, while some slots behind it have already been committed, so we have to wait. Therefore, the logic in perform needs to be looped to ensure that a series of continuous slots that have been committed are completed at once to ensure efficiency.
+
+## Scout & commander
+
+In the PMMC paper, both of scout and commander are presented as sub-processes of the leader. But in a single-threaded implementation, they need to be redesigned.
+
+Scout is relatively simple. Scout is like an agent of the leader, who sends phase 1 requests instead of the leader, and ultimately helps leader to compete to become the active leader. Therefore, logically speaking, a passive leader needs a scout after initiating an election, while an active leader no longer needs that scout. In addition, at any given time, each leader needs at most one scout working. For this pattern, the simplest solution is to have the leader hold a scout object, which is not null while the leader is campaigning and is set to null after the campaign ends (regardless of success). You can write many assert statements to periodically check this in various parts of the code.
+
+For commander, it's not as straightforward as scout. In the PMMC paper, the lifecycle of each commander is tied to a slot, and its responsibility is to attempt to synchronize that slot to other acceptors through the Paxos phase 2 process. In a single-threaded implementation, to achieve the same thing, it is necessary to create additional information to indicate that a specific slot number is being synchronized. A simple pattern is to use an extra map.
+
+In addition, in PMMC, phase 2 responses only carry information about the ballot number, because each commander, as a subprocess, has its own independent endpoint. Once it receives a response, it knows that the response is definitely related to the slot bound to its own lifecycle. However, in a single-threaded environment, we cannot determine which slot number a phase 2 response is targeting when there is only one ballot in the response. Therefore, it is necessary to add additional information in the phase 2 response to solve this problem.
+
+## Decision sending and garbage collection
+
+Finally, let's briefly talk about the timing of sending decisions. The timing of decision sending can be implemented in various ways. First of all, due to the safety of the Paxos protocol, once a slot is set to the chosen state, it will not be discarded (think about the accepted values in the phase 1 reply). Therefore, it is only necessary to design a mechanism for the active leader to synchronize the decision with others at an appropriate time point that others do not know.
+
+One option is to broadcast decisions after a commander (logically) collects enough phase 2 replies and sets the corresponding slot to chosen. However, this is not safe, because decisions can be lost in transmission, and you cannot guarantee that you don't need to broadcast them again after broadcasting them once. And once a commander has synchronized its responsible slot to the majority, its lifecycle should end.
+
+So leaving the decision sending to the commander has a relatively large burden. A more clever approach is to include decision in the heartbeat message. When an active leader sends a heartbeat to a passive leader, it can attach the next decision that the passive leader needs in the heartbeat message. One may wonder how the active leader knows what decision the passive leader needs. Therefore, it is necessary to introduce a reply to the heartbeat. The passive leader needs to reply to the heartbeat and tell the active leader which slot number's decision it needs next. When the active leader knows this and the slot corresponding to that slot number is indeed chosen, it will attach it in the next heartbeat message.
+
+Indeed, this mechanism also enables garbage collection. The active leader can collect information about the next slot number needed by each passive leader. In other words, all the slots before that slot number have been executed by that passive leader. By collecting this information, active leader can calculate which slots have been executed by everyone and safely remove them from the slot map. This information can also be communicated to passive leaders by some means. When a passive leader knows that certain slots have been removed from the slot map by the active leader, it can confidently remove them as well. This mechanism can be used to implement garbage collection.
+

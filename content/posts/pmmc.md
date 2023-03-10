@@ -1,10 +1,12 @@
----
-title: "Paxos Made Moderately Complex Made Simple"
-date: 2023-03-09T21:25:11+08:00
-draft: true
----
++++
+title = "Paxos Made Moderately Complex Made Simple"
+date = 2023-03-09T21:25:11+08:00
+tags = [
+    "Distributed Systems"
+]
++++
 
-My Design for [PMMC](https://paxos.systems/)
+My Design for [PMMC](https://paxos.systems/).
 
 <!--more-->
 

@@ -5,7 +5,6 @@ theme: mini
 
 defaultContentLanguage: en
 
-
 hasCJKLanguage: true
 permalinks:
   posts: /posts/:title/

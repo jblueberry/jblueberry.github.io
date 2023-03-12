@@ -1,5 +1,5 @@
 +++
-title = "Paxos Made Moderately Complex Made Simple"
+title = "PaxosMMC Made Simple"
 date = 2023-03-09T21:25:11+08:00
 tags = [
     "Distributed Systems"

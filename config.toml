@@ -1,7 +1,7 @@
 baseURL = "https://jhzhu.xyz"
 DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
 languageCode = "en-us"
-title = "Daniel"
+title = "Daniel Zhu"
 theme = "diary"
 # googleAnalytics = "UA-123-45"
 
@@ -20,6 +20,7 @@ theme = "diary"
 [params]
 subtitle = "A speck of dust within the galaxy"
 enableGitalk = false
+
   
 # Twitter Card and Open Graph settings
 enableOpenGraph = true

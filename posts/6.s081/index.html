@@ -1,0 +1,336 @@
+<!doctype html><html><head><title>6.S081 Notes</title><meta charset=utf-8><meta name=X-UA-Compatible content="IE=edge"><meta name=google-site-verification content><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name=viewport><meta content="telephone=no" name=format-detection><meta name=description content><meta name=renderer content="webkit"><meta name=theme-color content="#ffffff"><script src=/js/toc.js></script>
+<link type=text/css rel=stylesheet href=/vendor/css/bootstrap.min.css><link rel=stylesheet href=/scss/dark-mode.min.cb53f1bee2b8900cb4f082afbf00175d6618f281cf9a2fe8619e3b52d20b5721.css integrity="sha256-y1PxvuK4kAy08IKvvwAXXWYY8oHPmi/oYZ47UtILVyE=" media=screen><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Material+Icons"><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css><script src=https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js></script>
+<script src=/vendor/js/md5.min.js></script><script>var gitalk=new Gitalk({clientID:"",clientSecret:"",repo:"daniel-junhui.github.io",owner:"daniel-junhui",admin:["daniel-junhui"],id:md5(location.pathname),distractionFreeMode:"false"});window.onload=function(){gitalk.render("gitalk-container")}</script></head><body><div id=app><div class=single-column-drawer-container id=drawer v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }"><div class=drawer-content><div class=drawer-menu><a class="a-block drawer-menu-item active" href=/posts>Archive</a>
+<a class="a-block drawer-menu-item false" href=/tags>Tags</a>
+<a class="a-block drawer-menu-item false" href=/index.xml>RSS Feed</a><div class=toc><div class=toc-content><center>- CATALOG -</center><ul><ul><li><a href=#system-call class=nav-system-call>System call</a></li><ul><li><a href=#syscall-system-call class=nav-syscall-system-call>Syscall system call</a></li><ul><li><a href=#%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae class=nav-遇到的一些疑问>遇到的一些疑问</a></li></ul><li><a href=#risc-v-%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e7%9a%84%e4%b8%80%e4%ba%9b%e8%a7%84%e5%88%99%e6%91%98%e5%bd%95 class=nav-risc-v-系统调用的一些规则摘录>RISC-V 系统调用的一些规则摘录</a></li><li><a href=#sysinfo-system-call class=nav-sysinfo-system-call>Sysinfo system call</a></li></ul><li><a href=#page-table class=nav-page-table>Page table</a></li><ul><li><a href=#%e6%af%8f%e4%b8%aa%e8%bf%9b%e7%a8%8b%e7%9a%84-kernel-page-table class=nav-每个进程的-kernel-page-table>每个进程的 kernel page table</a></li></ul><li><a href=#trap class=nav-trap>Trap</a></li><ul><li><a href=#user-mode-%e4%b8%8b%e7%9a%84-trap class=nav-user-mode-下的-trap>User mode 下的 trap</a></li><ul><li><a href=#trampolines-%e7%9a%84%e9%83%a8%e5%88%86%e4%bb%a3%e7%a0%81 class=nav-trampolines-的部分代码>trampoline.S 的部分代码：</a></li><li><a href=#%e8%bf%9b%e5%85%a5-usertrap-%e5%90%8e class=nav-进入-usertrap-后>进入 usertrap() 后</a></li><li><a href=#usertrapret-%e5%b9%b2%e4%ba%86%e4%bb%80%e4%b9%88 class=nav-usertrapret-干了什么>usertrapret() 干了什么</a></li><li><a href=#userret class=nav-userret>userret()</a></li></ul><li><a href=#syscall-%e4%b8%ad%e5%a6%82%e4%bd%95%e4%bc%a0%e9%80%92%e5%8f%82%e6%95%b0 class=nav-syscall-中如何传递参数>Syscall 中如何传递参数</a></li><li><a href=#kernel-mode-%e4%b8%8b%e7%9a%84-trap class=nav-kernel-mode-下的-trap>Kernel mode 下的 trap</a></li><li><a href=#trap-lab class=nav-trap-lab>Trap lab</a></li></ul><li><a href=#lazy-page-allocation class=nav-lazy-page-allocation>Lazy page allocation</a></li><ul><li><a href=#%e8%bf%bd%e6%ba%af-panic class=nav-追溯-panic>追溯 panic</a></li><li><a href=#%e8%a7%a3%e5%86%b3-panic class=nav-解决-panic>解决 panic</a></li></ul></div></div></div></div></div><transition name=fade><div id=drawer-mask v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if=isDrawerOpen v-on:click=toggleDrawer></div></transition><nav id=navBar class="navbar sticky-top navbar-light single-column-nav-container"><div id=navBackground class=nav-background></div><div class="container container-narrow nav-content"><button id=nav_dropdown_btn class=nav-dropdown-toggle type=button v-on:click=toggleDrawer>
+<i class=material-icons>menu</i></button>
+<a id=navTitle class=navbar-brand href=https://jhzhu.xyz>Daniel</a>
+<button type=button class=nav-darkmode-toggle id=darkModeToggleButton2>
+<i class=material-icons id=darkModeToggleIcon2>dark_mode</i></button></div></nav><div class=single-column-header-container id=pageHead v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }"><a href=https://jhzhu.xyz><div class=single-column-header-title>Daniel</div><div class=single-column-header-subtitle>A speck of dust within the galaxy</div></a></div><div id=content><div id=streamContainer class=stream-container><div class="post-list-container post-list-container-shadow"><div class=post><div class=post-head-wrapper-text-only><div class=post-title>6.S081 Notes<div class=post-meta><time itemprop=datePublished>2021-07-15 00:00</time>
+<i class=material-icons>label</i>
+<a href=/tags/os>OS</a>
+&nbsp;</div></div></div><div class=post-body-wrapper><div class=post-body v-pre><p>6.S081 的一些 notes。</p><p>因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。</p><h2 id=system-call>System call</h2><h3 id=syscall-system-call>Syscall system call</h3><p>第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。</p><h4 id=遇到的一些疑问>遇到的一些疑问</h4><ul><li><p>英语太垃，看不懂这句话：</p><blockquote><p>Add a <code>sys_trace()</code> function in <code>kernel/sysproc.c</code> that implements the new system call by remembering its argument in a new variable in the proc structure (see <code>kernel/proc.h</code>). The functions to retrieve system call arguments from user space are in <code>kernel/syscall.c</code>, and you can see examples of their use in <code>kernel/sysproc.c</code>.</p></blockquote></li></ul><p>龙鸣翻译：要加一个新的函数，这个函数通过在 <code>proc</code> 结构中增加的一个新的变量来实现系统调用，从用户空间拿到系统调用参数的函数在 <code>syscall.c</code> 中。确实没怎么看懂，那就先看看代码。</p><p>一个很关键的汇编文件：<code>usys.S</code></p><pre tabindex=0><code class=language-assembly data-lang=assembly>sleep:
+ li a7, SYS_sleep
+ ecall
+ ret
+.global uptime
+uptime:
+ li a7, SYS_uptime
+ ecall
+ ret
+.global trace
+trace:
+ li a7, SYS_trace
+ ecall
+ ret
+</code></pre><p>这个文件可以看到调用 system call 的一些指令，其中 <code>a7</code> 是 RISC-V 的一个寄存器，再看 <code>kernel/syscall.c</code> 当中的一个关键的函数：</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#00688b;font-weight:700>void</span>
+</span></span><span style=display:flex><span><span style=color:#008b45>syscall</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#00688b;font-weight:700>int</span> num;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> proc *p = <span style=color:#008b45>myproc</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  num = p-&gt;trapframe-&gt;a7;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(num &gt; <span style=color:#b452cd>0</span> &amp;&amp; num &lt; <span style=color:#008b45>NELEM</span>(syscalls) &amp;&amp; syscalls[num]) {
+</span></span><span style=display:flex><span>    p-&gt;trapframe-&gt;a0 = syscalls[num]();
+</span></span><span style=display:flex><span>  } <span style=color:#8b008b;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>    <span style=color:#008b45>printf</span>(<span style=color:#cd5555>&#34;%d %s: unknown sys call %d</span><span style=color:#cd5555>\n</span><span style=color:#cd5555>&#34;</span>,
+</span></span><span style=display:flex><span>            p-&gt;pid, p-&gt;name, num);
+</span></span><span style=display:flex><span>    p-&gt;trapframe-&gt;a0 = -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这个函数应该就是用户态和系统调用的接口，首先获取当前进程的 <code>a7</code> 寄存器，如果这个寄存器中的系统调用号存在（也就是 <code>num > 0 && num &lt; NELEM(syscalls) && syscalls[num] </code>语句为真），那就调用它并返回（把 <code>a0</code> 寄存器设置为返回值），否则就返回 <code>-1</code> 。</p><p>递归学习：看不太懂下面这个函数指针数组到底是什么玩意：</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#8b008b;font-weight:700>static</span> <span style=color:#008b45>uint64</span> (*syscalls[])(<span style=color:#00688b;font-weight:700>void</span>) = {
+</span></span><span style=display:flex><span>[SYS_fork]    sys_fork,
+</span></span><span style=display:flex><span>[SYS_exit]    sys_exit,
+</span></span><span style=display:flex><span>[SYS_wait]    sys_wait,
+</span></span><span style=display:flex><span>[SYS_pipe]    sys_pipe,
+</span></span><span style=display:flex><span>[SYS_read]    sys_read,
+</span></span><span style=display:flex><span>[SYS_kill]    sys_kill,
+</span></span><span style=display:flex><span>[SYS_exec]    sys_exec,
+</span></span><span style=display:flex><span>[SYS_fstat]   sys_fstat,
+</span></span><span style=display:flex><span>[SYS_chdir]   sys_chdir,
+</span></span><span style=display:flex><span>[SYS_dup]     sys_dup,
+</span></span><span style=display:flex><span>[SYS_getpid]  sys_getpid,
+</span></span><span style=display:flex><span>[SYS_sbrk]    sys_sbrk,
+</span></span><span style=display:flex><span>[SYS_sleep]   sys_sleep,
+</span></span><span style=display:flex><span>[SYS_uptime]  sys_uptime,
+</span></span><span style=display:flex><span>[SYS_open]    sys_open,
+</span></span><span style=display:flex><span>[SYS_write]   sys_write,
+</span></span><span style=display:flex><span>[SYS_mknod]   sys_mknod,
+</span></span><span style=display:flex><span>[SYS_unlink]  sys_unlink,
+</span></span><span style=display:flex><span>[SYS_link]    sys_link,
+</span></span><span style=display:flex><span>[SYS_mkdir]   sys_mkdir,
+</span></span><span style=display:flex><span>[SYS_close]   sys_close,
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>其实就是看不懂 <code>uint64 (*syscalls[])(void)</code> 的意思，参考之前知乎上看到的一个回答，把这个东西翻译成英文：
+an array of pointers to a function that returns uint64，也就是一个函数指针的数组，这个初始化的方式也确实给我整麻了，但无所谓看懂了就行，不纠结语法。</p><p>其实还有一个终极问题：当调用系统调用的时候，真正的流程到底是什么？很遗憾这可能需要用 gdb 目力调试才能知道，但其实在不知道这个事情的流程下也能够完成这个实验，只需要观察一下 <code>sys_exit</code> 的代码：</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>uint64
+</span></span><span style=display:flex><span><span style=color:#008b45>sys_exit</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#00688b;font-weight:700>int</span> n;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>argint</span>(<span style=color:#b452cd>0</span>, &amp;n) &lt; <span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  <span style=color:#008b45>exit</span>(n);
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> <span style=color:#b452cd>0</span>;  <span style=color:#228b22>// not reached
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>}
+</span></span></code></pre></div><p>它调用了 <code>argint(0, &amp;n)</code> 来获取了进程退出时的状态号，再看到 <code>syscall.c</code> 中对于 <code>argint</code> 函数的注释：<code>// Fetch the nth 32-bit system call argument.</code> 就可以知道这个函数就是用来获取系统调用的参数的，那直接先拿来用就好了（拿来主义）。</p><p>最终增加的关键代码如下：（还有一些杂七杂八的东西要加，比如系统调用的打印）</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>uint64
+</span></span><span style=display:flex><span><span style=color:#008b45>sys_trace</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  uint mask;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>argint</span>(<span style=color:#b452cd>0</span>, (<span style=color:#00688b;font-weight:700>int</span> *)&amp;mask) &lt; <span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  <span style=color:#008b45>myproc</span>()-&gt;trace_mask = mask;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> <span style=color:#b452cd>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=risc-v-系统调用的一些规则摘录>RISC-V 系统调用的一些规则摘录</h3><ul><li>syscall number is passed in <code>a7</code></li><li>syscall arguments are passed in <code>a0</code> to <code>a5</code></li><li>unused arguments are set to <code>0</code></li><li>return value is returned in <code>a0</code></li></ul><h3 id=sysinfo-system-call>Sysinfo system call</h3><p>差不多和前面的 system call 一样，需要把一些信息拷贝到 user 空间，要用到 <code>copyout()</code> 函数。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#228b22>// Copy from kernel to user.
+</span></span></span><span style=display:flex><span><span style=color:#228b22>// Copy len bytes from src to virtual address dstva in a given page table.
+</span></span></span><span style=display:flex><span><span style=color:#228b22>// Return 0 on success, -1 on error.
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span><span style=color:#00688b;font-weight:700>int</span>
+</span></span><span style=display:flex><span><span style=color:#008b45>copyout</span>(<span style=color:#00688b;font-weight:700>pagetable_t</span> pagetable, uint64 dstva, <span style=color:#00688b;font-weight:700>char</span> *src, uint64 len)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  uint64 n, va0, pa0;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>while</span>(len &gt; <span style=color:#b452cd>0</span>){
+</span></span><span style=display:flex><span>    va0 = <span style=color:#008b45>PGROUNDDOWN</span>(dstva);
+</span></span><span style=display:flex><span>    pa0 = <span style=color:#008b45>walkaddr</span>(pagetable, va0);
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>if</span>(pa0 == <span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>      <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>    n = PGSIZE - (dstva - va0);
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>if</span>(n &gt; len)
+</span></span><span style=display:flex><span>      n = len;
+</span></span><span style=display:flex><span>    <span style=color:#008b45>memmove</span>((<span style=color:#00688b;font-weight:700>void</span> *)(pa0 + (dstva - va0)), src, n);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    len -= n;
+</span></span><span style=display:flex><span>    src += n;
+</span></span><span style=display:flex><span>    dstva = va0 + PGSIZE;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> <span style=color:#b452cd>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>其实也很简单，直接拿到当前进程的 pagetable，然后虚拟地址其实就是第一个参数，其他的直接传进去用就好了。</p><p>至于活跃进程数量和空闲内存数：</p><ul><li>xv6 中的进程比较简单，是一个固定的数组（64个）。遍历一遍，剔除 <code>UNUSED</code> 的数量就好了；</li><li>先获取空闲的页数，然后乘以 4K 就可以得到空闲字节数。</li></ul><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>uint64
+</span></span><span style=display:flex><span><span style=color:#008b45>sys_sysinfo</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#228b22>// printf(&#34;hello\n&#34;);
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>  <span style=color:#8b008b;font-weight:700>struct</span> sysinfo info;
+</span></span><span style=display:flex><span>  uint64 user_addr;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> proc *p = <span style=color:#008b45>myproc</span>();
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>argaddr</span>(<span style=color:#b452cd>0</span>, &amp;user_addr) &lt; <span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  info.freemem = <span style=color:#008b45>free_memory_number</span>();
+</span></span><span style=display:flex><span>  info.nproc = <span style=color:#008b45>process_number</span>();
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>copyout</span>(p-&gt;pagetable, user_addr, (<span style=color:#00688b;font-weight:700>char</span>*)&amp;info, <span style=color:#8b008b;font-weight:700>sizeof</span>(<span style=color:#8b008b;font-weight:700>struct</span> sysinfo))&lt;<span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> <span style=color:#b452cd>0</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=page-table>Page table</h2><h3 id=每个进程的-kernel-page-table>每个进程的 kernel page table</h3><p>说实话，做到这一步的时候，我很莫名其妙为什么要去修改内核的这个机制，也就是「内核拥有一个自己的页表」机制。</p><p>读了一下 xv6 的 rec-book，这个 lab 的意思大致就是因为 xv6 的内核采用的是 direct-mapping 机制，所以可以让「内核拥有一个自己的页表」，但这样的话在运行内核代码的时候，就要用一个「转换机制」来访问用户的数据，接下来几个事情就是为了改变这个事情，至于改了之后到底有什么好处，我也不知道，做了再说。</p><p>大致的思路是这样：</p><ul><li>首先是需要给每个 process 维护一个 kernel_pagetable 域。</li><li>需要给每个 process 创建时（也就是在函数 <code>allocproc</code> 中）填充这个 process 的 kernel_pagetable ，目前来说每个进程的内核页表是和内核独有的页表是一模一样的。</li><li>除了上面和内核独有页表的内容一样以外，每个进程都要在自己的页表里再增加自己的内核 stack 映射。而这个映射原本在未修改的 xv6 中是由内核提前为所有的预备进程做好的（ <code>procinit</code> 函数），现在需要把这个事情延迟到在每个进程被创建的时候再做。</li><li>在调度函数中确保在切换到某个进程的之前，使用该进程的内核页表（也就是在 <code>swtch(&amp;c->context, &amp;p->context)</code> 之前），在重新回到调度程序后，再切换回内核自己的页表。</li><li>在进程被 free 的时候，顺便把 kernel_pagetable 也删了，但不用删除页表的叶结点，只需要删前两层的索引。</li></ul><p>在差不多做完这些事情后，还遇到了一些问题。</p><ol><li>改完之后 <code>make qemu</code> 直接报 <code>panic: kvmpa</code> 。</li></ol><p><code>kvmpa</code> 函数的用处是「将内核的一个虚拟地址转换为一个物理地址」，而 xv6 的内核地址大多都是 direct-mapping 的，换言之其实就是转换内核栈的地址而已，而在改完之后，进程的内核栈的地址已经不属于内核的页表了，而属于每个进程自己的内核页表，因此需要修改 <code>pte = walk(kernel_pagetable, va, 0)</code> 为 <code>pte = walk(myproc()->kernel_pagetable, va, 0)</code> 。（调用 <code>myproc()</code> 需要加两个头文件）</p><ol start=2><li>进程内核栈的内存泄漏问题</li></ol><p>要注意，每个进程被 free 的时候，即使不用释放进程内核页表绝大多数的叶子 page ，但是进程内核栈的 page 是必须要释放的，不然跑 usertests 的时候会在 sbrkfail 处报 kvmmap 的 panic ，我没有用 gdb 去调试出到底出了什么差错。但在我添加了对内核栈的手动释放后，就不报错了，所以很大可能的原因就是内存泄漏了，每当创建一个进程就浪费掉 1 个 page，free 的时候又不回收，最后就导致内存用尽没得用了。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(p-&gt;kstack)
+</span></span><span style=display:flex><span>    <span style=color:#008b45>uvmunmap</span>(p-&gt;kernel_pagetable, p-&gt;kstack, <span style=color:#b452cd>1</span>, <span style=color:#b452cd>1</span>); 
+</span></span><span style=display:flex><span>  p-&gt;kstack = <span style=color:#b452cd>0</span>;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(p-&gt;kernel_pagetable)
+</span></span><span style=display:flex><span>    <span style=color:#008b45>proc_freekernelpagetable</span>(p-&gt;kernel_pagetable);
+</span></span><span style=display:flex><span>  p-&gt;kernel_pagetable = <span style=color:#b452cd>0</span>;
+</span></span></code></pre></div><h2 id=trap>Trap</h2><p>一些关键的寄存器：</p><ul><li><code>stvec</code> 用于存储 trap handler 的地址，由内核写入</li><li><code>sepc</code> 来保存进入 trap 前的 <code>pc</code></li><li><code>scause</code> 保存 trap 的原因</li><li><code>sccratch</code> 在调用 trap handler 的时候会用到这个寄存器</li><li><code>sstatus</code> 中的 SIE 位表示是否阻塞设备中断，SPP 位表示 trap 来自于用户态还是内核态</li></ul><p>当 RISC-V CPU 要开始一个 trap 的时候依次做如下的事情：</p><ol><li>如果是一个设备终端且 <code>sstatus</code> 中的 SIE 位是空的，就不往下走了；</li><li>清楚 SIE 位（保证原子性）；</li><li>将当前的 <code>pc</code> 复制到 <code>sepc</code> ；</li><li>将当前的 mode 复制到 <code>sstatus</code> 的 SPP 位；</li><li>设置 <code>scause</code>；</li><li>将 mode 设置为 supervisor mode；</li><li>将 <code>stvec</code> 复制到 <code>pc</code> ；</li><li>go on 运行指令。</li></ol><h3 id=user-mode-下的-trap>User mode 下的 trap</h3><p>流程是</p><ol><li><code>trampoline.S</code> 中的 <code>uservec</code> 函数，这个函数被 <code>stvec</code> 所指</li><li>转到 <code>trap.c</code> 中的 <code>usertrap</code> 函数</li><li>trap 结束后转到 <code>trap.c</code> 中的 <code>usertrapret</code> 函数</li><li>然后转到 <code>trampoline.S</code> 中的 <code>userret</code> 函数</li></ol><p>首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 <code>uservec</code> ；同时 <code>uservec</code> 函数必须显示将 <code>satp</code> 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 <code>TRAMPOLINE</code> 的虚拟地址和 <code>trampoline</code> 页来映射 <code>trampoline.S</code> 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。也就是说，当 trap 发生时，首先从 <code>stvec</code> 中读到 <code>uservec</code> 的虚拟地址，也就是 <code>TRAMPOLINE</code> 然后经过页表映射到 <code>trampoline</code> 。</p><h4 id=trampolines-的部分代码><code>trampoline.S</code> 的部分代码：</h4><p>Xv6 还开辟了另外一个 page （就在 <code>trampoline</code> 下面）用来保存发生 trap 时被打断的指令的寄存器值，这个 page 叫做 <code>trapframe</code> 。一开始，寄存器 <code>sscratch</code> 保存着映射到 <code>trapframe</code> 页的<strong>虚拟地址</strong>，也就是 <code>TRAPFRAME</code> 。（想想这里为什么是虚拟地址而不是物理地址，因为运行到这的时候仍然没有切换页表，所以用户空间页表也需要保证好 <code>TRAPFRAME</code> 的映射）</p><pre tabindex=0><code class=language-assembly data-lang=assembly>				csrrw a0, sscratch, a0
+</code></pre><p>这个时候，<code>a0</code> 的值和 <code>sscratch</code> 就被交换了。</p><pre tabindex=0><code class=language-assembly data-lang=assembly>				sd ra, 40(a0)
+        sd sp, 48(a0)
+        sd gp, 56(a0)
+        sd tp, 64(a0)
+        sd t0, 72(a0)
+        sd t1, 80(a0)
+        sd t2, 88(a0)
+        sd s0, 96(a0)
+        sd s1, 104(a0)
+        sd a1, 120(a0)
+        sd a2, 128(a0)
+        sd a3, 136(a0)
+        sd a4, 144(a0)
+        sd a5, 152(a0)
+        sd a6, 160(a0)
+        sd a7, 168(a0)
+        sd s2, 176(a0)
+        sd s3, 184(a0)
+        sd s4, 192(a0)
+        sd s5, 200(a0)
+        sd s6, 208(a0)
+        sd s7, 216(a0)
+        sd s8, 224(a0)
+        sd s9, 232(a0)
+        sd s10, 240(a0)
+        sd s11, 248(a0)
+        sd t3, 256(a0)
+        sd t4, 264(a0)
+        sd t5, 272(a0)
+        sd t6, 280(a0)
+</code></pre><p>这里把除了 <code>a0</code> 以外的寄存器都保存到了 <code>trapframe</code> 中。</p><pre tabindex=0><code class=language-assembly data-lang=assembly>        csrr t0, sscratch
+        sd t0, 112(a0)
+</code></pre><p>这里把 <code>a0</code> 也保存到了 <code>trapframe</code> 中。</p><p>而注意到，这里的指令是从 <code>40(a0)</code> 开始的，说明 <code>trapframe</code> 里面原本还存了 5 个值，其中包括了<strong>内核的页表</strong>、<strong>进程的内核栈</strong>、<strong><code>usertrap()</code></strong> 的地址和当前 CPU 的 <code>hartid</code> 。为什么还缺一个呢，我也不知道缺了什么，反正代码里看不出来。为了进入 <code>usertrap()</code> ，需要恢复这些值。</p><pre tabindex=0><code class=language-assembly data-lang=assembly>        # restore kernel stack pointer from p-&gt;trapframe-&gt;kernel_sp
+        ld sp, 8(a0)
+
+        # make tp hold the current hartid, from p-&gt;trapframe-&gt;kernel_hartid
+        ld tp, 32(a0)
+
+        # load the address of usertrap(), p-&gt;trapframe-&gt;kernel_trap
+        ld t0, 16(a0)
+
+        # restore kernel page table from p-&gt;trapframe-&gt;kernel_satp
+        ld t1, 0(a0)
+        csrw satp, t1
+        sfence.vma zero, zero
+</code></pre><p>注意到，运行完最后的指令（也就是切换到内核页表）后，<code>a0</code> 中保存的 <code>TRAPFRAME</code> 虚拟地址已经失效了。</p><p>最后，跳转到 <code>usertrap()</code>。</p><pre tabindex=0><code class=language-assembly data-lang=assembly>        jr t0
+</code></pre><p>读到这里，我仍然有些许的疑问，因为 xv6 的文档上说其实用户空间涉及到了 32 个寄存器，但这里其实只保存了 31 个寄存器，我的疑惑是缺了哪一个？</p><h4 id=进入-usertrap-后>进入 <code>usertrap()</code> 后</h4><p>首先，验证是不是从 user mode 来的，然后修改了 <code>stvec</code> 的值（为什么？）。因为如果这个时候再次发生一些 trap ，就需要内核的 handler 来解决了，所以将这个入口改为了内核的 handler 的函数地址。然后根据 trap 的成因（<code>scause</code> 寄存器）来决定是系统调用、设备中断还是一个单纯的异常，做完这些事情后调用 <code>usertrapret()</code> 。</p><h4 id=usertrapret-干了什么><code>usertrapret()</code> 干了什么</h4><p>首先，关闭了中断（保证不被打断）。</p><p>然后重新设置了 <code>stvec</code> 的值，让它重新指向 <code>TRAPOLINE</code> 。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#008b45>w_stvec</span>(TRAMPOLINE + (uservec - trampoline));
+</span></span></code></pre></div><p>再重新设置 <code>trapframe</code> 中的一些值，包括 <code>satp</code> （这是页表）、内核栈指针等。</p><blockquote><p>我这里其实没有明白为什么要重新设置，之前的行为会修改这些值吗？因为我只看到从 <code>trapframe</code> 中读取这些值。</p></blockquote><p>再设置好 <code>sepc</code> 后（从之前保存的 <code>trapframe</code> 中），就调用 <code>userret</code> 函数。这里也值得思考的是，<code>userret</code> 函数是在 <code>trampoline</code> 页里的，这个时候仍然是内核页表，因此对于 <code>TRAMPOLINE</code> 虚拟地址的映射是用户页表和内核页表都做了的，而 <code>TRAPFRAME</code> 的映射只有用户页表。</p><h4 id=userret><code>userret()</code></h4><p>在进入这个函数之前，<code>usertrapret()</code> 函数传了两个参数：当前进程的用户空间页表和虚拟地址 <code>TRAPFRAME</code> ，C 代码如下。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>  <span style=color:#228b22>// tell trampoline.S the user page table to switch to.
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>  uint64 satp = <span style=color:#008b45>MAKE_SATP</span>(p-&gt;pagetable);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#228b22>// jump to trampoline.S at the top of memory, which 
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>  <span style=color:#228b22>// switches to the user page table, restores user registers,
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>  <span style=color:#228b22>// and switches to user mode with sret.
+</span></span></span><span style=display:flex><span><span style=color:#228b22></span>  uint64 fn = TRAMPOLINE + (userret - trampoline);
+</span></span><span style=display:flex><span>  ((<span style=color:#00688b;font-weight:700>void</span> (*)(uint64,uint64))fn)(TRAPFRAME, satp);
+</span></span></code></pre></div><p>进入之后，首先当然是切换页表（因为所有有用的东西都在用户页表才能翻译的地址里）。</p><pre tabindex=0><code class=language-assembly data-lang=assembly>        # switch to the user page table.
+        csrw satp, a1
+        sfence.vma zero, zero
+</code></pre><p>然后把所有的寄存器都还原，这里用到了 <code>sscratch</code> 这个寄存器，使得一系列操作完成之后 <code>sscratch</code> 的值又恢复到了 <code>TRAPFRAME</code> 后执行了 <code>sret</code> 指令，皆大欢喜地回到了用户的程序中。</p><h3 id=syscall-中如何传递参数>Syscall 中如何传递参数</h3><p>由于在进入系统调用之前，所有的寄存器都被存在了 <code>trapframe</code> 页中，因此 syscall 函数只需要从当前进程的 <code>trapframe</code> 中获取寄存器内容。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#8b008b;font-weight:700>static</span> uint64
+</span></span><span style=display:flex><span><span style=color:#008b45>argraw</span>(<span style=color:#00688b;font-weight:700>int</span> n)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> proc *p = <span style=color:#008b45>myproc</span>();
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>switch</span> (n) {
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>0</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a0;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>1</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a1;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>2</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a2;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>3</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a3;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>4</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a4;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>case</span> <span style=color:#b452cd>5</span>:
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> p-&gt;trapframe-&gt;a5;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#008b45>panic</span>(<span style=color:#cd5555>&#34;argraw&#34;</span>);
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=kernel-mode-下的-trap>Kernel mode 下的 trap</h3><p>CPU 处于 kernel mode 的时候， <code>stvec</code> 寄存器的值指向的是 <code>kernelvec</code> 函数，这个函数的行为和 <code>uservec</code> 很相似，存下当前的所有寄存器（31个），然后调用 <code>kerneltrap</code> 。</p><p>注意这里的机制需要两个东西来帮助：</p><ol><li>内核的页表需要保证某个虚拟地址到 <code>kernelvec</code> 的映射；</li><li>需要内核 stack 帮忙保存寄存器。</li></ol><p>Kernel mode 下的 trap 只有两类：设备中断和异常，xv6 的异常处理比较简单，直接报错。</p><p>设备中断中有一个特殊的中断叫做<strong>时钟中断</strong>，这个时候会调用 <code>yield</code> 来挂起自己。（这个机制和调度函数 <code>scheduler</code> 有关系）</p><p>在某个时间点，<code>kerneltrap</code> 准备返回后，它会重新设置回之前保存在<strong>内核栈</strong>上的 <code>sepc</code> 、<code>sstatus</code> （这里是在 <code>kerneltrap</code> 函数里保存的），然后再回到 <code>kernelvec</code> ，恢复之前的那 31 个寄存器，然后运行 <code>sret</code> 指令，恢复原本的执行流。</p><h3 id=trap-lab>Trap lab</h3><p>Trap 的东西快读完了，还剩一个 COW 没读，先做做看 lab 吧。</p><p>首先是要加一个 <code>backtrace</code> 来追踪 function calls ，这其实很简单，因为大致就能知道要怎么办了，先用一个实例代码来看看 RISC-V 的函数调用。首先看一段简单的 C 代码。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#00688b;font-weight:700>int</span> <span style=color:#008b45>g</span>(<span style=color:#00688b;font-weight:700>int</span> x) {
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> x+<span style=color:#b452cd>3</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>翻译成汇编是这样：</p><pre tabindex=0><code class=language-assembly data-lang=assembly>   0:	1141                	addi	sp,sp,-16
+   2:	e422                	sd	s0,8(sp)
+   4:	0800                	addi	s0,sp,16
+   6:	250d                	addiw	a0,a0,3
+   8:	6422                	ld	s0,8(sp)
+   a:	0141                	addi	sp,sp,16
+   c:	8082                	ret
+</code></pre><p>首先，进入函数后将栈指针（<code>sp</code>）减 16（我也不知道为什么是 16，我猜是为了对齐），然后把旧的 <code>s0</code> 存到了前 8 个字节中，再把旧的 <code>sp</code> （减 16 之前的）存到了 <code>s0</code> 当中；</p><p>在函数返回的时候，先把刚刚进入这个 stack frame 时保存在栈上的旧值返回到 <code>s0</code> 中，再重置 <code>sp</code> ，运行 <code>ret</code> 指令。</p><p>可以想象一下函数 A 调用函数 B 再调用函数 C 的过程：</p><p>这里假设函数 A 是这个进程最初最初的函数，也就是说它的栈是从新分配的栈页的最高地址开始的。</p><ol><li>一开始在函数 A 中，<code>s0</code> 保存的是 A 的 stack frame 的首指针（高地址）；</li><li>进入函数 B 后，A 的 frame pointer 被保存到了 B 的 stack 的前八个字节中，此时 <code>s0</code> 保存的是 B 的 frame pointer；</li><li>进入 C 后，B 的 pointer 被保存在了 C 的 stack 上，<code>s0</code> 保存 C 的 pointer。</li></ol><p>如果想要回溯，那只需要在函数 C 中取出 <code>s0</code> 的值，然后用这个值取到 B 的 frame pointer，然后层层循环，直到取到 0 为止。注意循环的终止条件：<strong>pointer 如果等于这个 pointer 所在的 page 的最高地址，那就停止，因为这意味着这是最最最初始的一个函数调用。</strong></p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#00688b;font-weight:700>void</span> 
+</span></span><span style=display:flex><span><span style=color:#008b45>backtrace</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  uint64 s0 = <span style=color:#008b45>r_fp</span>();
+</span></span><span style=display:flex><span>  uint64 last_s0 = *(uint64*)(s0 - <span style=color:#b452cd>16</span>);
+</span></span><span style=display:flex><span>  uint64 ra = *(uint64*)(s0 - <span style=color:#b452cd>8</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#008b45>printf</span>(<span style=color:#cd5555>&#34;backtrace:</span><span style=color:#cd5555>\n</span><span style=color:#cd5555>&#34;</span>);
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>while</span> (s0 != <span style=color:#008b45>PGROUNDUP</span>(s0)) {
+</span></span><span style=display:flex><span>    <span style=color:#008b45>printf</span>(<span style=color:#cd5555>&#34;%p</span><span style=color:#cd5555>\n</span><span style=color:#cd5555>&#34;</span>, ra);
+</span></span><span style=display:flex><span>    s0 = last_s0;
+</span></span><span style=display:flex><span>    last_s0 = *(uint64*)(s0 - <span style=color:#b452cd>16</span>);
+</span></span><span style=display:flex><span>    ra = *(uint64*)(s0 - <span style=color:#b452cd>8</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>然后要加一个简易的 signal 机制，其实很简单。</p><ul><li>首先要知道 <code>sigalarm</code> 和 <code>sigreturn</code> 都是属于 syscall ，也就是说这些函数的调用和返回中间都会和当前进程的 <code>trapframe</code> 域打交道。</li><li>对于 <code>sigalarm</code> 只要在 <code>proc</code> 结构体中保存相应的 <code>alarm_ticks</code> 和 <code>handler</code> 的地址就好了。同时在保存一个 <code>ticks</code> 让它每产生一次时钟中断就自增，如果在时钟中断发生时既设置了 <code>alarm_ticks</code> 、 <code>ticks</code> 又超过了 <code>alarm_ticks</code> 就修改返回的指令地址，让它跳转到 <code>handler</code>。</li><li>接下来的问题就是如何让 <code>handler</code> 结束后再返回到原本被打断的指令。根据 MIT 的提示，只需要在修改 <code>pc</code> 为 <code>handler</code> 之前，把整个 <code>trapframe</code> 保存下来就好了（在 <code>proc</code> 结构体中再开一个域用来保存）。因为 <code>sigreturn</code> 也是一个 syscall ，在它返回之前再把之前的整个 <code>saved_trapframe</code> 覆盖当前的 <code>trapframe</code> ，然后再返回交给操作系统，就能顺利回到原本的指令。</li><li>最后需要注意的是，需要一个 <code>flag</code> 来表明此时该进程已经进入 <code>signal_handler</code> ，来避免 signal 的重入问题。</li></ul><h2 id=lazy-page-allocation>Lazy page allocation</h2><p>起因很简单，假如说用户要求内核分配很多很多的页，内核需要花很多时间来分配，所以产生了 lazy allocation 的概念。值得注意的是，这里的 allocation 是针对用户的 heap ，没有涉及到 stack 。但其实这里我有一个疑惑，为什么对栈不实现一个 lazy allocation 呢？虽然这其实显得很反常，因为栈的增长其实是不可控的。</p><h3 id=追溯-panic>追溯 panic</h3><p>首先很简单，由于用户申请堆实际上只能通过 system call <code>sbrk()</code> ，那实现懒加载的第一步就是<strong>不加载</strong>，修改这个系统调用对应的函数 <code>sys_sbrk(void)</code> 。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span>uint64
+</span></span><span style=display:flex><span><span style=color:#008b45>sys_sbrk</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#00688b;font-weight:700>int</span> addr;
+</span></span><span style=display:flex><span>  <span style=color:#00688b;font-weight:700>int</span> n;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>argint</span>(<span style=color:#b452cd>0</span> &amp;n)&lt;<span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> -<span style=color:#b452cd>1</span>;
+</span></span><span style=display:flex><span>  addr = <span style=color:#008b45>myproc</span>()-&gt;sz;
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#228b22>/**
+</span></span></span><span style=display:flex><span><span style=color:#228b22>   * 删除对于 growproc() 的调用
+</span></span></span><span style=display:flex><span><span style=color:#228b22>   */</span>
+</span></span><span style=display:flex><span>  <span style=color:#008b45>myproc</span>()-&gt;sz += n;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> addr;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这样改了之后当然会 panic ，因为其实压根就没有没有分配空间，所以对于这些用户以为已经分配了空间的虚拟地址的访问会触发一个用户态下的 page fault 。但我此时在想的是，在调用了 <code>echo</code> 程序后，到底在哪一步调用了 <code>sys_sbrk()</code> 呢？这个事情其实很难去追溯，因为操作系统在背后做了太多的事情。我用 gdb 看了一下。</p><p>最后发现了几件事情：</p><ol><li>在用户输入命令 <code>echo hi</code> 后、 Shell 调用 exec 之前，就已经进入了 trap 并导致 panic 。</li><li><code>sys_sbrk</code> 的调用是在输入命令之后，但是也在 Shell 调用 exec 之前。</li><li>其实自始自终只调用了一次 <code>sys_sbrk</code> 。</li><li>上面的那次 <code>sys_sbrk</code> 的调用是触发了 trap 的关键 。</li></ol><p>我用 gdb 追踪到的事情：</p><ol><li><p>首先 xv6 非常正常的启动，直到进入到终端，也就是 <code>sh</code> 程序被加载进来。</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#228b22>/**
+</span></span></span><span style=display:flex><span><span style=color:#228b22> * sh 程序的部分代码
+</span></span></span><span style=display:flex><span><span style=color:#228b22> */</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#00688b;font-weight:700>int</span>
+</span></span><span style=display:flex><span><span style=color:#008b45>main</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(<span style=color:#008b45>fork1</span>() == <span style=color:#b452cd>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#008b45>runcmd</span>(<span style=color:#008b45>parsecmd</span>(buf));
+</span></span><span style=display:flex><span>  <span style=color:#008b45>wait</span>(<span style=color:#b452cd>0</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8b008b;font-weight:700>struct</span> cmd*
+</span></span><span style=display:flex><span><span style=color:#008b45>parsecmd</span>(<span style=color:#00688b;font-weight:700>char</span> *s)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  cmd = <span style=color:#008b45>parseline</span>(&amp;s, es);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8b008b;font-weight:700>struct</span> cmd*
+</span></span><span style=display:flex><span><span style=color:#008b45>parseline</span>(<span style=color:#00688b;font-weight:700>char</span> **ps, <span style=color:#00688b;font-weight:700>char</span> *es)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> cmd *cmd;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  cmd = <span style=color:#008b45>parsepipe</span>(ps, es);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8b008b;font-weight:700>struct</span> cmd*
+</span></span><span style=display:flex><span><span style=color:#008b45>parsepipe</span>(<span style=color:#00688b;font-weight:700>char</span> **ps, <span style=color:#00688b;font-weight:700>char</span> *es)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> cmd *cmd;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  cmd = <span style=color:#008b45>parseexec</span>(ps, es);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8b008b;font-weight:700>struct</span> cmd*
+</span></span><span style=display:flex><span><span style=color:#008b45>parseexec</span>(<span style=color:#00688b;font-weight:700>char</span> **ps, <span style=color:#00688b;font-weight:700>char</span> *es)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ret = <span style=color:#008b45>execcmd</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#8b008b;font-weight:700>struct</span> cmd*
+</span></span><span style=display:flex><span><span style=color:#008b45>execcmd</span>(<span style=color:#00688b;font-weight:700>void</span>)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>struct</span> execcmd *cmd;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  cmd = <span style=color:#008b45>malloc</span>(<span style=color:#8b008b;font-weight:700>sizeof</span>(*cmd));
+</span></span><span style=display:flex><span>  <span style=color:#008b45>memset</span>(cmd, <span style=color:#b452cd>0</span>, <span style=color:#8b008b;font-weight:700>sizeof</span>(*cmd));
+</span></span><span style=display:flex><span>  cmd-&gt;type = EXEC;
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> (<span style=color:#8b008b;font-weight:700>struct</span> cmd*)cmd;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>经过了一个下午的目力 gdb，我终于发现了这个非常非常恶心的调用栈：在用户输入了任何命令后，终端程序（也就是 <code>sh</code> ）的执行流是这样走的： <code>main -> parsecmd -> parseline -> parsepipe -> parseexec -> execcmd</code> ，最后到达了 <code>execcmd</code> 函数中的 <code>malloc</code> 调用，这里的 <code>malloc</code> 函数定义在另一个文件 <code>user/umalloc.c</code> 中。很操蛋的是，gdb 似乎没有办法识别 <code>umalloc.c</code> 的符号，因此执行流进入到这个函数后，我只能对着看不懂的 RISCV 汇编纯猜了，不过也大致猜到了：<code>malloc</code> 函数调用了同一个文件中定义的 <code>morecore</code> 函数，该函数如下：</p><div class=highlight><pre tabindex=0 style=background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#8b008b;font-weight:700>static</span> Header*
+</span></span><span style=display:flex><span><span style=color:#008b45>morecore</span>(uint nu)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#00688b;font-weight:700>char</span> *p;
+</span></span><span style=display:flex><span>  Header *hp;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(nu &lt; <span style=color:#b452cd>4096</span>)
+</span></span><span style=display:flex><span>    nu = <span style=color:#b452cd>4096</span>;
+</span></span><span style=display:flex><span>  p = <span style=color:#008b45>sbrk</span>(nu * <span style=color:#8b008b;font-weight:700>sizeof</span>(Header));
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>if</span>(p == (<span style=color:#00688b;font-weight:700>char</span>*)-<span style=color:#b452cd>1</span>)
+</span></span><span style=display:flex><span>    <span style=color:#8b008b;font-weight:700>return</span> <span style=color:#b452cd>0</span>;
+</span></span><span style=display:flex><span>  hp = (Header*)p;
+</span></span><span style=display:flex><span>  hp-&gt;s.size = nu;
+</span></span><span style=display:flex><span>  <span style=color:#008b45>free</span>((<span style=color:#00688b;font-weight:700>void</span>*)(hp + <span style=color:#b452cd>1</span>));
+</span></span><span style=display:flex><span>  <span style=color:#8b008b;font-weight:700>return</span> freep;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这里才得知，是 <code>morecore</code> 函数真正正正的调用了系统调用 <code>sbrk</code> （在汇编曾经调用了 <code>ecall</code>）。从调试的过程中发现，实际上 <code>sbrk</code> 调用是成功的，<code>ecall</code> 和 <code>eret</code> 都没有出差错，真正出问题的地方在 <code>hp->s.size = nu;</code> 这句 C 程序上。从汇编的层面上看，机器在运行指令 <code>sw s6, 8(a0)</code> 后直接报了 panic 。也就是说，在操作系统仅仅修改了进程的一个字段而没有真正的分配一个页给它后，当该进程试图去写（这里 <code>sw</code> 指令就是写内存）时，触发了用户态的 trap 。</p></li></ol><h3 id=解决-panic>解决 panic</h3><hr><p>2021 年 8 月 10 日，此时我已经做完了 lazy lab 和 cow lab。由于对并发的 lab 并不感兴趣，持久化的内容准备下学期在 CSE 上再学，因此 6.S081 的学习到这里暂时结束，有空再补上 lazy 和 cow 的思考，开了个新坑：6.824 。</p><hr width=100% id=EOF><p style=color:#777>Last modified on 2021-07-15</p></div></div><nav class=post-pagination><a class=newer-posts href=/posts/mapreduce/>Next<br>MapReduce with Go</a>
+<a class=older-posts>Previous<br>No older posts.</a></nav><div class=post-comment-wrapper><div id=gitalk-container></div></div></div></div></div></div><div id=sideContainer class=side-container><a class="a-block nav-head false" href=https://jhzhu.xyz><div class=nav-title>Daniel</div><div class=nav-subtitle>A speck of dust within the galaxy</div></a><div class=nav-link-list><a class="a-block nav-link-item active" href=/posts>Archive</a>
+<a class="a-block nav-link-item false" href=/tags>Tags</a>
+<a class="a-block nav-link-item false" href=/index.xml>RSS Feed</a></div><div class=nav-footer>Hugo Theme <a href=https://github.com/amazingrise/hugo-theme-diary>Diary</a> by <a href=https://risehere.net/>Rise</a><br>Ported from <a href=https://mak1t0.cc/ target=_blank rel="noreferrer noopener">Makito</a>'s <a href=https://github.com/SumiMakito/hexo-theme-journal/ target=_blank rel="noreferrer noopener">Journal.</a><br><br>&copy;
+2023 Daniel</div></div><div id=extraContainer class=extra-container><div class=toc-wrapper><div class=toc><div class=toc-content><center>- CATALOG -</center><ul><ul><li><a href=#system-call class=nav-system-call>System call</a></li><ul><li><a href=#syscall-system-call class=nav-syscall-system-call>Syscall system call</a></li><ul><li><a href=#%e9%81%87%e5%88%b0%e7%9a%84%e4%b8%80%e4%ba%9b%e7%96%91%e9%97%ae class=nav-遇到的一些疑问>遇到的一些疑问</a></li></ul><li><a href=#risc-v-%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e7%9a%84%e4%b8%80%e4%ba%9b%e8%a7%84%e5%88%99%e6%91%98%e5%bd%95 class=nav-risc-v-系统调用的一些规则摘录>RISC-V 系统调用的一些规则摘录</a></li><li><a href=#sysinfo-system-call class=nav-sysinfo-system-call>Sysinfo system call</a></li></ul><li><a href=#page-table class=nav-page-table>Page table</a></li><ul><li><a href=#%e6%af%8f%e4%b8%aa%e8%bf%9b%e7%a8%8b%e7%9a%84-kernel-page-table class=nav-每个进程的-kernel-page-table>每个进程的 kernel page table</a></li></ul><li><a href=#trap class=nav-trap>Trap</a></li><ul><li><a href=#user-mode-%e4%b8%8b%e7%9a%84-trap class=nav-user-mode-下的-trap>User mode 下的 trap</a></li><ul><li><a href=#trampolines-%e7%9a%84%e9%83%a8%e5%88%86%e4%bb%a3%e7%a0%81 class=nav-trampolines-的部分代码>trampoline.S 的部分代码：</a></li><li><a href=#%e8%bf%9b%e5%85%a5-usertrap-%e5%90%8e class=nav-进入-usertrap-后>进入 usertrap() 后</a></li><li><a href=#usertrapret-%e5%b9%b2%e4%ba%86%e4%bb%80%e4%b9%88 class=nav-usertrapret-干了什么>usertrapret() 干了什么</a></li><li><a href=#userret class=nav-userret>userret()</a></li></ul><li><a href=#syscall-%e4%b8%ad%e5%a6%82%e4%bd%95%e4%bc%a0%e9%80%92%e5%8f%82%e6%95%b0 class=nav-syscall-中如何传递参数>Syscall 中如何传递参数</a></li><li><a href=#kernel-mode-%e4%b8%8b%e7%9a%84-trap class=nav-kernel-mode-下的-trap>Kernel mode 下的 trap</a></li><li><a href=#trap-lab class=nav-trap-lab>Trap lab</a></li></ul><li><a href=#lazy-page-allocation class=nav-lazy-page-allocation>Lazy page allocation</a></li><ul><li><a href=#%e8%bf%bd%e6%ba%af-panic class=nav-追溯-panic>追溯 panic</a></li><li><a href=#%e8%a7%a3%e5%86%b3-panic class=nav-解决-panic>解决 panic</a></li></ul></div></div></div><div class=pagination><a id=globalBackToTop class="pagination-action animated-visibility" href=#top :class="{ invisible: scrollY == 0 }"><i class="material-icons pagination-action-icon">keyboard_arrow_up</i></a>
+<a type=button class=pagination-action id=darkModeToggleButton><span class="material-icons pagination-action-icon" id=darkModeToggleIcon>dark_mode</span></a></div></div><div id=single-column-footer>Hugo Theme <a href=https://github.com/amazingrise/hugo-theme-diary>Diary</a> by <a href=https://risehere.net/>Rise</a><br>Ported from <a href=https://mak1t0.cc/ target=_blank rel="noreferrer noopener">Makito</a>'s <a href=https://github.com/SumiMakito/hexo-theme-journal/ target=_blank rel="noreferrer noopener">Journal.</a><br><br>&copy;
+2023 Daniel</div></div><script src=/js/journal.js></script></body></html>

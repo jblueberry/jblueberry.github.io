@@ -1,7 +1,7 @@
 baseURL = "https://jhzhu.xyz"
 DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
 languageCode = "en-us"
-title = "A speck of dust within the galaxy"
+title = "Daniel"
 theme = "diary"
 # googleAnalytics = "UA-123-45"
 
@@ -18,9 +18,22 @@ theme = "diary"
     tabWidth = 4
 
 [params]
-subtitle = "Blog"
+subtitle = "A speck of dust within the galaxy"
 enableGitalk = true
 
+[params.gitalk] 
+    clientID = "f3ff90c4b75ce667fa71" # Your client ID
+    clientSecret = "11ac28384b1a4761daa1c0b6197347a807e4849d" # Your client secret
+    repo = "daniel-junhui.github.io" # The repo to store comments
+    owner = "daniel-junhui" # Your GitHub ID
+    admin= "daniel-junhui" # Required. Github repository owner and collaborators. (Users who having write access to this repository)
+    id= "location.pathname" # The unique id of the page.
+    labels= "gitalk" # Github issue labels. If you used to use Gitment, you can change it
+    perPage= 15 # Pagination size, with maximum 100.
+    pagerDirection= "last" # Comment sorting direction, available values are 'last' and 'first'.
+    createIssueManually= false # If it is 'false', it is auto to make a Github issue when the administrators login.
+    distractionFreeMode= false # Enable hot key (cmd|ctrl + enter) submit comment.
+  
 # Twitter Card and Open Graph settings
 enableOpenGraph = true
 enableTwitterCards = true

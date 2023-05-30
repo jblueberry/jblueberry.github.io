@@ -27,7 +27,6 @@ enableGitalk = true
     repo = "daniel-junhui.github.io" # The repo to store comments
     owner = "daniel-junhui" # Your GitHub ID
     admin= "daniel-junhui" # Required. Github repository owner and collaborators. (Users who having write access to this repository)
-    id= "location.pathname" # The unique id of the page.
     labels= "gitalk" # Github issue labels. If you used to use Gitment, you can change it
     perPage= 15 # Pagination size, with maximum 100.
     pagerDirection= "last" # Comment sorting direction, available values are 'last' and 'first'.

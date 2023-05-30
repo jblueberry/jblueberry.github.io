@@ -1,7 +1,6 @@
 ---
 title: "Factory Implement in Cpp"
 date: 2022-11-07T20:37:04+08:00
-draft: true
 ---
 
 - Using smart pointers.

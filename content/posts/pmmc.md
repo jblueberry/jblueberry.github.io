@@ -16,7 +16,7 @@ Furthermore, the leader's phase 1 and phase 2 require the creation of sub-proces
 
 Additionally, it is necessary to implement a stable active leader and a garbage collection mechanism similar to Raft to ensure the liveness and availability of the system.
 
-## Paxos roles
+## Paxos Roles
 
 Paxos Made Moderately Complex is still a Paxos protocol, but it attempts to reach consensus on a sequence of consecutive values. Therefore, it also has the two phases of the basic Paxos protocol, phase 1 and phase 2.
 
@@ -28,11 +28,11 @@ The behavior of the acceptor is very similar to that in the paper. Interestingly
 
 Based on the implementation in lab1, the at-most-once semantics were utilized, which means that an active leader can blindly put a proposal into a slot and start syncing without worrying about whether the command has already existed. In addition, in the original PMMC paper, both acceptors and leaders maintain a proposals set, but in the current design pattern, acceptors also act as leaders and thus do not need to maintain a separate proposals set. Instead, the proposals set, decisions set, and acceptor's accepted set are combined into a slots map, as mentioned earlier.
 
-## Stable leader election
+## Stable Leader Election
 
 The process of election itself is to go through the phase 1 process of Paxos. Raft also uses a similar approach, but it does not specifically wrap term and server index into a ballot. The key to a successful election lies in two points: 1) obtaining at least a majority of the votes as quickly as possible (determined by the phase 1 responses); 2) sending an active leader heartbeat to all other leaders as quickly as possible before others increment their ballot and issue a new election. Therefore, choosing the right interval for sending heartbeats and starting a new election is crucial to prevent a livelock situation where every server keeps self-nominating itself as the active leader but never achieves stability.
 
-## Slot map
+## Slot Map
 
 The slot map is an interesting data structure used to store key-value pairs of slot numbers and their corresponding slots. Each slot logically consists of two components: the command itself (which includes its source, i.e. the client address), and the state of the slot.
 
@@ -54,7 +54,7 @@ Some places (moments) where we need to try to perform:
 
 It can be observed that each time a slot is marked as chosen, it will be attempted to perform, but why is it attempted to perform? This is because only the slot at slot out can be attempted to execute, and multi-paxos supports out-of-order commit. There is a high probability that the slot at slot out has not been committed, while some slots behind it have already been committed, so we have to wait. Therefore, the logic in perform needs to be looped to ensure that a series of continuous slots that have been committed are completed at once to ensure efficiency.
 
-## Scout & commander
+## Scout & Commander
 
 In the PMMC paper, both of scout and commander are presented as sub-processes of the leader. But in a single-threaded implementation, they need to be redesigned.
 
@@ -64,7 +64,7 @@ For commander, it's not as straightforward as scout. In the PMMC paper, the life
 
 In addition, in PMMC, phase 2 responses only carry information about the ballot number, because each commander, as a subprocess, has its own independent endpoint. Once it receives a response, it knows that the response is definitely related to the slot bound to its own lifecycle. However, in a single-threaded environment, we cannot determine which slot number a phase 2 response is targeting when there is only one ballot in the response. Therefore, it is necessary to add additional information in the phase 2 response to solve this problem.
 
-## Decision sending and garbage collection
+## Decision Sending and Garbage Collection
 
 Finally, let's briefly talk about the timing of sending decisions. The timing of decision sending can be implemented in various ways. First of all, due to the safety of the Paxos protocol, once a slot is set to the chosen state, it will not be discarded (think about the accepted values in the phase 1 reply). Therefore, it is only necessary to design a mechanism for the active leader to synchronize the decision with others at an appropriate time point that others do not know.
 

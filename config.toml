@@ -1,7 +1,7 @@
 baseURL = "https://jzhu.xyz"
 DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
 languageCode = "en-us"
-title = "Daniel Zhu"
+title = "Junhui Z."
 theme = "diary"
 # googleAnalytics = "UA-123-45"
 

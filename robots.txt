@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jblueberry.github.io/sitemap-index.xml
+Sitemap: http://jzhu.xyz/sitemap-index.xml

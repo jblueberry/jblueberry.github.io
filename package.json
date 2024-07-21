@@ -1,0 +1,73 @@
+{
+	"name": "astro-blog-zozo",
+	"version": "0.0.3",
+	"author": {
+		"name": "Ladit",
+		"email": "i@ladit.me",
+		"url": "https://github.com/ladit"
+	},
+	"homepage": "https://github.com/ladit/astro-blog-zozo",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ladit/astro-blog-zozo.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ladit/astro-blog-zozo/issues"
+	},
+	"type": "module",
+	"engines": {
+		"bun": ">=1.0.30"
+	},
+	"scripts": {
+		"dev": "astro dev",
+		"check": "astro check",
+		"build": "astro check && bunx @biomejs/biome check --apply . && astro build",
+		"preview": "astro preview",
+		"preview:wrangler": "wrangler pages dev ./dist",
+		"astro": "astro",
+		"lint": "bunx @biomejs/biome check --apply ."
+	},
+	"dependencies": {
+		"@astrojs/markdown-remark": "^4.2.1",
+		"@astrojs/rss": "^4.0.5",
+		"@astrojs/sitemap": "^3.1.1",
+		"@astrojs/tailwind": "^5.1.0",
+		"@iconify-json/ri": "^1.1.20",
+		"@jsdevtools/rehype-toc": "^3.0.2",
+		"@nanostores/persistent": "^0.10.1",
+		"@playform/compress": "^0.0.3",
+		"@shikijs/transformers": "^1.1.7",
+		"@tailwindcss/typography": "^0.5.10",
+		"astro": "^4.0.0",
+		"astro-icon": "^1.1.0",
+		"astro-pagefind": "^1.4.0",
+		"katex": "^0.16.9",
+		"lxgw-wenkai-screen-web": "^1.321.0",
+		"mdast-util-to-string": "^4.0.0",
+		"node-gyp": "^10.0.1",
+		"react": "^18.2.0",
+		"reading-time": "^1.5.0",
+		"rehype-accessible-emojis": "^0.3.2",
+		"rehype-external-links": "^3.0.0",
+		"rehype-katex": "^7.0.0",
+		"remark-emoji": "^4.0.1",
+		"remark-math": "^6.0.0",
+		"satori": "^0.10.13",
+		"sharp": "^0.33.3",
+		"tailwind-scrollbar": "^3.1.0",
+		"tailwindcss": "^3.4.1"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.5.5",
+		"@biomejs/biome": "1.7.3",
+		"@types/bun": "^1.0.7",
+		"@types/react": "^18.2.66",
+		"globals": "^14.0.0",
+		"typescript": "^5.3.3"
+	},
+	"overrides": {
+		"sharp": "^0.33.3"
+	},
+	"trustedDependencies": ["@biomejs/biome", "esbuild", "sharp"]
+}

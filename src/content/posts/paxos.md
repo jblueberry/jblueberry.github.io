@@ -8,7 +8,7 @@ tags:
 
 My Design for [PMMC](https://paxos.systems/).
 
-There is no implementation code, only macroscopic ideas.
+There is no implementation code, only macroscopic ideas, which are heuristic for [6.824](http://nil.csail.mit.edu/6.824/2022/) (of course you can implement MultiPaxos as Raft-alternative) or [CS5223](https://nusmods.com/courses/CS5223/distributed-systems).
 
 这里没有实现源码，只有大致的思路。
 

@@ -1,5 +1,5 @@
 ---
-title: Cheatsheet of MultiPaxos Impl
+title: MultiPaxos Cheat Sheet
 date: 2023-03-09T21:25:11+08:00
 tags:
   - Paxos
@@ -7,6 +7,10 @@ tags:
 ---
 
 My Design for [PMMC](https://paxos.systems/).
+
+There is no implementation code, only macroscopic ideas.
+
+这里没有实现源码，只有大致的思路。
 
 <!--more-->
 

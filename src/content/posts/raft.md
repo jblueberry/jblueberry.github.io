@@ -1,9 +1,10 @@
 ---
 title: Raft Notes
-# date: 2022-06-10T12:00:00+08:00
+date: 2022-06-10T12:00:00+08:00
 tags:
-  - Golang
+  - Raft
   - Distributed Systems
+  - Chinese
 ---
 
 2023.02.05 update: 实际上这个 lab 我做的复杂了，不一定需要用条件变量。

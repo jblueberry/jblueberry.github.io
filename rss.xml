@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Junhui&apos;s garage</title><description>再见无脚鸟</description><link>https://jblueberry.github.io/</link><item><title>Notes of 6.S081</title><link>https://jblueberry.github.io/posts/6828/</link><guid isPermaLink="true">https://jblueberry.github.io/posts/6828/</guid><pubDate>Sun, 21 Jul 2024 08:37:02 GMT</pubDate><content:encoded>
+因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
+
+## System call
+### Syscall system call
+
+第一个 lab 没什么好记录的，只不过用 system call 小打小闹而已，从第二个 lab 开始才是真的对 kernel 做事情。
+
+#### 遇到的一些疑问
+
+- 英语太垃，看不懂这句话：
+
+  &gt; Add a `sys_trace()` function in `kernel/sysproc.c` that implements the new system call by remembering its argument in a new variable in the proc structure (see `kernel/proc.h`). The functions to retrieve system call arguments from user space are in `kernel/syscall.c`, and you can see examples of their use in `kernel/sysproc.c`.
+
+龙鸣翻译：要加一个新的函数，这个函数通过在 `proc` 结构中增加的一个新的变量来实现系统调用，从用户空间拿到系统调用参数的函数在 `syscall.c` 中。确实没怎么看懂，那就先看看代码。
+
+一个很关键的汇编文件：`usys.S`
+
+```assembly
+sleep:
+ li a7, SYS_sleep
+ ecall
+ ret
+.global uptime
+uptime:
+ li a7, SYS_uptime
+ ecall
+ ret
+.global trace
+trace:
+ li a7, SYS_trace
+ ecall
+ ret
+```
+
+这个文件可以看到调用 system call 的一些指令，其中 `a7` 是 RISC-V 的一个寄存器，再看 `kernel/syscall.c` 当中的一个关键的函数：
+
+```c
+void
+syscall(void)
+{
+  int num;
+  struct proc *p = myproc();
+
+  num = p-&gt;trapframe-&gt;a7;
+  if(num &gt; 0 &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num]) {
+    p-&gt;trapframe-&gt;a0 = syscalls[num]();
+  } else {
+    printf(&quot;%d %s: unknown sys call %d\n&quot;,
+            p-&gt;pid, p-&gt;name, num);
+    p-&gt;trapframe-&gt;a0 = -1;
+  }
+}
+```
+
+这个函数应该就是用户态和系统调用的接口，首先获取当前进程的 `a7` 寄存器，如果这个寄存器中的系统调用号存在（也就是 `num &gt; 0 &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num] `语句为真），那就调用它并返回（把 `a0` 寄存器设置为返回值），否则就返回 `-1` 。
+
+递归学习：看不太懂下面这个函数指针数组到底是什么玩意：
+
+```c
+static uint64 (*syscalls[])(void) = {
+[SYS_fork]    sys_fork,
+[SYS_exit]    sys_exit,
+[SYS_wait]    sys_wait,
+[SYS_pipe]    sys_pipe,
+[SYS_read]    sys_read,
+[SYS_kill]    sys_kill,
+[SYS_exec]    sys_exec,
+[SYS_fstat]   sys_fstat,
+[SYS_chdir]   sys_chdir,
+[SYS_dup]     sys_dup,
+[SYS_getpid]  sys_getpid,
+[SYS_sbrk]    sys_sbrk,
+[SYS_sleep]   sys_sleep,
+[SYS_uptime]  sys_uptime,
+[SYS_open]    sys_open,
+[SYS_write]   sys_write,
+[SYS_mknod]   sys_mknod,
+[SYS_unlink]  sys_unlink,
+[SYS_link]    sys_link,
+[SYS_mkdir]   sys_mkdir,
+[SYS_close]   sys_close,
+};
+```
+
+其实就是看不懂 `uint64 (*syscalls[])(void)` 的意思，参考之前知乎上看到的一个回答，把这个东西翻译成英文：
+an array of pointers to a function that returns uint64，也就是一个函数指针的数组，这个初始化的方式也确实给我整麻了，但无所谓看懂了就行，不纠结语法。
+
+其实还有一个终极问题：当调用系统调用的时候，真正的流程到底是什么？很遗憾这可能需要用 gdb 目力调试才能知道，但其实在不知道这个事情的流程下也能够完成这个实验，只需要观察一下 `sys_exit` 的代码：
+
+```c
+uint64
+sys_exit(void)
+{
+  int n;
+  if(argint(0, &amp;n) &lt; 0)
+    return -1;
+  exit(n);
+  return 0;  // not reached
+}
+```
+
+它调用了 `argint(0, &amp;n)` 来获取了进程退出时的状态号，再看到 `syscall.c` 中对于 `argint` 函数的注释：`// Fetch the nth 32-bit system call argument.` 就可以知道这个函数就是用来获取系统调用的参数的，那直接先拿来用就好了（拿来主义）。
+
+最终增加的关键代码如下：（还有一些杂七杂八的东西要加，比如系统调用的打印）
+
+```c
+uint64
+sys_trace(void)
+{
+  uint mask;
+  if(argint(0, (int *)&amp;mask) &lt; 0)
+    return -1;
+  myproc()-&gt;trace_mask = mask;
+  return 0;
+}
+```
+
+### RISC-V 系统调用的一些规则摘录
+
+- syscall number is passed in `a7`
+- syscall arguments are passed in `a0` to `a5`
+- unused arguments are set to `0`
+- return value is returned in `a0`
+
+### Sysinfo system call
+
+差不多和前面的 system call 一样，需要把一些信息拷贝到 user 空间，要用到 `copyout()` 函数。
+
+```c
+// Copy from kernel to user.
+// Copy len bytes from src to virtual address dstva in a given page table.
+// Return 0 on success, -1 on error.
+int
+copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
+{
+  uint64 n, va0, pa0;
+
+  while(len &gt; 0){
+    va0 = PGROUNDDOWN(dstva);
+    pa0 = walkaddr(pagetable, va0);
+    if(pa0 == 0)
+      return -1;
+    n = PGSIZE - (dstva - va0);
+    if(n &gt; len)
+      n = len;
+    memmove((void *)(pa0 + (dstva - va0)), src, n);
+
+    len -= n;
+    src += n;
+    dstva = va0 + PGSIZE;
+  }
+  return 0;
+}
+```
+
+其实也很简单，直接拿到当前进程的 pagetable，然后虚拟地址其实就是第一个参数，其他的直接传进去用就好了。
+
+至于活跃进程数量和空闲内存数：
+
+- xv6 中的进程比较简单，是一个固定的数组（64个）。遍历一遍，剔除 `UNUSED` 的数量就好了；
+- 先获取空闲的页数，然后乘以 4K 就可以得到空闲字节数。
+
+```c
+uint64
+sys_sysinfo(void)
+{
+  // printf(&quot;hello\n&quot;);
+  struct sysinfo info;
+  uint64 user_addr;
+  struct proc *p = myproc();
+  if(argaddr(0, &amp;user_addr) &lt; 0)
+    return -1;
+  info.freemem = free_memory_number();
+  info.nproc = process_number();
+  if(copyout(p-&gt;pagetable, user_addr, (char*)&amp;info, sizeof(struct sysinfo))&lt;0)
+    return -1;
+  return 0;
+}
+```
+## Page table
+### 每个进程的 kernel page table
+说实话，做到这一步的时候，我很莫名其妙为什么要去修改内核的这个机制，也就是「内核拥有一个自己的页表」机制。
+
+读了一下 xv6 的 rec-book，这个 lab 的意思大致就是因为 xv6 的内核采用的是 direct-mapping 机制，所以可以让「内核拥有一个自己的页表」，但这样的话在运行内核代码的时候，就要用一个「转换机制」来访问用户的数据，接下来几个事情就是为了改变这个事情，至于改了之后到底有什么好处，我也不知道，做了再说。
+
+大致的思路是这样：
+
+- 首先是需要给每个 process 维护一个 kernel_pagetable 域。
+- 需要给每个 process 创建时（也就是在函数 `allocproc` 中）填充这个 process 的 kernel_pagetable ，目前来说每个进程的内核页表是和内核独有的页表是一模一样的。
+- 除了上面和内核独有页表的内容一样以外，每个进程都要在自己的页表里再增加自己的内核 stack 映射。而这个映射原本在未修改的 xv6 中是由内核提前为所有的预备进程做好的（ `procinit` 函数），现在需要把这个事情延迟到在每个进程被创建的时候再做。
+- 在调度函数中确保在切换到某个进程的之前，使用该进程的内核页表（也就是在 `swtch(&amp;c-&gt;context, &amp;p-&gt;context)` 之前），在重新回到调度程序后，再切换回内核自己的页表。
+- 在进程被 free 的时候，顺便把 kernel_pagetable 也删了，但不用删除页表的叶结点，只需要删前两层的索引。
+
+在差不多做完这些事情后，还遇到了一些问题。
+
+1. 改完之后 `make qemu` 直接报 `panic: kvmpa` 。
+
+`kvmpa` 函数的用处是「将内核的一个虚拟地址转换为一个物理地址」，而 xv6 的内核地址大多都是 direct-mapping 的，换言之其实就是转换内核栈的地址而已，而在改完之后，进程的内核栈的地址已经不属于内核的页表了，而属于每个进程自己的内核页表，因此需要修改 `pte = walk(kernel_pagetable, va, 0)` 为 `pte = walk(myproc()-&gt;kernel_pagetable, va, 0)` 。（调用 `myproc()` 需要加两个头文件）
+
+2. 进程内核栈的内存泄漏问题
+
+要注意，每个进程被 free 的时候，即使不用释放进程内核页表绝大多数的叶子 page ，但是进程内核栈的 page 是必须要释放的，不然跑 usertests 的时候会在 sbrkfail 处报 kvmmap 的 panic ，我没有用 gdb 去调试出到底出了什么差错。但在我添加了对内核栈的手动释放后，就不报错了，所以很大可能的原因就是内存泄漏了，每当创建一个进程就浪费掉 1 个 page，free 的时候又不回收，最后就导致内存用尽没得用了。
+
+```c
+  if(p-&gt;kstack)
+    uvmunmap(p-&gt;kernel_pagetable, p-&gt;kstack, 1, 1); 
+  p-&gt;kstack = 0;
+  if(p-&gt;kernel_pagetable)
+    proc_freekernelpagetable(p-&gt;kernel_pagetable);
+  p-&gt;kernel_pagetable = 0;
+```
+
+## Trap
+
+一些关键的寄存器：
+
+- `stvec` 用于存储 trap handler 的地址，由内核写入
+- `sepc` 来保存进入 trap 前的 `pc`
+- `scause` 保存 trap 的原因
+- `sccratch` 在调用 trap handler 的时候会用到这个寄存器
+- `sstatus` 中的 SIE 位表示是否阻塞设备中断，SPP 位表示 trap 来自于用户态还是内核态
+
+当 RISC-V CPU 要开始一个 trap 的时候依次做如下的事情：
+
+1. 如果是一个设备终端且 `sstatus` 中的 SIE 位是空的，就不往下走了；
+2. 清楚 SIE 位（保证原子性）；
+3. 将当前的 `pc` 复制到 `sepc` ；
+4. 将当前的 mode 复制到 `sstatus` 的 SPP 位；
+5. 设置 `scause`；
+6. 将 mode 设置为 supervisor mode；
+7. 将 `stvec` 复制到 `pc` ；
+8. go on 运行指令。
+
+### User mode 下的 trap
+
+流程是
+
+1. `trampoline.S` 中的 `uservec` 函数，这个函数被 `stvec` 所指
+2. 转到 `trap.c` 中的 `usertrap` 函数
+3. trap 结束后转到 `trap.c` 中的 `usertrapret` 函数
+4. 然后转到 `trampoline.S` 中的 `userret` 函数
+
+首先，硬件并不会在发生 trap 时切换页表，因此用户的页表需要存在一个虚拟地址映射到 `uservec` ；同时 `uservec` 函数必须显示将 `satp` 切换到内核的页表（不然不能直接访问物理内存）。xv6 用了一个 `TRAMPOLINE` 的虚拟地址和  `trampoline` 页来映射 `trampoline.S` 的代码，并且不管是用户空间还是内核空间，虚拟地址都是一样的。也就是说，当 trap 发生时，首先从 `stvec` 中读到 `uservec` 的虚拟地址，也就是 `TRAMPOLINE` 然后经过页表映射到 `trampoline` 。
+
+#### `trampoline.S` 的部分代码：
+
+Xv6 还开辟了另外一个 page （就在 `trampoline` 下面）用来保存发生 trap 时被打断的指令的寄存器值，这个 page 叫做 `trapframe` 。一开始，寄存器 `sscratch` 保存着映射到 `trapframe` 页的**虚拟地址**，也就是 `TRAPFRAME` 。（想想这里为什么是虚拟地址而不是物理地址，因为运行到这的时候仍然没有切换页表，所以用户空间页表也需要保证好 `TRAPFRAME` 的映射）
+
+```assembly
+				csrrw a0, sscratch, a0
+```
+
+这个时候，`a0` 的值和 `sscratch` 就被交换了。
+
+```assembly
+				sd ra, 40(a0)
+        sd sp, 48(a0)
+        sd gp, 56(a0)
+        sd tp, 64(a0)
+        sd t0, 72(a0)
+        sd t1, 80(a0)
+        sd t2, 88(a0)
+        sd s0, 96(a0)
+        sd s1, 104(a0)
+        sd a1, 120(a0)
+        sd a2, 128(a0)
+        sd a3, 136(a0)
+        sd a4, 144(a0)
+        sd a5, 152(a0)
+        sd a6, 160(a0)
+        sd a7, 168(a0)
+        sd s2, 176(a0)
+        sd s3, 184(a0)
+        sd s4, 192(a0)
+        sd s5, 200(a0)
+        sd s6, 208(a0)
+        sd s7, 216(a0)
+        sd s8, 224(a0)
+        sd s9, 232(a0)
+        sd s10, 240(a0)
+        sd s11, 248(a0)
+        sd t3, 256(a0)
+        sd t4, 264(a0)
+        sd t5, 272(a0)
+        sd t6, 280(a0)
+```
+
+这里把除了 `a0` 以外的寄存器都保存到了 `trapframe` 中。
+
+```assembly
+        csrr t0, sscratch
+        sd t0, 112(a0)
+```
+
+这里把 `a0` 也保存到了 `trapframe` 中。
+
+而注意到，这里的指令是从 `40(a0)` 开始的，说明 `trapframe` 里面原本还存了 5 个值，其中包括了**内核的页表**、**进程的内核栈**、**`usertrap()`** 的地址和当前 CPU 的 `hartid` 。为什么还缺一个呢，我也不知道缺了什么，反正代码里看不出来。为了进入 `usertrap()` ，需要恢复这些值。
+
+```assembly
+        # restore kernel stack pointer from p-&gt;trapframe-&gt;kernel_sp
+        ld sp, 8(a0)
+
+        # make tp hold the current hartid, from p-&gt;trapframe-&gt;kernel_hartid
+        ld tp, 32(a0)
+
+        # load the address of usertrap(), p-&gt;trapframe-&gt;kernel_trap
+        ld t0, 16(a0)
+
+        # restore kernel page table from p-&gt;trapframe-&gt;kernel_satp
+        ld t1, 0(a0)
+        csrw satp, t1
+        sfence.vma zero, zero
+```
+
+注意到，运行完最后的指令（也就是切换到内核页表）后，`a0` 中保存的 `TRAPFRAME` 虚拟地址已经失效了。
+
+最后，跳转到 `usertrap()`。
+
+```assembly
+        jr t0
+```
+
+读到这里，我仍然有些许的疑问，因为 xv6 的文档上说其实用户空间涉及到了 32 个寄存器，但这里其实只保存了 31 个寄存器，我的疑惑是缺了哪一个？
+
+#### 进入 `usertrap()` 后
+
+首先，验证是不是从 user mode 来的，然后修改了 `stvec` 的值（为什么？）。因为如果这个时候再次发生一些 trap ，就需要内核的 handler 来解决了，所以将这个入口改为了内核的 handler 的函数地址。然后根据 trap 的成因（`scause` 寄存器）来决定是系统调用、设备中断还是一个单纯的异常，做完这些事情后调用 `usertrapret()` 。
+
+#### `usertrapret()` 干了什么
+
+首先，关闭了中断（保证不被打断）。
+
+然后重新设置了 `stvec` 的值，让它重新指向 `TRAPOLINE` 。
+
+```c
+w_stvec(TRAMPOLINE + (uservec - trampoline));
+```
+
+再重新设置 `trapframe` 中的一些值，包括 `satp` （这是页表）、内核栈指针等。
+
+&gt; 我这里其实没有明白为什么要重新设置，之前的行为会修改这些值吗？因为我只看到从 `trapframe` 中读取这些值。
+
+再设置好 `sepc` 后（从之前保存的 `trapframe` 中），就调用 `userret` 函数。这里也值得思考的是，`userret` 函数是在 `trampoline` 页里的，这个时候仍然是内核页表，因此对于 `TRAMPOLINE` 虚拟地址的映射是用户页表和内核页表都做了的，而 `TRAPFRAME` 的映射只有用户页表。
+
+#### `userret()`
+
+在进入这个函数之前，`usertrapret()` 函数传了两个参数：当前进程的用户空间页表和虚拟地址 `TRAPFRAME` ，C 代码如下。
+
+```c
+  // tell trampoline.S the user page table to switch to.
+  uint64 satp = MAKE_SATP(p-&gt;pagetable);
+
+  // jump to trampoline.S at the top of memory, which 
+  // switches to the user page table, restores user registers,
+  // and switches to user mode with sret.
+  uint64 fn = TRAMPOLINE + (userret - trampoline);
+  ((void (*)(uint64,uint64))fn)(TRAPFRAME, satp);
+```
+
+进入之后，首先当然是切换页表（因为所有有用的东西都在用户页表才能翻译的地址里）。
+
+```assembly
+        # switch to the user page table.
+        csrw satp, a1
+        sfence.vma zero, zero
+```
+
+然后把所有的寄存器都还原，这里用到了 `sscratch` 这个寄存器，使得一系列操作完成之后 `sscratch` 的值又恢复到了 `TRAPFRAME` 后执行了 `sret` 指令，皆大欢喜地回到了用户的程序中。
+
+### Syscall 中如何传递参数
+
+由于在进入系统调用之前，所有的寄存器都被存在了 `trapframe` 页中，因此 syscall 函数只需要从当前进程的 `trapframe` 中获取寄存器内容。
+
+```c
+static uint64
+argraw(int n)
+{
+  struct proc *p = myproc();
+  switch (n) {
+  case 0:
+    return p-&gt;trapframe-&gt;a0;
+  case 1:
+    return p-&gt;trapframe-&gt;a1;
+  case 2:
+    return p-&gt;trapframe-&gt;a2;
+  case 3:
+    return p-&gt;trapframe-&gt;a3;
+  case 4:
+    return p-&gt;trapframe-&gt;a4;
+  case 5:
+    return p-&gt;trapframe-&gt;a5;
+  }
+  panic(&quot;argraw&quot;);
+  return -1;
+}
+```
+
+### Kernel mode 下的 trap
+
+CPU 处于 kernel mode 的时候， `stvec` 寄存器的值指向的是 `kernelvec` 函数，这个函数的行为和 `uservec` 很相似，存下当前的所有寄存器（31个），然后调用 `kerneltrap` 。
+
+注意这里的机制需要两个东西来帮助：
+
+1. 内核的页表需要保证某个虚拟地址到 `kernelvec` 的映射；
+2. 需要内核 stack 帮忙保存寄存器。
+
+Kernel mode 下的 trap 只有两类：设备中断和异常，xv6 的异常处理比较简单，直接报错。
+
+设备中断中有一个特殊的中断叫做**时钟中断**，这个时候会调用 `yield` 来挂起自己。（这个机制和调度函数 `scheduler` 有关系）
+
+在某个时间点，`kerneltrap` 准备返回后，它会重新设置回之前保存在**内核栈**上的 `sepc` 、`sstatus` （这里是在 `kerneltrap` 函数里保存的），然后再回到 `kernelvec` ，恢复之前的那 31 个寄存器，然后运行 `sret` 指令，恢复原本的执行流。
+
+### Trap lab
+
+Trap 的东西快读完了，还剩一个 COW 没读，先做做看 lab 吧。
+
+首先是要加一个 `backtrace` 来追踪 function calls ，这其实很简单，因为大致就能知道要怎么办了，先用一个实例代码来看看 RISC-V 的函数调用。首先看一段简单的 C 代码。
+
+```c
+int g(int x) {
+  return x+3;
+}
+```
+
+翻译成汇编是这样：
+
+```assembly
+   0:	1141                	addi	sp,sp,-16
+   2:	e422                	sd	s0,8(sp)
+   4:	0800                	addi	s0,sp,16
+   6:	250d                	addiw	a0,a0,3
+   8:	6422                	ld	s0,8(sp)
+   a:	0141                	addi	sp,sp,16
+   c:	8082                	ret
+```
+
+首先，进入函数后将栈指针（`sp`）减 16（我也不知道为什么是 16，我猜是为了对齐），然后把旧的 `s0` 存到了前 8 个字节中，再把旧的 `sp` （减 16 之前的）存到了 `s0` 当中；
+
+在函数返回的时候，先把刚刚进入这个 stack frame 时保存在栈上的旧值返回到 `s0` 中，再重置 `sp` ，运行 `ret` 指令。
+
+可以想象一下函数 A 调用函数 B 再调用函数 C 的过程：
+
+这里假设函数 A 是这个进程最初最初的函数，也就是说它的栈是从新分配的栈页的最高地址开始的。
+
+1. 一开始在函数 A 中，`s0` 保存的是 A 的 stack frame 的首指针（高地址）；
+2. 进入函数 B 后，A 的 frame pointer 被保存到了 B 的 stack 的前八个字节中，此时 `s0` 保存的是 B 的 frame pointer；
+3. 进入 C 后，B 的 pointer 被保存在了 C 的 stack 上，`s0` 保存 C 的 pointer。
+
+如果想要回溯，那只需要在函数 C 中取出 `s0` 的值，然后用这个值取到 B 的 frame pointer，然后层层循环，直到取到 0 为止。注意循环的终止条件：**pointer 如果等于这个 pointer 所在的 page 的最高地址，那就停止，因为这意味着这是最最最初始的一个函数调用。**
+
+```c
+void 
+backtrace(void)
+{
+  uint64 s0 = r_fp();
+  uint64 last_s0 = *(uint64*)(s0 - 16);
+  uint64 ra = *(uint64*)(s0 - 8);
+
+  printf(&quot;backtrace:\n&quot;);
+  while (s0 != PGROUNDUP(s0)) {
+    printf(&quot;%p\n&quot;, ra);
+    s0 = last_s0;
+    last_s0 = *(uint64*)(s0 - 16);
+    ra = *(uint64*)(s0 - 8);
+  }
+}
+```
+
+然后要加一个简易的 signal 机制，其实很简单。
+
+- 首先要知道 `sigalarm` 和 `sigreturn` 都是属于 syscall ，也就是说这些函数的调用和返回中间都会和当前进程的 `trapframe` 域打交道。
+- 对于 `sigalarm` 只要在 `proc` 结构体中保存相应的 `alarm_ticks` 和 `handler` 的地址就好了。同时在保存一个 `ticks` 让它每产生一次时钟中断就自增，如果在时钟中断发生时既设置了 `alarm_ticks` 、 `ticks` 又超过了 `alarm_ticks` 就修改返回的指令地址，让它跳转到 `handler`。
+- 接下来的问题就是如何让 `handler` 结束后再返回到原本被打断的指令。根据 MIT 的提示，只需要在修改 `pc` 为 `handler` 之前，把整个 `trapframe` 保存下来就好了（在 `proc` 结构体中再开一个域用来保存）。因为 `sigreturn` 也是一个 syscall ，在它返回之前再把之前的整个 `saved_trapframe` 覆盖当前的 `trapframe` ，然后再返回交给操作系统，就能顺利回到原本的指令。
+- 最后需要注意的是，需要一个 `flag` 来表明此时该进程已经进入 `signal_handler` ，来避免 signal 的重入问题。
+
+## Lazy page allocation
+
+起因很简单，假如说用户要求内核分配很多很多的页，内核需要花很多时间来分配，所以产生了 lazy allocation 的概念。值得注意的是，这里的 allocation 是针对用户的 heap ，没有涉及到 stack 。但其实这里我有一个疑惑，为什么对栈不实现一个 lazy allocation 呢？虽然这其实显得很反常，因为栈的增长其实是不可控的。
+
+### 追溯 panic
+
+首先很简单，由于用户申请堆实际上只能通过 system call `sbrk()` ，那实现懒加载的第一步就是**不加载**，修改这个系统调用对应的函数 `sys_sbrk(void)` 。
+
+```c
+uint64
+sys_sbrk(void)
+{
+  int addr;
+  int n;
+  if(argint(0 &amp;n)&lt;0)
+    return -1;
+  addr = myproc()-&gt;sz;
+  
+  /**
+   * 删除对于 growproc() 的调用
+   */
+  myproc()-&gt;sz += n;
+  return addr;
+}
+```
+
+这样改了之后当然会 panic ，因为其实压根就没有没有分配空间，所以对于这些用户以为已经分配了空间的虚拟地址的访问会触发一个用户态下的 page fault 。但我此时在想的是，在调用了 `echo` 程序后，到底在哪一步调用了 `sys_sbrk()` 呢？这个事情其实很难去追溯，因为操作系统在背后做了太多的事情。我用 gdb 看了一下。
+
+最后发现了几件事情：
+
+1. 在用户输入命令 `echo hi` 后、 Shell 调用 exec 之前，就已经进入了 trap 并导致 panic 。
+2. `sys_sbrk` 的调用是在输入命令之后，但是也在 Shell 调用 exec 之前。
+3. 其实自始自终只调用了一次 `sys_sbrk` 。
+4. 上面的那次 `sys_sbrk` 的调用是触发了 trap 的关键 。
+
+我用 gdb 追踪到的事情：
+
+1. 首先 xv6 非常正常的启动，直到进入到终端，也就是 `sh` 程序被加载进来。
+
+   ```c
+   /**
+    * sh 程序的部分代码
+    */
+   
+   int
+   main(void)
+   {
+     ...
+     
+     if(fork1() == 0)
+       runcmd(parsecmd(buf));
+     wait(0);
+     
+     ...
+   }
+   
+   struct cmd*
+   parsecmd(char *s)
+   {
+     ...
+     
+     cmd = parseline(&amp;s, es);
+     
+     ...
+   }
+   
+   struct cmd*
+   parseline(char **ps, char *es)
+   {
+     struct cmd *cmd;
+   
+     cmd = parsepipe(ps, es);
+     
+     ...
+   }
+   
+   struct cmd*
+   parsepipe(char **ps, char *es)
+   {
+     struct cmd *cmd;
+   
+     cmd = parseexec(ps, es);
+     
+     ...
+   }
+   
+   struct cmd*
+   parseexec(char **ps, char *es)
+   {
+     ...
+   
+     ret = execcmd();
+     
+     ...
+   }
+   
+   struct cmd*
+   execcmd(void)
+   {
+     struct execcmd *cmd;
+   
+     cmd = malloc(sizeof(*cmd));
+     memset(cmd, 0, sizeof(*cmd));
+     cmd-&gt;type = EXEC;
+     return (struct cmd*)cmd;
+   }
+   ```
+
+   经过了一个下午的目力 gdb，我终于发现了这个非常非常恶心的调用栈：在用户输入了任何命令后，终端程序（也就是 `sh` ）的执行流是这样走的： `main -&gt; parsecmd -&gt; parseline -&gt; parsepipe -&gt; parseexec -&gt; execcmd`  ，最后到达了 `execcmd` 函数中的 `malloc` 调用，这里的 `malloc` 函数定义在另一个文件 `user/umalloc.c` 中。很操蛋的是，gdb 似乎没有办法识别 `umalloc.c` 的符号，因此执行流进入到这个函数后，我只能对着看不懂的 RISCV 汇编纯猜了，不过也大致猜到了：`malloc` 函数调用了同一个文件中定义的 `morecore` 函数，该函数如下：
+
+   ```c
+   static Header*
+   morecore(uint nu)
+   {
+     char *p;
+     Header *hp;
+   
+     if(nu &lt; 4096)
+       nu = 4096;
+     p = sbrk(nu * sizeof(Header));
+     if(p == (char*)-1)
+       return 0;
+     hp = (Header*)p;
+     hp-&gt;s.size = nu;
+     free((void*)(hp + 1));
+     return freep;
+   }
+   ```
+
+   这里才得知，是 `morecore` 函数真正正正的调用了系统调用 `sbrk` （在汇编曾经调用了 `ecall`）。从调试的过程中发现，实际上 `sbrk` 调用是成功的，`ecall` 和 `eret` 都没有出差错，真正出问题的地方在 `hp-&gt;s.size = nu;` 这句 C 程序上。从汇编的层面上看，机器在运行指令 `sw  s6, 8(a0)` 后直接报了 panic 。也就是说，在操作系统仅仅修改了进程的一个字段而没有真正的分配一个页给它后，当该进程试图去写（这里 `sw` 指令就是写内存）时，触发了用户态的 trap 。
+
+### 解决 panic
+
+***
+
+2021 年 8 月 10 日，此时我已经做完了 lazy lab 和 cow lab。由于对并发的 lab 并不感兴趣，持久化的内容准备下学期在 CSE 上再学，因此 6.S081 的学习到这里暂时结束，有空再补上 lazy 和 cow 的思考，开了个新坑：6.824 。
+</content:encoded></item><item><title>MapReduce</title><link>https://jblueberry.github.io/posts/mr/</link><guid isPermaLink="true">https://jblueberry.github.io/posts/mr/</guid><pubDate>Sun, 21 Jul 2024 08:37:02 GMT</pubDate><content:encoded>
+6.824 lab1 的 notes。
+
+&lt;!--more--&gt;
+
+## MapReduce
+
+简言之，MapReduce 是一种 programming model。
+
+### Map 和 Reduce
+
+输入是一个 KV 集合，输出也是一个 KV 集合，用户可以自行实现 Map 和 Reduce。
+
+- Map 接收一个 KV `&lt;k1,v1&gt;` 作为输入，输出一个 KV 集合 `list(&lt;k2, v2&gt;)`，集合被称为 intermediate KV pairs；
+- 对 intermediate 中相同 key 的数据进行聚合，这一步称为 Shuffle；
+- 将 Shuffle 好的数据传给 Reduce，每一个 `&lt;k2, list(v2)&gt;` 最终将映射到另一个集合 `&lt;k2, v3&gt;`。
+
+```
+map: &lt;k1,v1&gt; -&gt; list(&lt;k2,v2&gt;)
+shuffle: list(&lt;k2, v2&gt;) -&gt; list(&lt;k2, list(v2)&gt;)
+reduce: &lt;k2,list(v2)&gt; -&gt; &lt;k2, v3&gt;
+```
+
+![mr](../attachments/mr.drawio.png)
+
+1. 将输入数据分割为 M 个 splits；
+2. 一共有 M 个 map 任务和 R 个 reduce 任务；
+3. 如果一个 worker 被分配了一个 map 任务，那它会读取特定的那个 split ，从数据中提取出 KV 对集合传输给用户定义的 `Map` 函数，`Map` 函数产生的 intermediate KV 对存在内存缓冲区中；
+4. 内存缓冲区中的 intermediate 数据会被周期性写到磁盘上并被分割为 R 个 intermediate；
+5. 如果一个 worker 被分配了一个 map 任务，会通过 RPC 读取该任务对应的 intermediate data，并调用 `Reduce`；
+6. master 负责指派、协调 map worker 和 reduce worker。
+
+### Google 的 MapReduce Implementation
+
+1. 机器大多是 x86 架构，跑 Linux ，内存 2-4 GB；
+2. 商用网络，通常是 100 Mb/s 或者 1Gb/s；
+3. 一个集群有上百或者上千个机器，出故障很正常；
+4. 用便宜的 IDE 硬盘直接保存每个机器自己的数据，用内部开发的分布式文件系统来管理文件；
+5. 用户向一个调度系统提交 jobs ，每个 job 是一个 task 集合，由调度系统来分配到集群中的可用机器上。
+
+## 6.824 lab1
+
+一些自己的思路。
+
+- master 管理 task 的状态，M 个 mapTask 和 R 个 reduceTask；
+- 整个过程分为 2 个 phase，mapPhase 和 reducePhase，因为 reduceTask 需要从每个完成的 mapTask 中的部分数据进行 shuffle；
+- master 在 assign task 给 worker 后启动定时器，如果时间耗尽时该 task 还未完成，该 task 变回 unassigned 状态；
+</content:encoded></item><item><title>Cheatsheet of MultiPaxos PaxosMMC Made Simple</title><link>https://jblueberry.github.io/posts/paxos/</link><guid isPermaLink="true">https://jblueberry.github.io/posts/paxos/</guid><pubDate>Sun, 21 Jul 2024 08:37:02 GMT</pubDate><content:encoded>
+My Design for [PMMC](https://paxos.systems/).
+
+&lt;!--more--&gt;
+
+Due to the fact that in the PMMC paper, the three roles (replica, leader and acceptor) are treated as three distinct processes, whereas actual implementation requires a Paxos server to behave with all three roles simultaneously, there is a considerable gap between the paper and the implementation.
+
+Furthermore, the leader&apos;s phase 1 and phase 2 require the creation of sub-processes called &quot;scout&quot; and &quot;commander&quot; respectively, which makes the conversion from this design pattern to a single-threaded design quite challenging.
+
+Additionally, it is necessary to implement a stable active leader and a garbage collection mechanism similar to Raft to ensure the liveness and availability of the system.
+
+## Paxos Roles
+
+Paxos Made Moderately Complex is still a Paxos protocol, but it attempts to reach consensus on a sequence of consecutive values. Therefore, it also has the two phases of the basic Paxos protocol, phase 1 and phase 2.
+
+In my opinion, phase 1 is the process where a proposer competes to obtain the right to speak, while phase 2 is the process where it starts to give orders after obtaining the right to speak.
+
+Therefore, the process of phase 1 can be seen as a leader trying to become an active leader, while the behavior of phase 2 is the active leader attempting to synchronize with other passive leaders after receiving a client request. The behavior pattern here is different from that in the PMMC paper. In the paper, after receiving a client request, replicas broadcast it to the leaders, and the leaders, after receiving the proposal from the replicas, compete to synchronize it with the acceptors. In the unified three-role model, each replica is also a leader, so whenever it receives any request, it directly hands it over to the leader for processing (instead of broadcasting it). The leader is responsible for achieving consensus on the request with others. Furthermore, passive leaders can ignore client requests and passively wait for synchronization from the active leader.
+
+The behavior of the acceptor is very similar to that in the paper. Interestingly, the acceptor and replica will share a slot set (actually, a key-value map with the key being the slot number). In the PMMC paper, the acceptor has three sets: requests, proposals, and decisions. By directly handing the client request over to itself (the leader) for processing, we eliminate the dependency on the requests set.
+
+Based on the implementation in lab1, the at-most-once semantics were utilized, which means that an active leader can blindly put a proposal into a slot and start syncing without worrying about whether the command has already existed. In addition, in the original PMMC paper, both acceptors and leaders maintain a proposals set, but in the current design pattern, acceptors also act as leaders and thus do not need to maintain a separate proposals set. Instead, the proposals set, decisions set, and acceptor&apos;s accepted set are combined into a slots map, as mentioned earlier.
+
+## Stable Leader Election
+
+The process of election itself is to go through the phase 1 process of Paxos. Raft also uses a similar approach, but it does not specifically wrap term and server index into a ballot. The key to a successful election lies in two points: 1) obtaining at least a majority of the votes as quickly as possible (determined by the phase 1 responses); 2) sending an active leader heartbeat to all other leaders as quickly as possible before others increment their ballot and issue a new election. Therefore, choosing the right interval for sending heartbeats and starting a new election is crucial to prevent a livelock situation where every server keeps self-nominating itself as the active leader but never achieves stability.
+
+## Slot Map
+
+The slot map is an interesting data structure used to store key-value pairs of slot numbers and their corresponding slots. Each slot logically consists of two components: the command itself (which includes its source, i.e. the client address), and the state of the slot.
+
+The state of a slot can be one of three: created, accepted, or chosen. As I mentioned earlier, only the active leader will handle client requests. Therefore, when the active leader creates a slot for a particular request, the initial state of that slot should be &quot;created&quot;.
+
+When the active leader tries to propagate the slot information to acceptors (i.e., Paxos phase 2 requests), the acceptor will check if the request is indeed from the active leader it has accepted. If so, the acceptor will overwrite the entry in its slot map for that slot number with the command and mark it as &quot;accepted.&quot; Note that if the acceptor&apos;s local slot map does not have an entry for that slot number, it will simply create one. If there is already an entry, but the command is different from the content of the phase 2 request, the acceptor needs to decide whether to overwrite it. Here, we see that the slot&apos;s content is not enough because the acceptor will not blindly accept phase 2 requests (e.g., a late phase 2 request). Therefore, the slot should also record the latest relevant ballot for that slot. In the previous situation, acceptors will check the latest related ballot in the slot, and if the ballot of the phase 2 request is newer, it will overwrite it. And by the way, since the leader is also an acceptor, it does not need to send a phase 2 request to itself. Instead, it can use a simple local method call to replace the RPC request.
+
+After discussing the behavior of acceptors, let&apos;s talk about the behavior of replicas. Replicas still accept decisions, which need to contain at least the slot number and slot content. In theory, replicas will blindly accept decisions because Paxos&apos; safety guarantees that the same slot number cannot have two different contents selected, and therefore, there will not be two different decisions for the same slot number. Hence, when a replica receives a decision, it simply needs to set the corresponding slot&apos;s status to &quot;chosen&quot;.
+
+## Execution
+
+Next, let&apos;s talk about how to execute slots with a slot map. We need to maintain two variables: slot in and slot out. Slot out represents the number of the next slot to be executed, and slot in represents the next available slot number to be added to the slot map.
+
+Some places (moments) where we need to try to perform:
+
+1. When a slot receives agreement from more than half of the nodes (through Paxos phase 2 process), the active leader marks it as chosen and tries to perform it;
+2. When a passive leader receives a decision;
+3. When a leader becomes an active leader.
+
+It can be observed that each time a slot is marked as chosen, it will be attempted to perform, but why is it attempted to perform? This is because only the slot at slot out can be attempted to execute, and multi-paxos supports out-of-order commit. There is a high probability that the slot at slot out has not been committed, while some slots behind it have already been committed, so we have to wait. Therefore, the logic in perform needs to be looped to ensure that a series of continuous slots that have been committed are completed at once to ensure efficiency.
+
+## Scout &amp; Commander
+
+In the PMMC paper, both of scout and commander are presented as sub-processes of the leader. But in a single-threaded implementation, they need to be redesigned.
+
+Scout is relatively simple. Scout is like an agent of the leader, who sends phase 1 requests instead of the leader, and ultimately helps leader to compete to become the active leader. Therefore, logically speaking, a passive leader needs a scout after initiating an election, while an active leader no longer needs that scout. In addition, at any given time, each leader needs at most one scout working. For this pattern, the simplest solution is to have the leader hold a scout object, which is not null while the leader is campaigning and is set to null after the campaign ends (regardless of success). You can write many assert statements to periodically check this in various parts of the code.
+
+For commander, it&apos;s not as straightforward as scout. In the PMMC paper, the lifecycle of each commander is tied to a slot, and its responsibility is to attempt to synchronize that slot to other acceptors through the Paxos phase 2 process. In a single-threaded implementation, to achieve the same thing, it is necessary to create additional information to indicate that a specific slot number is being synchronized. A simple pattern is to use an extra map.
+
+In addition, in PMMC, phase 2 responses only carry information about the ballot number, because each commander, as a subprocess, has its own independent endpoint. Once it receives a response, it knows that the response is definitely related to the slot bound to its own lifecycle. However, in a single-threaded environment, we cannot determine which slot number a phase 2 response is targeting when there is only one ballot in the response. Therefore, it is necessary to add additional information in the phase 2 response to solve this problem.
+
+## Decision Sending and Garbage Collection
+
+Finally, let&apos;s briefly talk about the timing of sending decisions. The timing of decision sending can be implemented in various ways. First of all, due to the safety of the Paxos protocol, once a slot is set to the chosen state, it will not be discarded (think about the accepted values in the phase 1 reply). Therefore, it is only necessary to design a mechanism for the active leader to synchronize the decision with others at an appropriate time point that others do not know.
+
+One option is to broadcast decisions after a commander (logically) collects enough phase 2 replies and sets the corresponding slot to chosen. However, this is not safe, because decisions can be lost in transmission, and you cannot guarantee that you don&apos;t need to broadcast them again after broadcasting them once. And once a commander has synchronized its responsible slot to the majority, its lifecycle should end.
+
+So leaving the decision sending to the commander has a relatively large burden. A more clever approach is to include decision in the heartbeat message. When an active leader sends a heartbeat to a passive leader, it can attach the next decision that the passive leader needs in the heartbeat message. One may wonder how the active leader knows what decision the passive leader needs. Therefore, it is necessary to introduce a reply to the heartbeat. The passive leader needs to reply to the heartbeat and tell the active leader which slot number&apos;s decision it needs next. When the active leader knows this and the slot corresponding to that slot number is indeed chosen, it will attach it in the next heartbeat message.
+
+Indeed, this mechanism also enables garbage collection. The active leader can collect information about the next slot number needed by each passive leader. In other words, all the slots before that slot number have been executed by that passive leader. By collecting this information, active leader can calculate which slots have been executed by everyone and safely remove them from the slot map. This information can also be communicated to passive leaders by some means. When a passive leader knows that certain slots have been removed from the slot map by the active leader, it can confidently remove them as well. This mechanism can be used to implement garbage collection.
+</content:encoded></item><item><title>Raft Notes</title><link>https://jblueberry.github.io/posts/raft/</link><guid isPermaLink="true">https://jblueberry.github.io/posts/raft/</guid><pubDate>Sun, 21 Jul 2024 08:37:02 GMT</pubDate><content:encoded>
+2023.02.05 update: 实际上这个 lab 我做的复杂了，不一定需要用条件变量。
+
+2024.07.21 update: 从现在的经验上看，用多线程或者 goroutine 是很危险的事情。
+&lt;!--more--&gt;
+
+## Raft
+
+Raft 是简化版的、工程化的 Paxos，分成了 Leader election、Log replication 和 Safety 三个相对独立的模块。
+
+[Extended Raft paper](https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf) 详细阐明了 Raft 的逻辑，6.824 的 2A、2B 和 2C 都可以用 paper 里的 Figure 2 来概括。
+
+![Raft](../attachments/raft.png)
+
+### Leader election
+
+1. 每一个 server 都有内部的 term （从 1 开始）和投票状态 `votedFor`。term 在 Raft 中是一个非常特殊的状态变量，对于某一个 server 来说，只有在**在一定时间没有收到 leader 的 heartbeat** 后（包括出现 split votes 的情况下），才会引发 term 的自增，而 term 的自增总会伴随着一阵新的 election。
+2. 每一个 candidate 向 peer 发送 `RequestVote` 后，如果得到了超过半数的 votes，便会转化为 leader。自此，该 server 会尝试着维持现在的 term，并作为 leader 周期性 heartbeat followers。
+3. 当 follower 收到某个 leader 的 heartbeat 后，如果（在这个 RPC 中）该 leader 的 term 比自己的 term 小（这意味着该 leader 不应该再是 leader，因为一定存在一个 server 已经自增 term 并尝试成为新的 leader），此时需要将该信息 response 给该 leader，让其退化为 follower。**这里的该 leader 的真实状态不一定真的是 leader，因为可能存在网络延迟的问题，这个 heartbeat RPC 被推迟送达。**
+4. 当某个 leader 的 heartbeat 信息中的 term 大于等于 follower 的 term 时，follower **无条件**认可该 leader 的信息。可能会觉得 follower 的行为过于被动，但是 follower 用 **term** 对 leader 的 check 本身就保证了安全性。**对于每一个 follower 本身来说，只要 leader 的 term 至少比我的 term 大，那它的状态便是超前于我的，我便可以接受它的指令，即使它现在可能早就不是 leader 了。**
+5. Raft 采用 random election timeouts 来避免 split votes。
+
+### Log replication
+
+1. 每一个 leader 需要维护 peers 的 matchIndex 和 nextIndex 状态。
+   1. 每一个 heartbeat RPC 里携带了需要给该 follower 同步的 log entries，在 [Extended Raft paper](https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf) 里每个 RPC 只有一个或者零个（pure heartbeat），但是在 6.824 lab2C 里会优化这个机制，让每个 RPC 携带多个 entries，提高效率。**而对于每个 follower 来说，其 heartbeat RPC 里要放哪些 entries，取决于该 leader 为其维护的 nextIndex。**
+   2. 当某个 heartbeat 携带了 entries 并得到了对方 follower 的肯定回复时，该 leader 便可以断定该 follower 已经同步了 heartbeat 中涵盖的 log 信息，也就是，完成了 replication，此时可以修改该 follower 的 matchIndex 和 nextIndex。
+   3. 每一个 heartbeat RPC 都包含着发送该 RPC 的 leader 认为该 follower 当前所需要同步的 entry index。显然这并不是任何时候都成立的，因此，对于某个 follower，假如该 heartbeat 是合法的（term checked），但是 leader 搞错了 follower 实际需要的 entry index，follower 便会返回 `false`，让 leader 去修正其为该 follower 维护的 nextIndex，**直到被 follower 肯定回复**。
+   4. 在某个 server 刚刚转化为 leader 时，初始化每个 follower 的 matchIndex 为 `0`，并初始化每个 follower 的 nextIndex 为 `nextLogIndex`。每一个 server 的 `nextLogIndex` 是该 server 下一个 potential log entry 的 index。
+2. 每一个 server 都需要维护 commitIndex 和 lastApplied。commitIndex 表示：到 commitIndex 之前，所有的 log entry 都被该系统中的 majority 所认可，可以直接放心作用于状态机；lastApplied 表示当前真正已经被作用于状态机（这个动作称为 apply）的最后一个 entry 的 index。
+   1. 对于 leader 来说，由于外部（上层应用的）entry 只能被 leader 所接受，而也只有 leader 会尝试将 entry 同步给 followers，因此 leader 会在某些 entry 被大部分机器所承认时，**主动**修改 commitIndex（在这里，这些 entry 被成为**被 commit** 了。），并将其作为 heartbeat RPC 的一部分信息同步给 followers；
+   2. 对于 follower 来说，所有对 commitIndex 的修改都源自于 leader 的 heartbeat。在一般情况下，当 leader 的 commitIndex 大于自身的时，便同步成 leader 的。
+   3. 每一个 server 都需要检查自身的 commitIndex 和 lastApplied，当前者大于后者时，便意味着有事情做了，可以把一些 entry 给 apply 掉了。
+
+### Safety
+
+Leader election 和 log replication 显然是需要某些约束才能保证 Raft 的正确性的。[Extended Raft paper](https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf) 中笼统概括了一些 Safety properties，但是在写 lab 的时候，其实有更多的细节需要去考虑到。
+
+1. 首先，当所有的 RPC 中包含的 term 小于 server 自身的 term 时，忽略它，或者是返回 `false`（如果有）。
+2. 当一个 candidate 向其他 server requests votes 时，对于某一个特定的 server，只有该 candidate 的 log 与它自己的 log 相比 **least as up-to-date** 时，才会给予 vote。Log 之间的 up-to-date 是一个非常微妙的比较关系，参考 paper 第 8 页。
+3. Leader 绝对不可以 commit 不是当前 term 的 entry，即使它确实已经被集群 majority 所共识。该性质解决了 paper 中 Figure 8 阐述的问题，简单来说便是，如果 leader 可以随意 commit 任意被集群多数所共识的 entry，会产生某个 index 的 entry 被 apply 多次的灾难现象，而这是绝对不允许的。[这篇知乎文章](https://zhuanlan.zhihu.com/p/369989974)详细解释了 Figure 8，并使用了一个 no-op 来解决这个问题，我最后的代码实现并没有采用额外的 no-op 来做这件事，而是**在 leader 尝试进行 commitIndex 前，进行额外的 term 对比**，假如该 leader 只能找到不是当前 term 的、但是被多数机器所认可的 entry，便**不修改 commitIndex**。
+
+## 6.824 lab2
+
+即使看懂了 paper 里 election、replication 和 safety 的三块阐述，编写 lab2 时还是会出现各种各样的奇怪 bug，我最后的版本在连续跑了 800 次 test 后没有报错，提一些细节处理。
+
+1. 控制锁的粒度，就像 [6.824 助教说的](https://www.youtube.com/watch?v=UzzcUS2OHqo&amp;list=PLrw6a1wE39_tb2fErI4-WkMbsvGQk9_UB&amp;index=5)一样，千万不要用很多小锁来保护各种各样的 shared data，锁的粒度太小时跟没有锁是一样的。**锁的终极目的，并不是为了保护 shared data 的原子读写，而是让某些代码（某些行为）连续发生，因此要站在程序运行的角度上去考虑锁的用处。**
+2. 尽量用一把大锁去保护临界区，控制并发的力度，可以先从不并发的串行程序开始，小心慢慢提高并发的力度。并发的力度太大会导致很多难以理解的行为，个人建议只需让“真正发送 RPC” 这件事（也就是调用 Call）并发化，会减少很多问题的产生。
+3. `votedFor` 这个变量需要额外小心，它需要一个 default value（比如 `-1` ）。
+   1. 根据 Figure 2 和 [Raft 演示](https://raft.github.io)，当 follower 做出投票行为时，需要修改 `votedFor`；
+   2. 在 server 收到 RequestVote RPC 时，如果它在先前已经投票给了一个 server，而此时新的 candidate 的 term 更超前时，首先要修改 `votedFor` 为 default value（意味着回到没有给出投票的状态）；
+   3. 在 server 接收 leader 的 heartbeat 时，如果该 server 先前没有投票给该 leader，set `votedFor` to default value。拍脑袋一想，会觉得这是没有必要的，因为 2 已经保证了 election 开始时，server 会检查 term 重置 `votedFor`，但在网络不稳定的 Figure 8 的情况下，会更容易产生谁都选不上的活锁；
+   4. 在所有的 RPC 调用之后，需要检查 reply 中的 term，如果对方的 term 比自己还要超前，便退化为 follower，退化时也要 **set `votedFor` to default value**。
+4. 在 leader 真正发送 heartbeat RPC 和 candidate 真正发送 `ReuqustVote` 之前（调用 labrpc 中 Call 方法前），检查当前 go routine 是否已经过期。举个例子，因为调度器的原因，某个过期 leader 的 heartbeat routine 在它被其他 leader heartbeat 后才刚刚被调度运行，而此时的 term 已经超前于创建该 routine 时候的 term，需要设计一个机制来过滤这样的过期 routine（在创建时传入当前 term）；
+5. 用多个 routine 对 commitIndex 和 lastApplied 进行监控，用条件变量进行 routine 之间的通信；
+6. 对 nextIndex 定位的优化可以参考 [6.824 助教的文章](https://thesquareplanet.com/blog/students-guide-to-raft/)，这篇文章也提到了许多实现 Raft 时需要注意的细节。要注意，这篇文章假定了 log entry 的 index 从 0 开始，如果你和我一样严格遵守 Figure 2 让 entry index 从 1 开始，需要自己在其思路上额外做一些修改，**并且在完成 lab2D Snapshot 部分时，也需要针对该 optimization 再处理一些额外的边界条件**；
+7. 在发送 apply entry 时（发送 ApplyMsg 给 channel 时），需要注意**锁**。一个推荐的行为是，在等待 channel 消费 ApplyMsg 时把锁释放，换句话说，在 `rf.applyCh &lt;- msg` 前把锁释放，否则在 2D 有可能会产生无限等待的死锁情况（这个死锁还不会被检测到）。
+
+最终实现的版本的测试结果的 time consuming、RPC numbers 可以参考：
+```bash
+➜  raft git:(master) ✗ go test -race
+Test (2A): initial election ...
+  ... Passed --   3.0  3   74   24538    0
+Test (2A): election after network failure ...
+  ... Passed --   4.5  3  156   31934    0
+Test (2A): multiple elections ...
+  ... Passed --   5.5  7  636  138233    0
+Test (2B): basic agreement ...
+  ... Passed --   0.7  3   16    5272    3
+Test (2B): RPC byte count ...
+  ... Passed --   2.0  3   48  116836   11
+Test (2B): agreement after follower reconnects ...
+  ... Passed --   5.8  3  156   48680    8
+Test (2B): no agreement if too many followers disconnect ...
+  ... Passed --   3.7  5  248   56540    3
+Test (2B): concurrent Start()s ...
+  ... Passed --   0.7  3   14    4602    6
+Test (2B): rejoin of partitioned leader ...
+  ... Passed --   4.2  3  182   44785    4
+Test (2B): leader backs up quickly over incorrect follower logs ...
+  ... Passed --  20.3  5 2256 1296886  102
+Test (2B): RPC counts aren&apos;t too high ...
+  ... Passed --   2.2  3   50   17328   12
+Test (2C): basic persistence ...
+  ... Passed --   4.0  3  112   31325    6
+Test (2C): more persistence ...
+  ... Passed --  16.6  5 1168  272848   16
+Test (2C): partitioned leader and one follower crash, leader restarts ...
+  ... Passed --   1.8  3   42   12032    4
+Test (2C): Figure 8 ...
+  ... Passed --  34.7  5 1528  341677   36
+Test (2C): unreliable agreement ...
+  ... Passed --   4.2  5  212   84694  246
+Test (2C): Figure 8 (unreliable) ...
+  ... Passed --  38.8  5 4064 7936640  209
+Test (2C): churn ...
+  ... Passed --  16.6  5  912  837728  251
+Test (2C): unreliable churn ...
+  ... Passed --  16.3  5  620  216412   50
+Test (2D): snapshots basic ...
+  ... Passed --   5.6  3  140   57416  220
+Test (2D): install snapshots (disconnect) ...
+  ... Passed --  62.2  3 1758  727536  308
+Test (2D): install snapshots (disconnect+unreliable) ...
+  ... Passed --  75.2  3 2098  838116  355
+Test (2D): install snapshots (crash) ...
+  ... Passed --  32.3  3  818  412298  335
+Test (2D): install snapshots (unreliable+crash) ...
+  ... Passed --  38.0  3  956  409544  268
+Test (2D): crash and restart all servers ...
+  ... Passed --  10.0  3  248   84358   53
+PASS
+ok      6.824/raft      410.052s
+```</content:encoded></item></channel></rss>

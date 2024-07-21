@@ -1,0 +1,1 @@
+import{i}from"./index.BqnU_0p0.js";i();

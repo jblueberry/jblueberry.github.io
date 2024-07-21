@@ -11,7 +11,7 @@ export const PageSize = 15;
 // socialPlatform => userName
 // check components/Header.astro socialConfig for more info
 export const Socials: Record<string, Record<string, string>> = {
-	mail: { url: 'edison.jzhu@gmail.com' },
+	mail: { url: 'mailto:edison.jzhu@gmail.com' },
 	github: { url: 'https://github.com/jblueberry' },
 	// x: { url: 'https://x.com/userName' },
 	// mastodon: { url: 'https://mastodon.social/@userName' },

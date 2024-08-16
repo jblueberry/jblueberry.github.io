@@ -68,9 +68,7 @@
 	},
 	"overrides": {
 		"sharp": "^0.33.3",
-		    "astro-icon": {
-		      "@iconify/tools": "^4.0.0"
-		    }
+      		"@iconify/tools": "^4.0.5"
 	},
 	"trustedDependencies": ["@biomejs/biome", "esbuild", "sharp"]
 }

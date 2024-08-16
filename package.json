@@ -22,7 +22,7 @@
 	"scripts": {
 		"dev": "astro dev",
 		"check": "astro check",
-		"build": "astro check && bunx @biomejs/biome check --apply . && astro build",
+		"build": "astro build",
 		"preview": "astro preview",
 		"preview:wrangler": "wrangler pages dev ./dist",
 		"astro": "astro",

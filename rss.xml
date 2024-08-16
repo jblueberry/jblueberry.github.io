@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Junhui&apos;s garage</title><description>再见无脚鸟</description><link>http://jzhu.xyz/</link><item><title>Notes of 6.S081</title><link>http://jzhu.xyz/posts/6828/</link><guid isPermaLink="true">http://jzhu.xyz/posts/6828/</guid><pubDate>Fri, 16 Aug 2024 05:11:23 GMT</pubDate><content:encoded>
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Junhui&apos;s garage</title><description>再见无脚鸟</description><link>http://jzhu.xyz/</link><item><title>Notes of 6.S081</title><link>http://jzhu.xyz/posts/6828/</link><guid isPermaLink="true">http://jzhu.xyz/posts/6828/</guid><pubDate>Fri, 16 Aug 2024 05:40:55 GMT</pubDate><content:encoded>
 因为其实一直都没有好好读过 OSTEP，所以我在最近一周一口气把这本书读完了，但还是感觉不够，因为我知道要学会这玩意必须要 make hands dirty。于是准备快速的把 6.S081 过完，然后把 lab 做掉，再配合读 xv6 的代码。
 
 ## System call
@@ -610,7 +610,7 @@ sys_sbrk(void)
 ***
 
 2021 年 8 月 10 日，此时我已经做完了 lazy lab 和 cow lab。由于对并发的 lab 并不感兴趣，持久化的内容准备下学期在 CSE 上再学，因此 6.S081 的学习到这里暂时结束，有空再补上 lazy 和 cow 的思考，开了个新坑：6.824 。
-</content:encoded></item><item><title>MapReduce</title><link>http://jzhu.xyz/posts/mr/</link><guid isPermaLink="true">http://jzhu.xyz/posts/mr/</guid><pubDate>Fri, 16 Aug 2024 05:11:23 GMT</pubDate><content:encoded>
+</content:encoded></item><item><title>MapReduce</title><link>http://jzhu.xyz/posts/mr/</link><guid isPermaLink="true">http://jzhu.xyz/posts/mr/</guid><pubDate>Fri, 16 Aug 2024 05:40:55 GMT</pubDate><content:encoded>
 6.824 lab1 的 notes。
 
 &lt;!--more--&gt;
@@ -657,7 +657,7 @@ reduce: &lt;k2,list(v2)&gt; -&gt; &lt;k2, v3&gt;
 - master 管理 task 的状态，M 个 mapTask 和 R 个 reduceTask；
 - 整个过程分为 2 个 phase，mapPhase 和 reducePhase，因为 reduceTask 需要从每个完成的 mapTask 中的部分数据进行 shuffle；
 - master 在 assign task 给 worker 后启动定时器，如果时间耗尽时该 task 还未完成，该 task 变回 unassigned 状态；
-</content:encoded></item><item><title>Multi-Paxos Cheat Sheet</title><link>http://jzhu.xyz/posts/paxos/</link><guid isPermaLink="true">http://jzhu.xyz/posts/paxos/</guid><pubDate>Fri, 16 Aug 2024 05:11:23 GMT</pubDate><content:encoded>
+</content:encoded></item><item><title>Multi-Paxos Cheat Sheet</title><link>http://jzhu.xyz/posts/paxos/</link><guid isPermaLink="true">http://jzhu.xyz/posts/paxos/</guid><pubDate>Fri, 16 Aug 2024 05:40:55 GMT</pubDate><content:encoded>
 My Design for [PMMC](https://paxos.systems/).
 
 There is no implementation code, only macroscopic ideas, which are heuristic for [6.824](http://nil.csail.mit.edu/6.824/2022/) (of course you can implement MultiPaxos as Raft-alternative) or [CS5223](https://nusmods.com/courses/CS5223/distributed-systems).
@@ -729,7 +729,7 @@ One option is to broadcast decisions after a commander (logically) collects enou
 So leaving the decision sending to the commander has a relatively large burden. A more clever approach is to include decision in the heartbeat message. When an active leader sends a heartbeat to a passive leader, it can attach the next decision that the passive leader needs in the heartbeat message. One may wonder how the active leader knows what decision the passive leader needs. Therefore, it is necessary to introduce a reply to the heartbeat. The passive leader needs to reply to the heartbeat and tell the active leader which slot index&apos;s decision it needs next. When the active leader knows this and the slot corresponding to that slot index is indeed chosen, it will attach it in the next heartbeat message.
 
 Indeed, this mechanism also enables garbage collection. The active leader can collect information about the next slot index needed by each passive leader. In other words, all the slots before that slot index have been executed by that passive leader. By collecting this information, active leader can calculate which slots have been executed by everyone and safely remove them from the slot map. This information can also be communicated to passive leaders by some means. When a passive leader knows that certain slots have been removed from the slot map by the active leader, it can confidently remove them as well. This mechanism can be used to implement garbage collection.
-</content:encoded></item><item><title>Raft Notes</title><link>http://jzhu.xyz/posts/raft/</link><guid isPermaLink="true">http://jzhu.xyz/posts/raft/</guid><pubDate>Fri, 16 Aug 2024 05:11:23 GMT</pubDate><content:encoded>
+</content:encoded></item><item><title>Raft Notes</title><link>http://jzhu.xyz/posts/raft/</link><guid isPermaLink="true">http://jzhu.xyz/posts/raft/</guid><pubDate>Fri, 16 Aug 2024 05:40:55 GMT</pubDate><content:encoded>
 2023.02.05 update: 实际上这个 lab 我做的复杂了，不一定需要用条件变量。
 
 2024.07.21 update: 从现在的经验上看，用多线程或者 goroutine 是很危险的事情。

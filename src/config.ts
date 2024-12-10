@@ -3,8 +3,8 @@ import type { PostHideElements } from '~/content/config';
 export const Site = 'https://jzhu.xyz';
 export const SiteLanguage = 'zh';
 export const SiteTitle = "Junhui's garage";
-export const SiteDescription = '再见无脚鸟';
-export const FooterDescription = 'In Search of Identity';
+export const SiteDescription = 'Welcome to connect';
+// export const FooterDescription = 'In Search of Identity';
 export const AdminName = 'Junhui';
 export const PageSize = 15;
 

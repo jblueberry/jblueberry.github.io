@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import satori, { type SatoriOptions } from 'satori';
 import sharp from 'sharp';
-import { FooterDescription, Site, SiteDescription, SiteTitle } from '~/config';
+import { Site, SiteDescription, SiteTitle } from '~/config';
 
 // satori may have bug when rendering <img src="data:image/svg+xml;base64,...">. You can convert to png like below:
 // const logoImage =
@@ -97,7 +97,6 @@ export async function siteOpenGraph() {
 				</div>
 			</div>
 			<div tw="mt-5 flex flex-col items-center text-xl">
-				<div>{FooterDescription}</div>
 				<div tw="text-neutral-400">{`© ${new Date().getFullYear()} ${Site}`}</div>
 			</div>
 		</div>
@@ -137,7 +136,6 @@ export async function postOpenGraph({ title, description, tags }: Config) {
 				</div>
 			</div>
 			<div tw="mt-5 flex flex-col items-center text-xl">
-				<div>{FooterDescription}</div>
 				<div tw="text-neutral-400">{`© ${new Date().getFullYear()} ${Site}`}</div>
 			</div>
 		</div>

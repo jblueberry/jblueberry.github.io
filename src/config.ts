@@ -13,6 +13,7 @@ export const PageSize = 15;
 export const Socials: Record<string, Record<string, string>> = {
 	mail: { url: 'mailto:edison.jzhu@gmail.com' },
 	github: { url: 'https://github.com/jblueberry' },
+	linkedin: { url: 'https://www.linkedin.com/in/edison-z-65116b317' },
 	// x: { url: 'https://x.com/userName' },
 	// mastodon: { url: 'https://mastodon.social/@userName' },
 	// facebook: { url: 'https://facebook.com/userName' },

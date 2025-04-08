@@ -1,6 +1,4 @@
 ---
-import { Picture } from 'astro:assets';
-import img from '~/assets/cover.svg';
 import { SiteDescription, SiteTitle } from '~/config';
 import MarkdownLayout from '~/layouts/MarkdownLayout.astro';
 ---
@@ -12,7 +10,6 @@ import MarkdownLayout from '~/layouts/MarkdownLayout.astro';
 	currentNav="Home"
 >
 	<div class="flex flex-col items-center gap-4 xl:flex-row">
-		<Picture class="lg:max-w-md" src={img} loading="eager" />
 		<div>
 			<h1>Hello there!</h1>
 			<p>
